@@ -116,3 +116,6 @@ header.hero{position:relative}
 .reg-table td:first-child,.reg-table th:first-child{text-align:left}
 .dag{display:block;margin:10px auto;max-width:420px;width:100%;height:auto}
 .dag text{font:600 14px system-ui,sans-serif;fill:var(--text)}
+
+.autor-topo{margin:14px 0 0;font:600 15px/1.4 system-ui,sans-serif;color:var(--accent)}
+.autor{color:var(--text)}

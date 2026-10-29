@@ -2,6 +2,8 @@
 
 Materiais didáticos de Estatística e Econometria (Mestrado PROFINIT).
 
+Autor: Prof. Cleiton Franco — Universidade do Estado de Mato Grosso (UNEMAT).
+
 Comece pelo índice: [`stats/index.html`](stats/index.html).
 
 ## Conteúdos (`stats/`)
