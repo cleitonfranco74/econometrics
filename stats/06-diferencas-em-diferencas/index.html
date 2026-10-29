@@ -505,7 +505,7 @@ smf.ols("lcrimes ~ post_ifood + C(cod_mun) + C(ano)", data=d).fit(
   var es=[[2010,-3.33,3.26],[2011,-2.93,3.61],[2012,1.99,3.66],[2013,-0.61,3.47],[2014,0,0],
           [2015,29.81,3.62],[2016,30.71,3.55],[2017,37.58,3.41],[2018,41.85,3.46],[2019,50.97,3.51]];
   function drawES(){
-    var f=plotFrame(document.getElementById('esPlot'),{H:320,xlim:[2009.5,2019.5],ylim:[-15,62],xticks:[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019],xfmt:function(v){return String(v);},ylabel:'efeito (R$ per capita)'});
+    var f=plotFrame(document.getElementById('esPlot'),{H:320,xlim:[2009.5,2019.5],ylim:[-15,62],xticks:[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019],xfmt:function(v){return String(v);},xlabel:'ano',ylabel:'efeito (R$ per capita)'});
     f.svg.appendChild(svgEl('line',{x1:f.m.l,x2:f.W-f.m.r,y1:f.sy(0),y2:f.sy(0),stroke:css('--muted'),'stroke-width':1.2}));
     plotVLine(f,2014.5,css('--muted'),'4 4','programa');
     plotLine(f,[2009.5,2014.5],[0,0],css('--accent-2'),2,'7 5');
@@ -527,7 +527,7 @@ smf.ols("lcrimes ~ post_ifood + C(cod_mun) + C(ano)", data=d).fit(
     // contrafactual do DiD: tratados = controles + diferença média pré
     var shift=tA-cA;
     var all=T.concat(C), lo=Math.min.apply(null,all)-5, hi=Math.max.apply(null,all)+5;
-    var f=plotFrame(document.getElementById('dPlot'),{xlim:[0.5,10.5],ylim:[lo,hi],xticks:yrs,xfmt:function(v){return 'ano '+v;},ylabel:'resultado médio'});
+    var f=plotFrame(document.getElementById('dPlot'),{xlim:[0.5,10.5],ylim:[lo,hi],xticks:yrs,xfmt:function(v){return String(v);},xlabel:'ano (tratamento a partir do ano 6)',ylabel:'resultado médio'});
     plotVLine(f,5.5,css('--muted'),'4 4','tratamento');
     plotLine(f,yrs.slice(4),C.slice(4).map(function(c){return c+shift;}),css('--accent-2'),2,'7 5');
     plotLine(f,yrs,C,css('--bar'),2.5); plotPoints(f,yrs,C,css('--bar'),3.5,1);
@@ -561,7 +561,7 @@ smf.ols("lcrimes ~ post_ifood + C(cod_mun) + C(ano)", data=d).fit(
     var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals), pad=(hi-lo)*0.08||0.1;
     var ticks=[-5,-4,-3,-2,-1,0,1,2,3,4,5];
     var f=plotFrame(document.getElementById('vPlot'),{H:330,xlim:[-5.6,5.6],ylim:[lo-pad,hi+pad],xticks:ticks,
-      xfmt:function(v){return v===-5?'≤−5':v===5?'≥5':(v>0?'+':'')+String(v).replace('-','−');},xlabel:'anos desde a adoção'});
+      xfmt:function(v){return v===-5?'≤−5':v===5?'≥5':(v>0?'+':'')+String(v).replace('-','−');},xlabel:'anos desde a adoção',ylabel:'efeito estimado'});
     f.svg.appendChild(svgEl('line',{x1:f.m.l,x2:f.W-f.m.r,y1:f.sy(0),y2:f.sy(0),stroke:css('--muted'),'stroke-width':1.2}));
     plotVLine(f,-0.5,css('--muted'),'4 4','adoção');
     series.forEach(function(s){

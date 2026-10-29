@@ -495,17 +495,17 @@ summary(lm(`Receita de Vendas Online (bi USD)` ~ ., data = a))</code></pre></div
     var aux=ols(X2.map(function(z){return [1,z];}),X1), auy=ols(X2.map(function(z){return [1,z];}),Y);
     var rx=aux.resid, ry=auy.resid;
     var delta=ols(X1.map(function(x){return [1,x];}),X2).beta[1];
-    function panel(id,xs,ys,b0,b1,col){
+    function panel(id,xs,ys,b0,b1,col,xl,yl){
       var xr=[Math.min.apply(null,xs),Math.max.apply(null,xs)], yr=[Math.min.apply(null,ys),Math.max.apply(null,ys)];
-      var f=plotFrame(document.getElementById(id),{W:400,H:300,xlim:xr,ylim:yr,margin:{l:40,r:10,t:10,b:30}});
+      var f=plotFrame(document.getElementById(id),{W:400,H:300,xlim:xr,ylim:yr,xlabel:xl,ylabel:yl,margin:{l:50,r:10,t:10,b:40}});
       plotPoints(f,xs,ys,css('--muted'),2.3,0.4);
       plotLine(f,xr,xr.map(function(x){return f.clip(b0+b1*x);}),col,3);
       var mx=mean(xs),my=mean(ys);
       plotLine(f,xr,xr.map(function(x){return f.clip(my+1*(x-mx));}),css('--accent-2'),2,'7 5');
     }
-    panel('oP1',X1,Y,shortM.beta[0],shortM.beta[1],css('--bar'));
+    panel('oP1',X1,Y,shortM.beta[0],shortM.beta[1],css('--bar'),'x₁','y');
     var fwl=ols(rx.map(function(x){return [1,x];}),ry);
-    panel('oP2',rx,ry,fwl.beta[0],fwl.beta[1],css('--ok'));
+    panel('oP2',rx,ry,fwl.beta[0],fwl.beta[1],css('--ok'),'x̃₁ (resíduo de x₁ em x₂)','ỹ (resíduo de y em x₂)');
     var items=[['β̂₁ regressão curta',fmt(shortM.beta[1])],['β̂₁ regressão longa',fmt(longM.beta[1])],['β̂₁ via FWL',fmt(fwl.beta[1])],
       ['δ̃ (regressão de x₂ em x₁)',fmt(delta)],['β̂₂ · δ̃ (viés)',fmt(longM.beta[2]*delta)],['Efeito verdadeiro','1,000']];
     document.getElementById('oOut').innerHTML=items.map(function(it){return '<div class="stat"><div class="k">'+it[0]+'</div><div class="v">'+it[1]+'</div></div>';}).join('');

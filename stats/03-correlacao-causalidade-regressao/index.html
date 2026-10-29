@@ -271,11 +271,11 @@ regress vendas publicidade tamanho</code></pre></div>
 
 <h3>7.1 Sorvete e afogamentos: o confundidor clássico</h3>
 <p>Em uma cidade litorânea, as vendas de sorvete e o número de afogamentos sobem e descem juntos: são altos no verão e baixos no inverno (<a href="../dados_caso/sorvete_afogamentos_aula.csv" download><code>sorvete_afogamentos_aula.csv</code></a>).</p>
-<div class="chart wide" style="margin:12px 0"><h4>Vendas de sorvetes e afogamentos ao longo do ano (escalas à esquerda e à direita)</h4><svg id="gSorvAula" viewBox="0 0 560 280" role="img" aria-label="Séries mensais de sorvete e afogamentos"></svg>
+<div class="chart wide" style="margin:12px 0"><h4>Vendas de sorvetes e afogamentos ao longo do ano (escalas à esquerda e à direita)</h4><svg id="gSorvAula" viewBox="0 0 560 300" role="img" aria-label="Séries mensais de sorvete e afogamentos"></svg>
   <div class="legend"><span style="--c:var(--bar)">vendas de sorvetes (eixo esquerdo)</span><span style="--c:var(--accent-2)">afogamentos (eixo direito)</span></div></div>
 <p>A correlação é <strong>r = 0,98</strong>, e a regressão \(\widehat{afogamentos}=-26{,}2+0{,}371\times vendas\) tem \(R^2=0{,}96\). Proibir o sorvete reduziria os afogamentos? Não: o <strong>calor</strong> leva as pessoas a tomar sorvete <em>e</em> a ir à praia. É um confundidor.</p>
 <p><strong>Controlando a temperatura.</strong> Para ver isso nos números, a série ilustrativa de 36 meses (<a href="../dados_caso/sorvete_afogamentos.csv" download><code>sorvete_afogamentos.csv</code></a>) acrescenta a temperatura média de cada mês:</p>
-<div class="chart wide" style="margin:12px 0"><h4>Série ilustrativa de 36 meses (escalas à esquerda e à direita)</h4><svg id="gSorv" viewBox="0 0 560 260" role="img" aria-label="Séries mensais ilustrativas de sorvete e afogamentos"></svg>
+<div class="chart wide" style="margin:12px 0"><h4>Série ilustrativa de 36 meses (escalas à esquerda e à direita)</h4><svg id="gSorv" viewBox="0 0 560 290" role="img" aria-label="Séries mensais ilustrativas de sorvete e afogamentos"></svg>
   <div class="legend"><span style="--c:var(--bar)">vendas de sorvete (mil unid., eixo esquerdo)</span><span style="--c:var(--accent-2)">afogamentos (eixo direito)</span></div></div>
 <div class="table-wrap"><table class="reg-table">
 <thead><tr><th>Dependente: afogamentos</th><th>(1)</th><th>(2)</th></tr></thead>
@@ -288,9 +288,9 @@ regress vendas publicidade tamanho</code></pre></div>
 <h3>7.2 Correlações espúrias</h3>
 <p>O site <a href="https://www.tylervigen.com/spurious-correlations"><strong>Spurious Correlations</strong></a>, de Tyler Vigen, reúne pares de séries com correlações altíssimas e nenhuma relação plausível entre si (também publicado no livro <em>Spurious Correlations</em>, Hachette, 2015). Vale a visita em aula. Dois exemplos célebres:</p>
 <div class="charts" style="grid-template-columns:1fr">
-  <div class="chart wide"><h4>Consumo de margarina nos EUA × taxa de divórcios no Maine (2000–2009): r = 0,993</h4><svg id="gMarg" viewBox="0 0 560 280" role="img" aria-label="Séries de margarina e divórcios"></svg>
+  <div class="chart wide"><h4>Consumo de margarina nos EUA × taxa de divórcios no Maine (2000–2009): r = 0,993</h4><svg id="gMarg" viewBox="0 0 560 300" role="img" aria-label="Séries de margarina e divórcios"></svg>
     <div class="legend"><span style="--c:var(--bar)">margarina per capita (lb, eixo esquerdo)</span><span style="--c:var(--accent-2)">divórcios por mil hab. no Maine (eixo direito)</span></div></div>
-  <div class="chart wide"><h4>Filmes com Nicolas Cage × afogamentos em piscinas nos EUA (1999–2009): r = 0,666</h4><svg id="gCage" viewBox="0 0 560 280" role="img" aria-label="Séries de filmes e afogamentos"></svg>
+  <div class="chart wide"><h4>Filmes com Nicolas Cage × afogamentos em piscinas nos EUA (1999–2009): r = 0,666</h4><svg id="gCage" viewBox="0 0 560 300" role="img" aria-label="Séries de filmes e afogamentos"></svg>
     <div class="legend"><span style="--c:var(--bar)">filmes com Nicolas Cage (eixo esquerdo)</span><span style="--c:var(--accent-2)">afogamentos em piscina (eixo direito)</span></div></div>
 </div>
 <p class="hint">Margarina e divórcio: série original divulgada por Tyler Vigen (<a href="../dados_caso/margarina_divorcio_maine.csv" download><code>margarina_divorcio_maine.csv</code></a>; fontes: USDA e CDC). É a mesma do slide, com 8,2 lb em 2000 e r = 0,993.</p>
@@ -324,7 +324,7 @@ regress vendas publicidade tamanho</code></pre></div>
 
 <h3>7.4 Salário mínimo e cesta básica: correlação por tendência</h3>
 <p>Valores mensais de jan/2018 a out/2021 (<a href="../dados_caso/salario_minimo_cesta_basica.csv" download><code>salario_minimo_cesta_basica.csv</code></a>).</p>
-<div class="chart wide" style="margin:12px 0"><h4>Cesta básica e salário mínimo (R$, escalas à esquerda e à direita)</h4><svg id="gSal" viewBox="0 0 560 280" role="img" aria-label="Séries de cesta básica e salário mínimo"></svg>
+<div class="chart wide" style="margin:12px 0"><h4>Cesta básica e salário mínimo (R$, escalas à esquerda e à direita)</h4><svg id="gSal" viewBox="0 0 560 300" role="img" aria-label="Séries de cesta básica e salário mínimo"></svg>
   <div class="legend"><span style="--c:var(--bar)">cesta básica (eixo esquerdo)</span><span style="--c:var(--accent-2)">salário mínimo (eixo direito)</span></div></div>
 <ul>
 <li>A correlação entre os níveis é <strong>0,96</strong>: as duas séries sobem com a inflação. Mas a correlação entre as <strong>variações mensais</strong> é só 0,20. O salário mínimo muda uma vez por ano, em janeiro, e a cesta sobe todo mês.</li>
@@ -334,7 +334,7 @@ regress vendas publicidade tamanho</code></pre></div>
 
 <h3>7.5 Vacinação e óbitos: a correlação muda de sinal</h3>
 <p>Dez meses de uma campanha de vacinação (<a href="../dados_caso/vacinacao_obitos.csv" download><code>vacinacao_obitos.csv</code></a>): percentual da população com esquema completo e número de óbitos.</p>
-<div class="chart wide" style="margin:12px 0"><h4>% vacinados e óbitos por mês (escalas à esquerda e à direita)</h4><svg id="gVac" viewBox="0 0 560 280" role="img" aria-label="Séries de vacinação e óbitos"></svg>
+<div class="chart wide" style="margin:12px 0"><h4>% vacinados e óbitos por mês (escalas à esquerda e à direita)</h4><svg id="gVac" viewBox="0 0 560 300" role="img" aria-label="Séries de vacinação e óbitos"></svg>
   <div class="legend"><span style="--c:var(--bar)">% vacinados, esquema completo (eixo esquerdo)</span><span style="--c:var(--accent-2)">óbitos (eixo direito)</span></div></div>
 <ul>
 <li>No período todo, r = −0,40 (Spearman −0,26): uma correlação “fraca”. Mas ela esconde duas fases. De janeiro a abril, óbitos e vacinação <em>sobem juntos</em> (r = +0,996), porque a vacinação começa no meio de uma onda da doença. De abril a outubro, com a cobertura crescendo, os óbitos caem (r = −0,97).</li>
@@ -584,14 +584,15 @@ pwcorr _all, sig</code></pre></div>
 (function(){
   if(!window.CASOS3) return;
   function pad(lo,hi,f){var e=(hi-lo)*(f||0.08)||1;return [lo-e,hi+e];}
-  function dual(id,tempo,A,B,passo){
+  function dual(id,tempo,A,B,passo,nomeA,nomeB,nomeX){
     var n=A.length, ar=pad(Math.min.apply(null,A),Math.max.apply(null,A)), br=pad(Math.min.apply(null,B),Math.max.apply(null,B));
     var xs=A.map(function(_,i){return i;}), tk=xs.filter(function(i){return i%(passo||1)===0;});
     var f=plotFrame(document.getElementById(id),{H:+document.getElementById(id).getAttribute('viewBox').split(' ')[3],xlim:[-0.5,n-0.5],ylim:ar,
-      xticks:tk,xfmt:function(v){return tempo[v]||'';},margin:{l:48,r:48,t:12,b:34}});
+      xticks:tk,xfmt:function(v){return tempo[v]||'';},margin:{l:66,r:66,t:12,b:44},
+      xlabel:nomeX||'',ylabel:nomeA,ylabel2:nomeB,ylabelColor:css('--bar'),ylabel2Color:css('--accent-2')});
     var toA=function(b){return ar[0]+(b-br[0])/(br[1]-br[0])*(ar[1]-ar[0]);};
     niceTicks(br[0],br[1],5).forEach(function(v){
-      f.svg.appendChild(svgEl('text',{x:f.W-f.m.r+6,y:f.sy(toA(v))+4,'text-anchor':'start',style:'fill:'+css('--accent-2')},tickLabel(v)));});
+      f.svg.appendChild(svgEl('text',{x:f.W-f.m.r+8,y:f.sy(toA(v))+4,'text-anchor':'start',style:'fill:'+css('--accent-2')},tickLabel(v)));});
     plotLine(f,xs,A,css('--bar'),2.6); plotPoints(f,xs,A,css('--bar'),2.6,1);
     plotLine(f,xs,B.map(toA),css('--accent-2'),2.6); plotPoints(f,xs,B.map(toA),css('--accent-2'),2.6,1);
   }
@@ -614,12 +615,12 @@ pwcorr _all, sig</code></pre></div>
       f.svg.appendChild(svgEl('text',{x:px,y:py,style:'fill:'+css('--text')},nomes[i]));});
   }
   function run(){
-    var SA=CASOS3.SorveteAula; dual('gSorvAula',SA.tempo,SA.dados[0],SA.dados[1],1);
-    var SL=CASOS3.Salario; dual('gSal',SL.tempo,SL.dados[0],SL.dados[1],6);
-    var VC=CASOS3.Vacina; dual('gVac',VC.tempo,VC.dados[0],VC.dados[1],1);
-    var S=CASOS3.Sorvete; dual('gSorv',S.tempo.map(function(t){var m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];return m[+t.slice(5)-1]+'/'+t.slice(2,4);}),S.dados[1],S.dados[2],3);
-    var M=CASOS3.Margarina; dual('gMarg',M.tempo,M.dados[0],M.dados[1],1);
-    var C=CASOS3.Cage; dual('gCage',C.tempo,C.dados[0],C.dados[1],1);
+    var SA=CASOS3.SorveteAula; dual('gSorvAula',SA.tempo,SA.dados[0],SA.dados[1],1,'Vendas de sorvetes','Número de afogamentos','Mês');
+    var SL=CASOS3.Salario; dual('gSal',SL.tempo,SL.dados[0],SL.dados[1],6,'Cesta básica (R$)','Salário mínimo (R$)','Mês');
+    var VC=CASOS3.Vacina; dual('gVac',VC.tempo,VC.dados[0],VC.dados[1],1,'% vacinados (esquema completo)','Número de óbitos','Mês');
+    var S=CASOS3.Sorvete; dual('gSorv',S.tempo.map(function(t){var m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];return m[+t.slice(5)-1]+'/'+t.slice(2,4);}),S.dados[1],S.dados[2],3,'Vendas de sorvete (mil unid.)','Afogamentos','Mês');
+    var M=CASOS3.Margarina; dual('gMarg',M.tempo,M.dados[0],M.dados[1],1,'Margarina (lb per capita, EUA)','Divórcios por mil hab. (Maine)','Ano');
+    var C=CASOS3.Cage; dual('gCage',C.tempo,C.dados[0],C.dados[1],1,'Filmes com Nicolas Cage','Afogamentos em piscina (EUA)','Ano');
     var T=CASOS3.Carga; labeled('gCarga',T.dados[0],T.dados[1],T.nomes,'Índice de Gini','Carga tributária (% do PIB)',['Brasil','Índia']);
     var H=CASOS3.Saude; labeled('gSaude',H.dados[0],H.dados[1],H.nomes,'Gasto em saúde per capita (US$ PPC)','Suicídios por 100 mil hab.');
   }

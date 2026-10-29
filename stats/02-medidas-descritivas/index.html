@@ -313,8 +313,8 @@ Correlação         =CORREL(B2:B13;C2:C13)</code></pre></div>
   <p class="err" id="calcErr" role="alert"></p>
   <div class="stats-grid" id="statsOut"></div>
   <div class="charts">
-    <div class="chart"><h4>Histograma (regra de Sturges)</h4><svg id="histSvg" viewBox="0 0 420 230" role="img" aria-label="Histograma dos dados"></svg></div>
-    <div class="chart"><h4>Boxplot (cercas de Tukey)</h4><svg id="boxSvg" viewBox="0 0 300 230" role="img" aria-label="Boxplot dos dados"></svg></div>
+    <div class="chart"><h4>Histograma (regra de Sturges)</h4><svg id="histSvg" viewBox="0 0 420 240" role="img" aria-label="Histograma dos dados"></svg></div>
+    <div class="chart"><h4>Boxplot (cercas de Tukey)</h4><svg id="boxSvg" viewBox="0 0 300 240" role="img" aria-label="Boxplot dos dados"></svg></div>
   </div>
   <p class="interp" id="interpOut"></p>
 </div>
@@ -545,7 +545,7 @@ function niceTicks(lo,hi,count){
 
 function drawHist(r){
   var svg=document.getElementById('histSvg'); svg.innerHTML='';
-  var W=420,H=230,L=36,R=10,T=10,B=28;
+  var W=420,H=240,L=50,R=10,T=10,B=40;
   var k=Math.max(1,Math.ceil(1+Math.log2(r.n)));
   var lo=r.min, hi=r.max; if(lo===hi){lo-=0.5;hi+=0.5;}
   var w=(hi-lo)/k, counts=new Array(k).fill(0);
@@ -573,11 +573,13 @@ function drawHist(r){
     svg.appendChild(svgEl('line',{x1:x,x2:x,y1:T,y2:H-B,stroke:m[2],'stroke-width':2,'stroke-dasharray':m[3]}));
     svg.appendChild(svgEl('text',{x:x+4,y:T+10+j*13,style:'fill:'+m[2]},m[0]));
   });
+  svg.appendChild(svgEl('text',{x:(L+W-R)/2,y:H-6,'text-anchor':'middle'},'valor da variável'));
+  svg.appendChild(svgEl('text',{x:12,y:(T+H-B)/2,'text-anchor':'middle',transform:'rotate(-90 12 '+((T+H-B)/2)+')'},'frequência (nº de observações)'));
 }
 
 function drawBox(r){
   var svg=document.getElementById('boxSvg'); svg.innerHTML='';
-  var W=300,H=230,L=48,R=10,T=14,B=14;
+  var W=300,H=240,L=60,R=10,T=14,B=14;
   var lo=r.min, hi=r.max; if(lo===hi){lo-=0.5;hi+=0.5;}
   var pad=(hi-lo)*0.05; lo-=pad; hi+=pad;
   var sy=function(v){return H-B-(v-lo)/(hi-lo)*(H-T-B);};
@@ -603,6 +605,7 @@ function drawBox(r){
     c.appendChild(svgEl('title',{},'Outlier: '+fmt(v))); svg.appendChild(c);
   });
   svg.appendChild(svgEl('text',{x:cx+bw/2+6,y:sy(r.mean)+4,style:'fill:'+accent2},'◆ média'));
+  svg.appendChild(svgEl('text',{x:12,y:(T+H-B)/2,'text-anchor':'middle',transform:'rotate(-90 12 '+((T+H-B)/2)+')'},'valor da variável'));
 }
 
 function run(){

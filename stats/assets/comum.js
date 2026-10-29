@@ -101,7 +101,7 @@ function tickLabel(v){
   var a=Math.abs(v);
   return fmt(v, a===0||a>=100||v%1===0?0:(a>=10?1:(Math.abs(v*10%1)<1e-9?1:2)));
 }
-// Cria um painel com eixos. opts: {W,H,xlim,ylim,xlabel,ylabel,margin}
+// Cria um painel com eixos. opts: {W,H,xlim,ylim,xlabel,ylabel,ylabel2 (eixo direito),margin}
 function plotFrame(svg,opts){
   svg.innerHTML='';
   var W=opts.W||560,H=opts.H||340,m=opts.margin||{l:52,r:14,t:12,b:42};
@@ -120,7 +120,9 @@ function plotFrame(svg,opts){
   });
   svg.appendChild(svgEl('line',{x1:m.l,x2:W-m.r,y1:H-m.b,y2:H-m.b,stroke:css('--muted'),'stroke-width':1}));
   if(opts.xlabel) svg.appendChild(svgEl('text',{x:(m.l+W-m.r)/2,y:H-6,'text-anchor':'middle'},opts.xlabel));
-  if(opts.ylabel) svg.appendChild(svgEl('text',{x:12,y:(m.t+H-m.b)/2,'text-anchor':'middle',transform:'rotate(-90 12 '+((m.t+H-m.b)/2)+')'},opts.ylabel));
+  var yc=(m.t+H-m.b)/2;
+  if(opts.ylabel) svg.appendChild(svgEl('text',{x:12,y:yc,'text-anchor':'middle',transform:'rotate(-90 12 '+yc+')',style:opts.ylabelColor?'fill:'+opts.ylabelColor:''},opts.ylabel));
+  if(opts.ylabel2) svg.appendChild(svgEl('text',{x:W-10,y:yc,'text-anchor':'middle',transform:'rotate(90 '+(W-10)+' '+yc+')',style:opts.ylabel2Color?'fill:'+opts.ylabel2Color:''},opts.ylabel2));
   return {sx:sx,sy:sy,W:W,H:H,m:m,svg:svg,
     clip:function(v){return Math.max(y0,Math.min(y1,v));}};
 }

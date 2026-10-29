@@ -325,7 +325,7 @@ efeito = Y["Tratado"].values - sintetico
     });
     // Gráfico de trajetórias
     var all=[].concat.apply([],pool.map(function(j){return Y[j];})).concat(Y[u]);
-    var f=plotFrame(document.getElementById('cPlot'),{H:320,xlim:[2000,2019],ylim:[Math.min.apply(null,all)-2,Math.max.apply(null,all)+2],xfmt:function(v){return String(v);}});
+    var f=plotFrame(document.getElementById('cPlot'),{H:320,xlabel:'ano',ylabel:'arrecadação per capita (índice)',xlim:[2000,2019],ylim:[Math.min.apply(null,all)-2,Math.max.apply(null,all)+2],xfmt:function(v){return String(v);}});
     pool.forEach(function(j){plotLine(f,anos,Y[j],css('--border'),1.2);});
     plotVLine(f,2011.5,css('--muted'),'4 4','política');
     if(s>0) f.svg.appendChild(svgEl('rect',{x:f.sx(2000),y:f.m.t,width:f.sx(2000+s)-f.sx(2000),height:f.H-f.m.b-f.m.t,fill:css('--surface-2'),'fill-opacity':0.7}));
@@ -338,7 +338,7 @@ efeito = Y["Tratado"].values - sintetico
     // Gaps
     var gall=[].concat.apply([],res.map(function(r){return r.gap.slice(s);}));
     var lim=Math.min(40,Math.max(5,Math.max.apply(null,gall.map(Math.abs))));
-    var g=plotFrame(document.getElementById('gPlot'),{H:300,xlim:[2000,2019],ylim:[-lim,lim],xfmt:function(v){return String(v);}});
+    var g=plotFrame(document.getElementById('gPlot'),{H:300,xlabel:'ano',ylabel:'real − sintético',xlim:[2000,2019],ylim:[-lim,lim],xfmt:function(v){return String(v);}});
     g.svg.appendChild(svgEl('line',{x1:g.m.l,x2:g.W-g.m.r,y1:g.sy(0),y2:g.sy(0),stroke:css('--muted'),'stroke-width':1}));
     plotVLine(g,2011.5,css('--muted'),'4 4');
     res.forEach(function(r){if(r.u!==u) plotLine(g,anos.slice(s),r.gap.slice(s).map(g.clip),css('--muted'),1,null).setAttribute('stroke-opacity','0.55');});
