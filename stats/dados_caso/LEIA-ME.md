@@ -5,6 +5,10 @@ abrem no Stata, no R (`haven::read_dta`) e no Python (`pandas.read_stata`).
 
 | Arquivo | Unidade e período | Uso | Observação |
 |---|---|---|---|
+| `sorvete_afogamentos.csv` | 36 meses (ilustrativo) | Conteúdo 3 | Vendas de sorvete, afogamentos e temperatura (simulado) |
+| `margarina_divorcio_maine.csv`, `nicolas_cage_afogamentos.csv` | EUA, 1999–2009 | Conteúdo 3 | Correlações espúrias de Tyler Vigen ([tylervigen.com/spurious-correlations](https://www.tylervigen.com/spurious-correlations)) |
+| `carga_tributaria_gini.csv` | 17 países | Conteúdo 3 | Valores aproximados lidos do gráfico dos slides |
+| `gasto_saude_suicidio_ocde.csv` | 12 países da OCDE | Conteúdo 3 | Valores aproximados do gráfico dos slides (Peterson-KFF; OECD Health Statistics) |
 | `correlacoes_empresariais.xlsx` | Abas Apple, Netflix, CocaCola, Tesla, Tarifaço, Tesla_BYD | Conteúdo 3 | Séries ilustrativas da disciplina |
 | `google_reglinear.xlsx` | Google, mensal, 2019–2023 | Conteúdo 3 | Série ilustrativa |
 | `gini_pib_mundo.dta` | 164 países, 2010–2019 | Conteúdos 3 e 5 | Gini, PIB per capita (PPC) e população (Our World in Data / Banco Mundial) |
@@ -26,4 +30,4 @@ abrem no Stata, no R (`haven::read_dta`) e no Python (`pandas.read_stata`).
 
 ## Arquivos gerados
 
-`preparar_web.py` gera os arquivos `casos_dados.js` que as páginas usam nos exploradores interativos. Rode-o de novo se alterar as bases.
+`exemplos_slides.py` gera as pequenas bases dos exemplos clássicos de correlação. `preparar_web.py` gera os arquivos `casos_dados.js` que as páginas usam nos exploradores interativos. Rode-o de novo se alterar as bases.

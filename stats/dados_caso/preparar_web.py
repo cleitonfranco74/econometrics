@@ -48,6 +48,35 @@ cc.columns = ["Taxa de obesidade (%)", "Consumo de refrigerante (L/hab.)", "Índ
               "Renda per capita (mil US$)", "Preço do refrigerante (US$/L)", "Prevalência de diabetes (%)",
               "Índice de marketing", "População urbana (%)"]
 c3["CocaPainel"] = tabela(cc, "Coca-Cola ampliada (80 regiões × 4 anos)")
+# Exemplos clássicos dos slides (gerados por exemplos_slides.py)
+sv = pd.read_csv(AQUI / "sorvete_afogamentos.csv")
+c3["Sorvete"] = tabela(sv[["temperatura_media_c", "sorvetes_mil_unid", "afogamentos"]].rename(columns={
+    "temperatura_media_c": "Temperatura média (°C)", "sorvetes_mil_unid": "Vendas de sorvete (mil unid.)",
+    "afogamentos": "Afogamentos"}), "Sorvete × afogamentos (ilustrativo, 36 meses)")
+c3["Sorvete"]["tempo"] = sv["mes"].tolist()
+mg = pd.read_csv(AQUI / "margarina_divorcio_maine.csv")
+c3["Margarina"] = tabela(mg[["margarina_lb_per_capita_eua", "divorcios_por_mil_maine"]].rename(columns={
+    "margarina_lb_per_capita_eua": "Consumo de margarina (lb/hab., EUA)",
+    "divorcios_por_mil_maine": "Divórcios por mil hab. (Maine)"}), "Espúria: margarina × divórcio (2000–2009)")
+c3["Margarina"]["tempo"] = mg["ano"].astype(str).tolist()
+ng = pd.read_csv(AQUI / "nicolas_cage_afogamentos.csv")
+c3["Cage"] = tabela(ng[["filmes_nicolas_cage", "afogamentos_em_piscina_eua"]].rename(columns={
+    "filmes_nicolas_cage": "Filmes com Nicolas Cage", "afogamentos_em_piscina_eua": "Afogamentos em piscina (EUA)"}),
+    "Espúria: Nicolas Cage × afogamentos (1999–2009)")
+c3["Cage"]["tempo"] = ng["ano"].astype(str).tolist()
+ct = pd.read_csv(AQUI / "carga_tributaria_gini.csv")
+c3["Carga"] = tabela(ct[["gini", "carga_tributaria_pib"]].rename(columns={
+    "gini": "Índice de Gini", "carga_tributaria_pib": "Carga tributária (% do PIB)"}),
+    "Carga tributária × Gini (17 países, aproximado)")
+c3["Carga"]["nomes"] = ct["pais"].tolist()
+sd = pd.read_csv(AQUI / "gasto_saude_suicidio_ocde.csv")
+c3["Saude"] = tabela(sd[["gasto_saude_pc_usd_ppp", "suicidio_por_100mil"]].rename(columns={
+    "gasto_saude_pc_usd_ppp": "Gasto em saúde per capita (US$ PPC)", "suicidio_por_100mil": "Suicídios por 100 mil hab."}),
+    "Gasto em saúde × suicídio (12 países da OCDE)")
+c3["Saude"]["nomes"] = sd["pais"].tolist()
+ordem = ["Sorvete", "Margarina", "Cage", "Carga", "Gini", "Saude", "Apple", "Netflix", "CocaCola", "Tesla",
+         "Tarifaço", "Tesla_BYD", "Google", "CocaPainel"]
+c3 = {k: c3[k] for k in ordem}
 js("CASOS3", c3, STATS / "03-correlacao-causalidade-regressao" / "casos_dados.js")
 
 # ---------------- Conteúdo 4: laboratório de regressão múltipla ----------------
