@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medidas Descritivas</title>
+<meta name="description" content="Estatística — Conteúdo 2: medidas de tendência central, separatrizes, dispersão, forma e associação, com exemplos em Python, R e Stata, calculadora interativa e exercícios.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --surface-2:#f2f0ea; --text:#1d2330; --muted:#5b6475;
+  --border:#dedad0; --accent:#1f5f8b; --accent-soft:#e3eef6; --accent-2:#b5562a;
+  --ok:#2e7d4f; --warn-bg:#fff6e0; --warn-border:#e6c36a; --code-bg:#f4f2ec;
+  --bar:#1f5f8b; --bar-2:#b5562a;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171d; --surface:#1b1f27; --surface-2:#232833; --text:#e6e8ec; --muted:#a3abb9;
+    --border:#323846; --accent:#7db7e0; --accent-soft:#1f3242; --accent-2:#e89a72;
+    --ok:#6fcf97; --warn-bg:#2d2715; --warn-border:#7a6328; --code-bg:#20242d;
+    --bar:#7db7e0; --bar-2:#e89a72;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171d; --surface:#1b1f27; --surface-2:#232833; --text:#e6e8ec; --muted:#a3abb9;
+  --border:#323846; --accent:#7db7e0; --accent-soft:#1f3242; --accent-2:#e89a72;
+  --ok:#6fcf97; --warn-bg:#2d2715; --warn-border:#7a6328; --code-bg:#20242d;
+  --bar:#7db7e0; --bar-2:#e89a72;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:17px/1.65 Georgia,"Iowan Old Style","Times New Roman",serif}
+h1,h2,h3,h4,nav,.ui,table,button,label,summary{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+header.hero{border-bottom:1px solid var(--border);background:var(--surface);padding:40px 0 28px}
+.eyebrow{font:600 13px/1.4 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-2);margin:0 0 8px}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15;margin:0 0 12px}
+.lede{color:var(--muted);margin:0;font-size:18px}
+nav.toc{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+nav.toc ul{list-style:none;margin:0 auto;padding:10px 16px;max-width:860px;display:flex;gap:6px 16px;overflow-x:auto;white-space:nowrap;font-size:14px}
+nav.toc a{text-decoration:none;color:var(--muted)}
+nav.toc a:hover{color:var(--accent)}
+section{scroll-margin-top:48px;padding:28px 0 8px;border-bottom:1px solid var(--border)}
+section:last-of-type{border-bottom:0}
+h2{font-size:26px;margin:8px 0 12px}
+h3{font-size:19px;margin:26px 0 8px}
+.objectives{background:var(--accent-soft);border-radius:10px;padding:14px 20px;margin:20px 0}
+.objectives h4{margin:0 0 6px;font-size:15px}
+.objectives ul{margin:0;padding-left:20px}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:14px 18px;margin:16px 0}
+.box.warn{background:var(--warn-bg);border-color:var(--warn-border)}
+.box h4{margin:0 0 6px;font-size:15px}
+.box p:last-child{margin-bottom:0}
+.formula{overflow-x:auto;padding:4px 0}
+.table-wrap{overflow-x:auto;margin:14px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--surface)}
+th,td{border:1px solid var(--border);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:4px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;font-size:13.5px;line-height:1.5;margin:0}
+pre code{background:none;padding:0;font-size:inherit}
+.tabs{margin:14px 0}
+.tablist{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:-1px}
+.tablist button{border:1px solid var(--border);border-bottom:0;background:var(--surface-2);color:var(--muted);padding:7px 14px;border-radius:8px 8px 0 0;cursor:pointer;font-size:14px}
+.tablist button[aria-selected="true"]{background:var(--code-bg);color:var(--text);font-weight:600}
+.tabpanel{display:none}
+.tabpanel.active{display:block}
+.tabpanel pre{border-top-left-radius:0}
+/* Calculadora */
+.calc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin:16px 0}
+.calc label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+.calc textarea{width:100%;min-height:90px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);resize:vertical}
+.calc .row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px;align-items:center}
+.btn{font:600 14px system-ui,sans-serif;border:1px solid var(--accent);background:var(--accent);color:var(--surface);padding:7px 14px;border-radius:8px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.hint{font:13px/1.4 system-ui,sans-serif;color:var(--muted)}
+.err{color:var(--accent-2);font:14px system-ui,sans-serif;min-height:1.2em;margin:4px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:12px 0}
+.stat{background:var(--surface-2);border-radius:8px;padding:8px 10px;font-family:system-ui,sans-serif}
+.stat .k{font-size:12px;color:var(--muted);line-height:1.3}
+.stat .v.small{font-size:13px;font-weight:500;color:var(--muted)}
+.stat .v{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.charts{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:720px){.charts{grid-template-columns:3fr 2fr}}
+.chart{background:var(--surface-2);border-radius:8px;padding:8px}
+.chart h4{margin:2px 4px 4px;font-size:13px;color:var(--muted)}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font:11px system-ui,sans-serif;fill:var(--muted)}
+.interp{font-size:15.5px;margin-top:10px}
+/* Exercícios */
+ol.exercises>li{margin:0 0 18px;padding-left:4px}
+details{border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-top:8px}
+details summary{cursor:pointer;padding:8px 12px;font-size:14px;font-weight:600;color:var(--ok)}
+details .ans{padding:4px 14px 12px}
+footer{padding:28px 0 40px;color:var(--muted);font-size:14px;font-family:system-ui,sans-serif}
+.theme-toggle{position:absolute;top:14px;right:16px}
+header.hero{position:relative}
+@media print{nav.toc,.theme-toggle,.calc .row{display:none}details{border:0}details>*{display:block}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="eyebrow">Estatística · Mestrado PROFINIT · Conteúdo 2</p>
+    <h1>Medidas descritivas</h1>
+    <p class="lede">Como resumir um conjunto de dados em poucos números — onde os dados se concentram, quanto variam, qual o formato da distribuição e como duas variáveis se movem juntas.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sumário">
+  <ul>
+    <li><a href="#intro">1. Notação</a></li>
+    <li><a href="#centro">2. Tendência central</a></li>
+    <li><a href="#separatrizes">3. Separatrizes</a></li>
+    <li><a href="#dispersao">4. Dispersão</a></li>
+    <li><a href="#forma">5. Forma</a></li>
+    <li><a href="#associacao">6. Associação</a></li>
+    <li><a href="#exemplo">7. Exemplo e código</a></li>
+    <li><a href="#calculadora">8. Calculadora</a></li>
+    <li><a href="#exercicios">9. Exercícios</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<div class="objectives">
+  <h4>Ao final deste conteúdo você deve ser capaz de</h4>
+  <ul>
+    <li>calcular e interpretar medidas de tendência central, separatrizes, dispersão, forma e associação;</li>
+    <li>escolher a medida adequada ao tipo de dado (retornos, índices, múltiplos, dados com <em>outliers</em>);</li>
+    <li>distinguir estimadores populacionais e amostrais e reconhecer as diferenças entre softwares;</li>
+    <li>obter essas medidas em Python, R e Stata.</li>
+  </ul>
+</div>
+
+<!-- 1 -->
+<section id="intro">
+<h2>1. População, amostra e notação</h2>
+<p>Uma <strong>medida descritiva</strong> é um número que resume uma característica dos dados. Quando calculada sobre toda a população, chama-se <strong>parâmetro</strong> (letras gregas); quando calculada sobre uma amostra, chama-se <strong>estatística</strong> (letras latinas) e serve como <em>estimador</em> do parâmetro.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Medida</th><th>População (parâmetro)</th><th>Amostra (estatística)</th></tr></thead>
+<tbody>
+<tr><td>Tamanho</td><td>\(N\)</td><td>\(n\)</td></tr>
+<tr><td>Média</td><td>\(\mu\)</td><td>\(\bar{x}\)</td></tr>
+<tr><td>Variância</td><td>\(\sigma^2\)</td><td>\(s^2\)</td></tr>
+<tr><td>Desvio-padrão</td><td>\(\sigma\)</td><td>\(s\)</td></tr>
+<tr><td>Correlação</td><td>\(\rho\)</td><td>\(r\)</td></tr>
+</tbody></table></div>
+<p>Ao longo da página usamos uma amostra \(x_1, x_2, \dots, x_n\) e, quando necessário, os valores ordenados \(x_{(1)} \le x_{(2)} \le \dots \le x_{(n)}\).</p>
+</section>
+
+<!-- 2 -->
+<section id="centro">
+<h2>2. Medidas de tendência central</h2>
+<p>Respondem à pergunta: <em>qual é o valor “típico” dos dados?</em></p>
+
+<h3>2.1 Média aritmética</h3>
+<div class="formula">$$\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$$</div>
+<p>Propriedades importantes: (i) a soma dos desvios em relação à média é zero, \(\sum (x_i-\bar{x})=0\); (ii) a média minimiza a soma dos quadrados dos desvios — é por isso que ela aparece naturalmente no método de Mínimos Quadrados Ordinários; (iii) é <strong>sensível a valores extremos</strong>.</p>
+
+<h3>2.2 Média ponderada</h3>
+<div class="formula">$$\bar{x}_w = \frac{\sum_{i=1}^{n} w_i x_i}{\sum_{i=1}^{n} w_i}$$</div>
+<p>Exemplos em finanças e contabilidade: custo médio ponderado de capital (WACC), custo médio de estoques, retorno de uma carteira (pesos = participação de cada ativo).</p>
+
+<h3>2.3 Média geométrica</h3>
+<div class="formula">$$\bar{x}_g = \left(\prod_{i=1}^{n} x_i\right)^{1/n}
+\qquad\text{para retornos:}\qquad
+\bar{r}_g = \left[\prod_{i=1}^{n} (1+r_i)\right]^{1/n} - 1$$</div>
+<p>É a medida correta para <strong>taxas que se acumulam</strong> (rentabilidade, inflação, crescimento de receita). A média aritmética de retornos superestima o crescimento efetivo: vale sempre \(\bar{r}_g \le \bar{r}\), e a diferença cresce com a volatilidade (aproximadamente \(\bar{r}_g \approx \bar{r} - s^2/2\)).</p>
+
+<h3>2.4 Média harmônica</h3>
+<div class="formula">$$\bar{x}_h = \frac{n}{\sum_{i=1}^{n} 1/x_i}$$</div>
+<p>Adequada para médias de <strong>razões</strong> quando o numerador é fixo — por exemplo, o P/L de uma carteira com o mesmo valor investido em cada ação, ou o preço médio pago em compras de valor fixo (<em>dollar-cost averaging</em>). Para valores positivos: \(\bar{x}_h \le \bar{x}_g \le \bar{x}\).</p>
+
+<h3>2.5 Mediana</h3>
+<div class="formula">$$Md = \begin{cases} x_{((n+1)/2)} & n \text{ ímpar} \\[4pt] \dfrac{x_{(n/2)} + x_{(n/2+1)}}{2} & n \text{ par}\end{cases}$$</div>
+<p>Valor que divide os dados ordenados ao meio. É <strong>robusta</strong> a <em>outliers</em> e minimiza a soma dos desvios absolutos \(\sum|x_i - c|\). Prefira a mediana para variáveis muito assimétricas: receitas de municípios, ativos de empresas, remuneração de executivos.</p>
+
+<h3>2.6 Moda</h3>
+<p>Valor mais frequente. Útil para dados qualitativos (ex.: setor mais comum em uma amostra de empresas). Uma distribuição pode ser amodal, unimodal, bimodal ou multimodal.</p>
+
+<h3>2.7 Média aparada (<em>trimmed mean</em>)</h3>
+<p>Remove uma proporção \(\alpha\) das observações em cada cauda e calcula a média do restante. É um meio-termo entre a eficiência da média e a robustez da mediana.</p>
+
+<div class="box">
+<h4>Relação entre média, mediana e assimetria</h4>
+<p>Em distribuições unimodais é comum observar: assimetria à direita (cauda longa positiva) → média &gt; mediana; simétrica → média ≈ mediana; assimetria à esquerda → média &lt; mediana. É uma regra prática, não um teorema — há exceções.</p>
+</div>
+</section>
+
+<!-- 3 -->
+<section id="separatrizes">
+<h2>3. Separatrizes: quartis, decis e percentis</h2>
+<p>O percentil \(p\) é o valor abaixo do qual está uma proporção \(p\) dos dados. Os quartis são \(Q_1 = P_{25}\), \(Q_2 = P_{50} = Md\) e \(Q_3 = P_{75}\).</p>
+<p>Há <strong>várias definições</strong> de quantil amostral. Nesta página usamos a interpolação linear (tipo 7 de Hyndman &amp; Fan), padrão do R, do pandas/numpy e da função <code>QUARTIL.INC</code> do Excel:</p>
+<div class="formula">$$h = (n-1)\,p + 1,\qquad Q(p) = x_{(\lfloor h\rfloor)} + (h - \lfloor h\rfloor)\,\big(x_{(\lfloor h\rfloor+1)} - x_{(\lfloor h\rfloor)}\big)$$</div>
+
+<h3>3.1 Intervalo interquartil e <em>outliers</em></h3>
+<div class="formula">$$IIQ = Q_3 - Q_1,\qquad \text{cercas de Tukey: } \big[\,Q_1 - 1{,}5\,IIQ\;;\; Q_3 + 1{,}5\,IIQ\,\big]$$</div>
+<p>Observações fora das cercas são candidatas a <em>outliers</em>. O <strong>boxplot</strong> resume tudo isso graficamente: caixa de \(Q_1\) a \(Q_3\), linha na mediana, “bigodes” até o último valor dentro das cercas e pontos isolados para os <em>outliers</em>.</p>
+
+<div class="box warn">
+<h4>Atenção às diferenças entre softwares</h4>
+<p>Em amostras pequenas, R, Python, Excel (<code>QUARTIL.INC</code> × <code>QUARTIL.EXC</code>) e Stata podem fornecer quartis diferentes para os mesmos dados. Nenhum está “errado”: as definições é que diferem. Em artigos, informe o software e o método.</p>
+</div>
+</section>
+
+<!-- 4 -->
+<section id="dispersao">
+<h2>4. Medidas de dispersão</h2>
+<p>Respondem à pergunta: <em>quão espalhados estão os dados?</em> Em finanças, dispersão é sinônimo de <strong>risco</strong>.</p>
+
+<h3>4.1 Amplitude</h3>
+<p>\(A = x_{(n)} - x_{(1)}\). Simples, mas depende apenas dos dois extremos.</p>
+
+<h3>4.2 Desvio médio absoluto</h3>
+<div class="formula">$$DMA = \frac{1}{n}\sum_{i=1}^{n}|x_i-\bar{x}|$$</div>
+
+<h3>4.3 Variância e desvio-padrão</h3>
+<div class="formula">$$\sigma^2 = \frac{1}{N}\sum_{i=1}^{N}(x_i-\mu)^2
+\qquad\qquad
+s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2,\qquad s=\sqrt{s^2}$$</div>
+<p>O divisor \(n-1\) (<strong>correção de Bessel</strong>) torna \(s^2\) um estimador <em>não viesado</em> de \(\sigma^2\): como \(\bar{x}\) foi estimada com os mesmos dados, perde-se um grau de liberdade. O desvio-padrão está na mesma unidade dos dados, o que facilita a interpretação.</p>
+<p>Fórmula alternativa útil para cálculo manual: \(s^2 = \dfrac{\sum x_i^2 - n\bar{x}^2}{n-1}\).</p>
+
+<h3>4.4 Coeficiente de variação</h3>
+<div class="formula">$$CV = \frac{s}{\bar{x}}$$</div>
+<p>Medida <strong>relativa</strong> (adimensional): permite comparar a dispersão de variáveis com médias ou unidades diferentes. Em finanças, o CV é “risco por unidade de retorno”. Cuidado: perde o sentido quando a média é próxima de zero ou negativa.</p>
+
+<h3>4.5 Volatilidade anualizada</h3>
+<p>Supondo retornos independentes e identicamente distribuídos, a variância cresce linearmente com o tempo, logo o desvio-padrão cresce com a raiz do número de períodos:</p>
+<div class="formula">$$\sigma_{\text{anual}} = \sigma_{\text{mensal}}\sqrt{12} = \sigma_{\text{diária}}\sqrt{252}$$</div>
+</section>
+
+<!-- 5 -->
+<section id="forma">
+<h2>5. Medidas de forma</h2>
+<p>Com \(z_i = (x_i - \bar{x})/s\), os estimadores amostrais <strong>ajustados</strong> (os mesmos do Excel — <code>DISTORÇÃO</code> e <code>CURT</code> — e do pandas) são:</p>
+<div class="formula">$$G_1 = \frac{n}{(n-1)(n-2)}\sum_{i=1}^{n} z_i^3
+\qquad
+G_2 = \frac{n(n+1)}{(n-1)(n-2)(n-3)}\sum_{i=1}^{n} z_i^4 - \frac{3(n-1)^2}{(n-2)(n-3)}$$</div>
+<ul>
+<li><strong>Assimetria</strong> \(G_1\): \(&gt;0\) cauda à direita; \(&lt;0\) cauda à esquerda; \(\approx 0\) simétrica.</li>
+<li><strong>Curtose em excesso</strong> \(G_2\): compara as caudas com as da Normal (\(G_2=0\)). \(G_2&gt;0\) (leptocúrtica) indica caudas pesadas — típico de retornos financeiros, que apresentam eventos extremos com mais frequência do que a Normal prevê.</li>
+</ul>
+<div class="box warn">
+<h4>Stata</h4>
+<p>O comando <code>summarize, detail</code> reporta assimetria e curtose <em>sem</em> o ajuste para amostras pequenas, e a curtose não é “em excesso” (Normal = 3). Para comparar com R/Python/Excel, subtraia 3 e lembre que, em amostras pequenas, os valores ainda diferirão pelo ajuste.</p>
+</div>
+</section>
+
+<!-- 6 -->
+<section id="associacao">
+<h2>6. Medidas de associação (prévia da regressão)</h2>
+<div class="formula">$$s_{xy} = \frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})
+\qquad\qquad
+r_{xy} = \frac{s_{xy}}{s_x\,s_y},\quad -1 \le r_{xy} \le 1$$</div>
+<p>A covariância indica o <em>sentido</em> da relação linear, mas depende das unidades; a correlação de Pearson a padroniza. Correlação mede apenas associação <strong>linear</strong> e não implica causalidade. Na regressão simples, o coeficiente angular de MQO é \(\hat{\beta}_1 = s_{xy}/s_x^2 = r_{xy}\,(s_y/s_x)\) — a ligação direta com a econometria.</p>
+</section>
+
+<!-- 7 -->
+<section id="exemplo">
+<h2>7. Exemplo aplicado: retornos mensais de duas ações</h2>
+<p>Dados <strong>fictícios</strong>, para fins didáticos, de retornos mensais (%) de duas ações ao longo de 12 meses (arquivo <a href="dados/retornos_mensais.csv"><code>dados/retornos_mensais.csv</code></a>).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Mês</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th><th class="num">6</th><th class="num">7</th><th class="num">8</th><th class="num">9</th><th class="num">10</th><th class="num">11</th><th class="num">12</th></tr></thead>
+<tbody>
+<tr><th>Ação A</th><td class="num">2,1</td><td class="num">−1,5</td><td class="num">3,4</td><td class="num">0,8</td><td class="num">−4,2</td><td class="num">5,6</td><td class="num">1,2</td><td class="num">−0,7</td><td class="num">2,9</td><td class="num">1,8</td><td class="num">−2,3</td><td class="num">3,1</td></tr>
+<tr><th>Ação B</th><td class="num">1,0</td><td class="num">0,6</td><td class="num">1,4</td><td class="num">0,9</td><td class="num">−0,3</td><td class="num">1,8</td><td class="num">0,7</td><td class="num">0,4</td><td class="num">1,1</td><td class="num">1,2</td><td class="num">0,2</td><td class="num">1,3</td></tr>
+</tbody></table></div>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Medida</th><th class="num">Ação A</th><th class="num">Ação B</th></tr></thead>
+<tbody>
+<tr><td>Média aritmética (% a.m.)</td><td class="num">1,017</td><td class="num">0,858</td></tr>
+<tr><td>Média geométrica (% a.m.)</td><td class="num">0,982</td><td class="num">0,857</td></tr>
+<tr><td>Mediana</td><td class="num">1,500</td><td class="num">0,950</td></tr>
+<tr><td>Q1 / Q3 (tipo 7)</td><td class="num">−0,900 / 2,950</td><td class="num">0,550 / 1,225</td></tr>
+<tr><td>Intervalo interquartil</td><td class="num">3,850</td><td class="num">0,675</td></tr>
+<tr><td>Amplitude</td><td class="num">9,800</td><td class="num">2,100</td></tr>
+<tr><td>Variância amostral</td><td class="num">7,631</td><td class="num">0,332</td></tr>
+<tr><td>Desvio-padrão amostral (% a.m.)</td><td class="num">2,762</td><td class="num">0,576</td></tr>
+<tr><td>Volatilidade anualizada (%)</td><td class="num">9,569</td><td class="num">1,995</td></tr>
+<tr><td>Coeficiente de variação</td><td class="num">2,717</td><td class="num">0,671</td></tr>
+<tr><td>Assimetria \(G_1\)</td><td class="num">−0,373</td><td class="num">−0,468</td></tr>
+<tr><td>Curtose em excesso \(G_2\)</td><td class="num">−0,198</td><td class="num">0,212</td></tr>
+<tr><td>Covariância A,B</td><td class="num" colspan="2" style="text-align:center">1,548</td></tr>
+<tr><td>Correlação A,B</td><td class="num" colspan="2" style="text-align:center">0,973</td></tr>
+</tbody></table></div>
+
+<div class="box">
+<h4>Interpretação</h4>
+<p>A ação A tem retorno médio maior (1,02% contra 0,86% ao mês), mas um risco muito maior: desvio-padrão quase cinco vezes o de B e CV de 2,72 contra 0,67. Por unidade de retorno, B é bem mais eficiente. Em A, a diferença entre média aritmética e geométrica (0,035 p.p.) é maior que em B (0,001 p.p.) — efeito da volatilidade sobre o retorno composto. Ambas têm leve assimetria negativa (média &lt; mediana), e a correlação de 0,97 indica que as duas ações se movem quase juntas, o que reduziria o benefício de diversificação entre elas.</p>
+</div>
+
+<h3>Código</h3>
+<p>Os scripts completos estão na pasta <a href="codigo/"><code>codigo/</code></a> e leem o CSV acima.</p>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="py">Python</button>
+    <button role="tab" aria-selected="false" data-tab="r">R</button>
+    <button role="tab" aria-selected="false" data-tab="stata">Stata</button>
+    <button role="tab" aria-selected="false" data-tab="excel">Excel</button>
+  </div>
+<div class="tabpanel active" data-panel="py"><pre><code>import numpy as np
+import pandas as pd
+from scipy import stats
+
+df = pd.read_csv("dados/retornos_mensais.csv")
+a = df["acao_A"]
+
+a.mean(), a.median(), a.mode().tolist()        # tendência central
+stats.trim_mean(a, 0.10)                       # média aparada 10%
+(np.prod(1 + a/100) ** (1/len(a)) - 1) * 100   # média geométrica (%)
+
+q1, q3 = a.quantile([0.25, 0.75])              # quartis (tipo 7)
+iqr = q3 - q1
+q1 - 1.5*iqr, q3 + 1.5*iqr                     # cercas de Tukey
+
+a.var(ddof=1), a.std(ddof=1)                   # n − 1 no divisor
+a.std(ddof=1) / a.mean()                       # coeficiente de variação
+a.std(ddof=1) * np.sqrt(12)                    # volatilidade anual
+
+stats.skew(a, bias=False)                      # assimetria G1
+stats.kurtosis(a, bias=False)                  # curtose em excesso G2
+
+df["acao_A"].cov(df["acao_B"]), df["acao_A"].corr(df["acao_B"])
+df[["acao_A", "acao_B"]].describe()</code></pre></div>
+<div class="tabpanel" data-panel="r"><pre><code>df &lt;- read.csv("dados/retornos_mensais.csv")
+a  &lt;- df$acao_A
+
+mean(a); median(a); mean(a, trim = 0.10)
+(prod(1 + a/100)^(1/length(a)) - 1) * 100     # média geométrica (%)
+
+quantile(a, c(.25, .75)); IQR(a)               # tipo 7 é o padrão
+var(a); sd(a); sd(a)/mean(a); sd(a)*sqrt(12)   # var e sd usam n − 1
+
+# Assimetria e curtose ajustadas (iguais ao Excel)
+z  &lt;- (a - mean(a)) / sd(a); n &lt;- length(a)
+G1 &lt;- n/((n-1)*(n-2)) * sum(z^3)
+G2 &lt;- n*(n+1)/((n-1)*(n-2)*(n-3)) * sum(z^4) - 3*(n-1)^2/((n-2)*(n-3))
+
+cov(df$acao_A, df$acao_B); cor(df$acao_A, df$acao_B)
+summary(df[, c("acao_A", "acao_B")])
+boxplot(df[, c("acao_A", "acao_B")])</code></pre></div>
+<div class="tabpanel" data-panel="stata"><pre><code>import delimited "dados/retornos_mensais.csv", clear
+
+summarize acao_a acao_b, detail
+tabstat acao_a acao_b, statistics(n mean median sd var cv iqr p25 p75) ///
+    columns(statistics)
+
+* Média geométrica dos retornos
+generate double lr = ln(1 + acao_a/100)
+quietly summarize lr
+display "Média geométrica (%): " (exp(r(mean)) - 1)*100
+
+* Volatilidade anualizada
+quietly summarize acao_a
+display "Volatilidade anual (%): " r(sd)*sqrt(12)
+
+correlate acao_a acao_b, covariance
+correlate acao_a acao_b
+graph box acao_a acao_b</code></pre></div>
+<div class="tabpanel" data-panel="excel"><pre><code>Supondo os retornos da ação A em B2:B13 e da ação B em C2:C13
+
+Média              =MÉDIA(B2:B13)
+Mediana            =MED(B2:B13)
+Moda               =MODO.ÚNICO(B2:B13)
+Média aparada 10%  =MÉDIA.INTERNA(B2:B13;0,2)    ' 0,2 = 10% em cada cauda
+Média geométrica   =MÉDIA.GEOMÉTRICA(1+B2:B13/100)-1   (matricial)
+Quartis            =QUARTIL.INC(B2:B13;1)  e  =QUARTIL.INC(B2:B13;3)
+Variância amostral =VAR.A(B2:B13)
+Desvio-padrão      =DESVPAD.A(B2:B13)
+Assimetria         =DISTORÇÃO(B2:B13)
+Curtose em excesso =CURT(B2:B13)
+Covariância        =COVARIAÇÃO.S(B2:B13;C2:C13)
+Correlação         =CORREL(B2:B13;C2:C13)</code></pre></div>
+</div>
+</section>
+
+<!-- 8 -->
+<section id="calculadora">
+<h2>8. Calculadora interativa</h2>
+<p>Cole ou digite seus dados (separados por espaço, ponto e vírgula ou quebra de linha; use vírgula <em>ou</em> ponto como separador decimal). Os resultados usam estimadores amostrais (\(n-1\)) e quartis do tipo 7.</p>
+<div class="calc ui">
+  <label for="dataInput">Dados</label>
+  <textarea id="dataInput" spellcheck="false">2,1; -1,5; 3,4; 0,8; -4,2; 5,6; 1,2; -0,7; 2,9; 1,8; -2,3; 3,1</textarea>
+  <div class="row">
+    <button class="btn" id="calcBtn" type="button">Calcular</button>
+    <button class="btn ghost" type="button" data-sample="2,1; -1,5; 3,4; 0,8; -4,2; 5,6; 1,2; -0,7; 2,9; 1,8; -2,3; 3,1">Ação A</button>
+    <button class="btn ghost" type="button" data-sample="1,0; 0,6; 1,4; 0,9; -0,3; 1,8; 0,7; 0,4; 1,1; 1,2; 0,2; 1,3">Ação B</button>
+    <button class="btn ghost" type="button" data-sample="3,2; 4,1; 5,0; 4,6; 3,8; -6,5; 4,4; 5,3; 3,9; 4,8; 12,7; 4,2">ROA com outliers</button>
+    <button class="btn ghost" type="button" data-sample="12 15 14 18 22 25 31 38 47 60 85 140">Assimetria positiva</button>
+  </div>
+  <p class="hint">Dica: altere um valor para um número muito grande e observe como a média e o desvio-padrão mudam, enquanto a mediana e o IIQ quase não se alteram.</p>
+  <p class="err" id="calcErr" role="alert"></p>
+  <div class="stats-grid" id="statsOut"></div>
+  <div class="charts">
+    <div class="chart"><h4>Histograma (regra de Sturges)</h4><svg id="histSvg" viewBox="0 0 420 230" role="img" aria-label="Histograma dos dados"></svg></div>
+    <div class="chart"><h4>Boxplot (cercas de Tukey)</h4><svg id="boxSvg" viewBox="0 0 300 230" role="img" aria-label="Boxplot dos dados"></svg></div>
+  </div>
+  <p class="interp" id="interpOut"></p>
+</div>
+</section>
+
+<!-- 9 -->
+<section id="exercicios">
+<h2>9. Exercícios</h2>
+<p>Resolva à mão (ou com a calculadora acima) e depois confira o gabarito.</p>
+<ol class="exercises">
+
+<li>
+<p>Os prazos de recebimento (em dias) de oito clientes de uma empresa são: 30, 45, 30, 60, 30, 90, 45, 120. Calcule a média, a mediana e a moda. Qual medida descreve melhor o prazo “típico”? Por quê?</p>
+<details><summary>Ver gabarito</summary><div class="ans">
+<p>Ordenando: 30, 30, 30, 45, 45, 60, 90, 120. Média = 450/8 = <strong>56,25 dias</strong>; mediana = (45 + 45)/2 = <strong>45 dias</strong>; moda = <strong>30 dias</strong>.</p>
+<p>A distribuição tem assimetria positiva (cauda puxada pelo cliente de 120 dias): moda &lt; mediana &lt; média. A mediana é a medida mais representativa do cliente típico; a média, porém, é a relevante para estimar o prazo médio da carteira (e o capital de giro).</p>
+</div></details>
+</li>
+
+<li>
+<p>Uma empresa é financiada com 60% de capital próprio, a um custo de 14% a.a., e 40% de dívida, a um custo (antes de impostos) de 9% a.a. Calcule o custo médio ponderado de capital antes de impostos. Refaça considerando alíquota de IR/CSLL de 34% sobre o custo da dívida.</p>
+<details><summary>Ver gabarito</summary><div class="ans">
+<p>Antes de impostos: \(0{,}6 \times 14\% + 0{,}4 \times 9\% = 8{,}4\% + 3{,}6\% = \mathbf{12{,}0\%}\).</p>
+<p>Com benefício fiscal: custo da dívida = \(9\% \times (1-0{,}34) = 5{,}94\%\); WACC = \(8{,}4\% + 0{,}4 \times 5{,}94\% = 8{,}4\% + 2{,}376\% = \mathbf{10{,}776\%}\).</p>
+</div></details>
+</li>
+
+<li>
+<p>Um fundo rendeu +50% em um ano e −50% no ano seguinte. Calcule as médias aritmética e geométrica dos retornos. Qual delas descreve o que aconteceu com o investidor?</p>
+<details><summary>Ver gabarito</summary><div class="ans">
+<p>Aritmética: \((50\% - 50\%)/2 = \mathbf{0\%}\). Geométrica: \(\sqrt{1{,}5 \times 0{,}5} - 1 = \sqrt{0{,}75} - 1 \approx \mathbf{-13{,}40\%}\) ao ano.</p>
+<p>R$ 100 viram R$ 150 e depois R$ 75: o investidor perdeu 25% em dois anos, o que equivale a −13,40% a.a. composto. A média geométrica descreve o resultado; a aritmética é enganosa para retornos acumulados.</p>
+</div></details>
+</li>
+
+<li>
+<p>Você investe o mesmo valor em duas ações: uma com P/L = 10 e outra com P/L = 40. Qual é o P/L da carteira? Por que a média aritmética (25) não é a resposta correta?</p>
+<details><summary>Ver gabarito</summary><div class="ans">
+<p>Com R$ 1 em cada ação, você “compra” R$ 1/10 = 0,100 e R$ 1/40 = 0,025 de lucro. P/L da carteira = preço total ÷ lucro total = \(2 / 0{,}125 = \mathbf{16}\), que é a média harmônica: \(2/(1/10 + 1/40) = 16\).</p>
+<p>A média aritmética somaria múltiplos cujo numerador (preço) é fixo e o denominador (lucro) é que varia — por isso a média correta de razões com numerador fixo é a harmônica.</p>
+</div></details>
+</li>
+
+<li>
+<p>Os retornos anuais (%) de dois fundos nos últimos cinco anos foram: Fundo X = 12, 15, 18, 20, 22; Fundo Y = 4, 9, 10, 11, 16. Calcule média, desvio-padrão amostral e CV de cada fundo. Qual tem menor risco relativo?</p>
+<details><summary>Ver gabarito</summary><div class="ans">
+<p><strong>Fundo X:</strong> \(\bar{x} = 87/5 = 17{,}4\); desvios: −5,4; −2,4; 0,6; 2,6; 4,6; soma dos quadrados = 63,2; \(s^2 = 63{,}2/4 = 15{,}8\); \(s \approx 3{,}975\); CV ≈ <strong>0,228</strong>.</p>
+<p><strong>Fundo Y:</strong> \(\bar{x} = 50/5 = 10\); desvios: −6; −1; 0; 1; 6; soma dos quadrados = 74; \(s^2 = 18{,}5\); \(s \approx 4{,}301\); CV ≈ <strong>0,430</strong>.</p>
+<p>O Fundo X tem maior retorno <em>e</em> menor risco relativo (CV quase metade do de Y). Note que os desvios-padrão absolutos são parecidos; o CV é que evidencia a diferença.</p>
+</div></details>
+</li>
+
+<li>
+<p>O ROA (%) de 12 empresas de um setor é: 3,2; 4,1; 5,0; 4,6; 3,8; −6,5; 4,4; 5,3; 3,9; 4,8; 12,7; 4,2. (a) Calcule Q1, Q3 e o IIQ (tipo 7). (b) Identifique os <em>outliers</em> pelas cercas de Tukey. (c) Compare média, mediana e média sem os <em>outliers</em>.</p>
+<details><summary>Ver gabarito</summary><div class="ans">
+<p>Ordenados: −6,5; 3,2; 3,8; 3,9; 4,1; 4,2; 4,4; 4,6; 4,8; 5,0; 5,3; 12,7.</p>
+<p>(a) Q1: \(h = 11 \times 0{,}25 + 1 = 3{,}75\) → \(3{,}8 + 0{,}75(3{,}9-3{,}8) = \mathbf{3{,}875}\). Q3: \(h = 11 \times 0{,}75 + 1 = 9{,}25\) → \(4{,}8 + 0{,}25(5{,}0-4{,}8) = \mathbf{4{,}85}\). IIQ = <strong>0,975</strong>.</p>
+<p>(b) Cercas: \(3{,}875 - 1{,}5 \times 0{,}975 = 2{,}4125\) e \(4{,}85 + 1{,}5 \times 0{,}975 = 6{,}3125\). <em>Outliers</em>: <strong>−6,5 e 12,7</strong>.</p>
+<p>(c) Média = 49,5/12 = <strong>4,125</strong>; mediana = (4,4 + 4,2)/2 = <strong>4,30</strong>; média sem <em>outliers</em> = 43,3/10 = <strong>4,33</strong>. A mediana praticamente coincide com a média “limpa”, mostrando sua robustez. Antes de excluir <em>outliers</em> em uma pesquisa, investigue a causa (erro de digitação? evento não recorrente?) e considere alternativas como winsorização.</p>
+</div></details>
+</li>
+
+<li>
+<p>A volatilidade diária de uma ação é 1,8%. Estime a volatilidade anual (252 pregões). Qual hipótese está por trás desse cálculo?</p>
+<details><summary>Ver gabarito</summary><div class="ans">
+<p>\(1{,}8\% \times \sqrt{252} \approx 1{,}8\% \times 15{,}875 \approx \mathbf{28{,}6\%}\) ao ano.</p>
+<p>Hipótese: retornos diários independentes e identicamente distribuídos (sem autocorrelação e com variância constante), de modo que as variâncias se somam: \(\sigma^2_{\text{anual}} = 252\,\sigma^2_{\text{diária}}\).</p>
+</div></details>
+</li>
+
+<li>
+<p>Em um estudo com 5.570 municípios, a receita corrente per capita tem média de R$ 4.900 e mediana de R$ 4.100, com assimetria de 3,2 e curtose em excesso de 18. (a) Descreva a forma da distribuição. (b) Que medidas de centro e dispersão você reportaria na tabela de estatísticas descritivas de um artigo? (c) Que transformação poderia ajudar numa regressão?</p>
+<details><summary>Ver gabarito</summary><div class="ans">
+<p>(a) Forte assimetria à direita (média &gt; mediana, \(G_1 = 3{,}2\)) e caudas muito pesadas (\(G_2 = 18\)): poucos municípios com receitas per capita muito altas.</p>
+<p>(b) Reporte média <em>e</em> mediana, desvio-padrão <em>e</em> IIQ (ou P25 e P75), além de mínimo e máximo — prática comum nas tabelas descritivas de artigos empíricos.</p>
+<p>(c) O logaritmo natural da variável costuma reduzir a assimetria e a influência de valores extremos, além de permitir interpretar coeficientes como semielasticidades/elasticidades.</p>
+</div></details>
+</li>
+
+</ol>
+</section>
+
+</main>
+
+<footer class="wrap">
+<p>Estatística — Mestrado PROFINIT · Conteúdo 2: Medidas descritivas. Dados do exemplo são fictícios e têm finalidade exclusivamente didática.</p>
+<p>Leituras sugeridas: Bussab &amp; Morettin, <em>Estatística Básica</em> (caps. 3–4); Wooldridge, <em>Introdução à Econometria</em> (Apêndice B); Hyndman &amp; Fan (1996), “Sample quantiles in statistical packages”, <em>The American Statistician</em>, 50(4).</p>
+</footer>
+
+<script>
+// ---------- Tema ----------
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  try{var t=localStorage.getItem('theme'); if(t) root.setAttribute('data-theme',t);}catch(e){}
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    var next=cur==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('theme',next);}catch(e){}
+    if(window.__lastData) render(window.__lastData);
+  });
+})();
+
+// ---------- KaTeX ----------
+document.addEventListener('DOMContentLoaded',function(){
+  if(window.renderMathInElement){
+    renderMathInElement(document.body,{delimiters:[
+      {left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});
+  }
+});
+
+// ---------- Abas de código ----------
+document.querySelectorAll('[data-tabs]').forEach(function(box){
+  var btns=box.querySelectorAll('[data-tab]'), panels=box.querySelectorAll('[data-panel]');
+  btns.forEach(function(b){
+    b.addEventListener('click',function(){
+      btns.forEach(function(x){x.setAttribute('aria-selected',x===b?'true':'false');});
+      panels.forEach(function(p){p.classList.toggle('active',p.dataset.panel===b.dataset.tab);});
+    });
+  });
+});
+
+// ---------- Estatística ----------
+function parseData(txt){
+  var t=txt.trim(); if(!t) return [];
+  var tokens;
+  if(/;/.test(t)) tokens=t.split(/[;\n\r\t]+/);          // ";" separa valores; vírgula é decimal
+  else if(/\d,\d/.test(t) && !/\d\.\d/.test(t)) tokens=t.split(/[\s]+/); // vírgula decimal
+  else tokens=t.split(/[\s,]+/);                          // ponto decimal
+  var out=[];
+  for(var i=0;i<tokens.length;i++){
+    var s=tokens[i].trim().replace(/−/g,'-'); if(!s) continue;
+    if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s=s.replace(/\./g,''); // 1.234,5
+    s=s.replace(',','.');
+    var v=Number(s);
+    if(!isFinite(v)) throw new Error('Valor inválido: "'+tokens[i].trim()+'"');
+    out.push(v);
+  }
+  return out;
+}
+function quantile(sorted,p){
+  var n=sorted.length, h=(n-1)*p, lo=Math.floor(h), hi=Math.min(lo+1,n-1);
+  return sorted[lo]+(h-lo)*(sorted[hi]-sorted[lo]);
+}
+function describe(x){
+  var n=x.length, s=x.slice().sort(function(a,b){return a-b;});
+  var sum=0; x.forEach(function(v){sum+=v;}); var mean=sum/n;
+  var m2=0,m3=0,m4=0,mad=0;
+  x.forEach(function(v){var d=v-mean; m2+=d*d; mad+=Math.abs(d);});
+  var variance=n>1?m2/(n-1):NaN, sd=Math.sqrt(variance);
+  x.forEach(function(v){var z=(v-mean)/sd; m3+=z*z*z; m4+=z*z*z*z;});
+  var skew=(n>2&&sd>0)?n/((n-1)*(n-2))*m3:NaN;
+  var kurt=(n>3&&sd>0)?n*(n+1)/((n-1)*(n-2)*(n-3))*m4-3*(n-1)*(n-1)/((n-2)*(n-3)):NaN;
+  var freq={},maxF=0; s.forEach(function(v){freq[v]=(freq[v]||0)+1; if(freq[v]>maxF)maxF=freq[v];});
+  var mode=maxF>1?Object.keys(freq).filter(function(k){return freq[k]===maxF;}).map(Number):[];
+  var q1=quantile(s,.25), q3=quantile(s,.75), iqr=q3-q1;
+  var lf=q1-1.5*iqr, uf=q3+1.5*iqr;
+  var pos=s.every(function(v){return v>0;});
+  var geo=pos?Math.exp(x.reduce(function(a,v){return a+Math.log(v);},0)/n):NaN;
+  var geoRet=s[0]>-100?(Math.exp(x.reduce(function(a,v){return a+Math.log(1+v/100);},0)/n)-1)*100:NaN;
+  var harm=pos?n/x.reduce(function(a,v){return a+1/v;},0):NaN;
+  var k=Math.floor(n*0.10), trimmed=s.slice(k,n-k), tm=trimmed.reduce(function(a,v){return a+v;},0)/trimmed.length;
+  return {n:n,sorted:s,mean:mean,median:quantile(s,.5),mode:mode,trim:tm,geo:geo,geoRet:geoRet,harm:harm,
+    min:s[0],max:s[n-1],range:s[n-1]-s[0],q1:q1,q3:q3,iqr:iqr,lf:lf,uf:uf,
+    outliers:s.filter(function(v){return v<lf||v>uf;}),
+    variance:variance,sd:sd,mad:mad/n,cv:sd/mean,skew:skew,kurt:kurt};
+}
+function fmt(v,d){
+  if(v===undefined||v===null||!isFinite(v)) return '—';
+  return v.toLocaleString('pt-BR',{minimumFractionDigits:d===undefined?3:d,maximumFractionDigits:d===undefined?3:d});
+}
+function css(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
+
+function render(x){
+  window.__lastData=x;
+  var r=describe(x);
+  var items=[
+    ['n',fmt(r.n,0)],['Média',fmt(r.mean)],['Mediana',fmt(r.median)],
+    ['Moda',r.mode.length?(r.mode.length>3?'multimodal':r.mode.map(function(v){return fmt(v);}).join('; ')):'não há'],
+    ['Média aparada 10%',fmt(r.trim)],['Média geométrica',isFinite(r.geo)?fmt(r.geo):'~requer valores > 0'],
+    ['Média harmônica',isFinite(r.harm)?fmt(r.harm):'~requer valores > 0'],
+    ['Média geométrica de retornos (dados em %)',isFinite(r.geoRet)?fmt(r.geoRet):'~requer valores > −100'],
+    ['Mínimo',fmt(r.min)],['Q1',fmt(r.q1)],['Q3',fmt(r.q3)],['Máximo',fmt(r.max)],
+    ['Amplitude',fmt(r.range)],['Intervalo interquartil',fmt(r.iqr)],['Desvio médio absoluto',fmt(r.mad)],
+    ['Variância (n−1)',fmt(r.variance)],['Desvio-padrão (n−1)',fmt(r.sd)],
+    ['Coef. de variação',r.mean!==0?fmt(r.cv):'—'],
+    ['Assimetria G1',fmt(r.skew)],['Curtose em excesso G2',fmt(r.kurt)],
+    ['Outliers (Tukey)',r.outliers.length?r.outliers.map(function(v){return fmt(v,2);}).join('; '):'nenhum']
+  ];
+  document.getElementById('statsOut').innerHTML=items.map(function(it){
+    var v=String(it[1]), small=v.charAt(0)==='~';
+    return '<div class="stat"><div class="k">'+it[0]+'</div><div class="v'+(small?' small':'')+'">'+(small?v.slice(1):v)+'</div></div>';}).join('');
+  drawHist(r); drawBox(r); interpret(r);
+}
+
+function interpret(r){
+  var t=[];
+  var rel=r.mean>r.median?'supera':(r.mean<r.median?'é menor que':'é igual à');
+  t.push('A média ('+fmt(r.mean,2)+') '+rel+' a mediana ('+fmt(r.median,2)+').');
+  if(isFinite(r.skew)){
+    if(Math.abs(r.skew)<0.5) t.push('A assimetria ('+fmt(r.skew,2)+') é pequena: distribuição aproximadamente simétrica.');
+    else t.push('A assimetria ('+fmt(r.skew,2)+') indica cauda mais longa à '+(r.skew>0?'direita':'esquerda')+'.');
+  }
+  if(isFinite(r.kurt)){
+    if(r.kurt>1) t.push('A curtose em excesso positiva ('+fmt(r.kurt,2)+') indica caudas mais pesadas que as da Normal.');
+    else if(r.kurt<-1) t.push('A curtose em excesso negativa ('+fmt(r.kurt,2)+') indica caudas mais leves que as da Normal.');
+  }
+  if(r.outliers.length) t.push('Há '+r.outliers.length+' possível(is) outlier(s); compare média e média aparada para avaliar sua influência.');
+  if(r.n<8) t.push('Com n = '+r.n+', assimetria e curtose são estimadas com muita imprecisão.');
+  document.getElementById('interpOut').textContent=t.join(' ');
+}
+
+function svgEl(tag,attrs,text){
+  var e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(var k in attrs) e.setAttribute(k,attrs[k]);
+  if(text!==undefined) e.textContent=text;
+  return e;
+}
+function niceTicks(lo,hi,count){
+  var span=hi-lo||1, step=Math.pow(10,Math.floor(Math.log10(span/count))), err=span/count/step;
+  if(err>=7.5) step*=10; else if(err>=3.5) step*=5; else if(err>=1.5) step*=2;
+  var ticks=[]; for(var v=Math.ceil(lo/step)*step; v<=hi+1e-9; v+=step) ticks.push(+v.toFixed(10));
+  return ticks;
+}
+
+function drawHist(r){
+  var svg=document.getElementById('histSvg'); svg.innerHTML='';
+  var W=420,H=230,L=36,R=10,T=10,B=28;
+  var k=Math.max(1,Math.ceil(1+Math.log2(r.n)));
+  var lo=r.min, hi=r.max; if(lo===hi){lo-=0.5;hi+=0.5;}
+  var w=(hi-lo)/k, counts=new Array(k).fill(0);
+  r.sorted.forEach(function(v){var i=Math.min(k-1,Math.floor((v-lo)/w)); counts[i]++;});
+  var maxC=Math.max.apply(null,counts);
+  var sx=function(v){return L+(v-lo)/(hi-lo)*(W-L-R);}, sy=function(c){return H-B-c/maxC*(H-T-B);};
+  var border=css('--border'), bar=css('--bar'), accent2=css('--accent-2');
+  niceTicks(0,maxC,4).forEach(function(c){
+    if(c!==Math.round(c)) return;
+    svg.appendChild(svgEl('line',{x1:L,x2:W-R,y1:sy(c),y2:sy(c),stroke:border,'stroke-width':1}));
+    svg.appendChild(svgEl('text',{x:L-6,y:sy(c)+4,'text-anchor':'end'},c));
+  });
+  counts.forEach(function(c,i){
+    var x0=sx(lo+i*w), x1=sx(lo+(i+1)*w);
+    var rect=svgEl('rect',{x:x0+1,y:sy(c),width:Math.max(0,x1-x0-2),height:H-B-sy(c),fill:bar,rx:2});
+    rect.appendChild(svgEl('title',{},'['+fmt(lo+i*w,2)+'; '+fmt(lo+(i+1)*w,2)+(i===k-1?']':')')+': '+c+' obs.'));
+    svg.appendChild(rect);
+  });
+  niceTicks(lo,hi,5).forEach(function(v){
+    svg.appendChild(svgEl('text',{x:sx(v),y:H-B+16,'text-anchor':'middle'},fmt(v,Math.abs(v)<10&&v%1!==0?1:0)));
+  });
+  // linhas da média e da mediana
+  [['média',r.mean,accent2,'4 3'],['mediana',r.median,css('--text'),'']].forEach(function(m,j){
+    var x=sx(m[1]);
+    svg.appendChild(svgEl('line',{x1:x,x2:x,y1:T,y2:H-B,stroke:m[2],'stroke-width':2,'stroke-dasharray':m[3]}));
+    svg.appendChild(svgEl('text',{x:x+4,y:T+10+j*13,style:'fill:'+m[2]},m[0]));
+  });
+}
+
+function drawBox(r){
+  var svg=document.getElementById('boxSvg'); svg.innerHTML='';
+  var W=300,H=230,L=48,R=10,T=14,B=14;
+  var lo=r.min, hi=r.max; if(lo===hi){lo-=0.5;hi+=0.5;}
+  var pad=(hi-lo)*0.05; lo-=pad; hi+=pad;
+  var sy=function(v){return H-B-(v-lo)/(hi-lo)*(H-T-B);};
+  var border=css('--border'), bar=css('--bar'), text=css('--text'), accent2=css('--accent-2');
+  niceTicks(lo,hi,5).forEach(function(v){
+    svg.appendChild(svgEl('line',{x1:L,x2:W-R,y1:sy(v),y2:sy(v),stroke:border,'stroke-width':1}));
+    svg.appendChild(svgEl('text',{x:L-6,y:sy(v)+4,'text-anchor':'end'},fmt(v,Math.abs(v)<10&&v%1!==0?1:0)));
+  });
+  var cx=(L+W-R)/2, bw=70;
+  var inside=r.sorted.filter(function(v){return v>=r.lf&&v<=r.uf;});
+  var wl=inside[0], wh=inside[inside.length-1];
+  svg.appendChild(svgEl('line',{x1:cx,x2:cx,y1:sy(wh),y2:sy(r.q3),stroke:text,'stroke-width':1.5}));
+  svg.appendChild(svgEl('line',{x1:cx,x2:cx,y1:sy(r.q1),y2:sy(wl),stroke:text,'stroke-width':1.5}));
+  [wl,wh].forEach(function(v){svg.appendChild(svgEl('line',{x1:cx-bw/4,x2:cx+bw/4,y1:sy(v),y2:sy(v),stroke:text,'stroke-width':1.5}));});
+  var box=svgEl('rect',{x:cx-bw/2,y:sy(r.q3),width:bw,height:Math.max(1,sy(r.q1)-sy(r.q3)),fill:bar,'fill-opacity':0.25,stroke:bar,'stroke-width':1.5,rx:3});
+  box.appendChild(svgEl('title',{},'Q1 = '+fmt(r.q1)+' | Mediana = '+fmt(r.median)+' | Q3 = '+fmt(r.q3)));
+  svg.appendChild(box);
+  svg.appendChild(svgEl('line',{x1:cx-bw/2,x2:cx+bw/2,y1:sy(r.median),y2:sy(r.median),stroke:text,'stroke-width':2.5}));
+  var mean=svgEl('path',{d:'M'+cx+' '+(sy(r.mean)-5)+' l5 5 l-5 5 l-5 -5 z',fill:accent2});
+  mean.appendChild(svgEl('title',{},'Média = '+fmt(r.mean))); svg.appendChild(mean);
+  r.outliers.forEach(function(v){
+    var c=svgEl('circle',{cx:cx,cy:sy(v),r:4,fill:'none',stroke:accent2,'stroke-width':2});
+    c.appendChild(svgEl('title',{},'Outlier: '+fmt(v))); svg.appendChild(c);
+  });
+  svg.appendChild(svgEl('text',{x:cx+bw/2+6,y:sy(r.mean)+4,style:'fill:'+accent2},'◆ média'));
+}
+
+function run(){
+  var err=document.getElementById('calcErr');
+  try{
+    var x=parseData(document.getElementById('dataInput').value);
+    if(x.length<2) throw new Error('Informe pelo menos 2 valores.');
+    err.textContent=''; render(x);
+  }catch(e){ err.textContent=e.message; }
+}
+document.getElementById('calcBtn').addEventListener('click',run);
+document.querySelectorAll('[data-sample]').forEach(function(b){
+  b.addEventListener('click',function(){document.getElementById('dataInput').value=b.dataset.sample; run();});
+});
+document.getElementById('dataInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)) run();
+});
+run();
+</script>
+</body>
+</html>
