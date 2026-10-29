@@ -266,6 +266,7 @@ estat vif</code></pre></div>
 <p>As bases estão em <a href="../dados_caso/index.html"><code>dados_caso/</code></a>. Em todos os casos, observe como o coeficiente de interesse muda quando os controles entram: é o viés de variável omitida acontecendo em dados reais.</p>
 
 <h3>8.1 Mercado de trabalho: retorno da educação (wage1)</h3>
+<p class="hint">Base: <a href="../dados_caso/wage1.dta" download><code>wage1.dta</code></a></p>
 <p>Base clássica de Wooldridge com 526 trabalhadores. Variável dependente: ln(salário-hora).</p>
 <div class="table-wrap"><table class="reg-table">
 <thead><tr><th>Dependente: ln(salário-hora)</th><th>(1)</th><th>(2)</th><th>(3)</th></tr></thead>
@@ -287,6 +288,7 @@ estat vif</code></pre></div>
 </ul>
 
 <h3>8.2 Economia digital: acesso à internet e renda (PNAD 2009–2012)</h3>
+<p class="hint">Base: <a href="../dados_caso/pnad_2009_2011_internet_renda.dta" download><code>pnad_2009_2011_internet_renda.dta</code></a></p>
 <p>Microdados da PNAD com 348.692 pessoas com renda positiva. Variável dependente: ln(renda).</p>
 <div class="table-wrap"><table class="reg-table">
 <thead><tr><th>Especificação</th><th>Coef. de internet</th><th>\(R^2\)</th></tr></thead>
@@ -302,6 +304,7 @@ estat vif</code></pre></div>
 </div>
 
 <h3>8.3 Saúde: consumo de refrigerante e obesidade (Coca-Cola)</h3>
+<p class="hint">Base: <a href="../dados_caso/coca_cola_regioes.csv" download><code>coca_cola_regioes.csv</code></a></p>
 <p>80 regiões × 4 anos (2022–2025). Dependente: taxa de obesidade (%). Erros-padrão agrupados por região.</p>
 <div class="table-wrap"><table class="reg-table">
 <thead><tr><th>Controles incluídos</th><th>Coef. do consumo de refrigerante (L/hab.)</th><th>\(R^2\)</th></tr></thead>
@@ -315,6 +318,7 @@ estat vif</code></pre></div>
 <p>Cada litro per capita a mais de refrigerante está associado a 0,07–0,11 p.p. a mais de obesidade. O marketing é muito correlacionado com o consumo (r = 0,68): quando entra no modelo, “absorve” parte do coeficiente. Não inclua a prevalência de diabetes como controle: ela é consequência da obesidade, um <strong>controle ruim</strong>.</p>
 
 <h3>8.4 Saúde pública: SAMU e mortes no trânsito (MT, 2000–2020)</h3>
+<p class="hint">Base: <a href="../dados_caso/samu_mt_2000_2020.dta" download><code>samu_mt_2000_2020.dta</code></a></p>
 <p>Painel de 141 municípios, aqui tratado como uma grande amostra de município-ano. Dependente: ln(mortes no trânsito + 1). Erros agrupados por município.</p>
 <div class="table-wrap"><table class="reg-table">
 <thead><tr><th>Dependente: ln(mortes + 1)</th><th>(1)</th><th>(2)</th><th>(3)</th></tr></thead>
@@ -329,6 +333,7 @@ estat vif</code></pre></div>
 <p>Este é o caso mais instrutivo. Sem controles, o SAMU parece <em>aumentar</em> as mortes (+0,61): o serviço foi implantado primeiro nos municípios maiores, que têm mais acidentes. Controlando pela infraestrutura de saúde (2), o sinal se inverte; controlando também pela população (3), o efeito estimado é de \(e^{-0{,}288}-1\approx\) −25%. O tamanho do município é o confundidor. O número de ortopedistas, que parecia ter grande efeito em (2), era em boa parte um indicador de tamanho. Como o porte e outras características fixas dos municípios pesam tanto, o caso é retomado com efeitos fixos (Conteúdo 5) e como diferenças em diferenças com adoção escalonada (Conteúdo 6).</p>
 
 <h3>8.5 Empresas: modelos com muitas variáveis</h3>
+<p class="hint">Base: <a href="../dados_caso/estudos_caso_regressao_multipla.xlsx" download><code>estudos_caso_regressao_multipla.xlsx</code></a></p>
 <p>Cinco séries mensais ilustrativas (jan/2019–dez/2023, n = 60) em <a href="../dados_caso/estudos_caso_regressao_multipla.xlsx" download><code>estudos_caso_regressao_multipla.xlsx</code></a>. O dicionário separa as variáveis “originais” das “novas”, acrescentadas para ampliar o modelo.</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Empresa</th><th>Variável dependente</th><th class="num">\(R^2\) só originais</th><th class="num">\(R^2\) / \(\bar R^2\) todas (8)</th><th>Principais variáveis significativas (5%)</th></tr></thead>

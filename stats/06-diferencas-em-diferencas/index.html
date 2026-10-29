@@ -309,6 +309,7 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <p><strong>Para discussão:</strong> municípios com DEAM são maiores e mais urbanos (taxa inicial mais alta). Se recebessem outras políticas de segurança ao mesmo tempo, o DiD atribuiria tudo à DEAM. Que dados ajudariam a descartar essa explicação?</p>
 
 <h3>8.4 Farmácia Popular e mortes por hipertensão (MT, 2003–2011)</h3>
+<p class="hint">Base: <a href="../dados_caso/farmacia_popular_mt.dta" download><code>farmacia_popular_mt.dta</code></a></p>
 <p>Mesquita &amp; Nishimura avaliam o programa “Aqui Tem Farmácia Popular” em 141 municípios de Mato Grosso. O tratamento é o município ter farmácia credenciada; a adoção começa em Cuiabá em 2006 e se concentra em 2009–2011. A estimação usa TWFE com efeitos fixos de município e ano, testes de efeitos defasados, número de farmácias e <strong>desfechos placebo</strong> (mortes que o programa não deveria afetar).</p>
 
 <div class="box">
@@ -332,6 +333,7 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 </ul>
 
 <h3>8.5 SAMU e mortes no trânsito (MT, 2000–2020)</h3>
+<p class="hint">Base: <a href="../dados_caso/samu_mt_2000_2020.dta" download><code>samu_mt_2000_2020.dta</code></a></p>
 <p>106 municípios adotam o SAMU entre 2004 e 2014; 35 nunca adotam. Dependente: mortes no trânsito por 100 mil habitantes.</p>
 <div class="table-wrap"><table class="reg-table">
 <thead><tr><th></th><th>TWFE</th><th>Callaway &amp; Sant’Anna</th></tr></thead>
@@ -341,6 +343,7 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <p>As duas estimativas indicam redução, embora a do CS, mais imprecisa, não seja significativa a 10%, crescente nos anos seguintes à adoção (cerca de −2 por 100 mil hab. do 3º ao 4º ano). Mas os coeficientes pré-tratamento oscilam bastante (no CS, de −2,4 a +3,1). Taxas de mortalidade em municípios pequenos são muito ruidosas: poucos óbitos mudam muito a taxa. Esse é um caso para discutir os limites do diagnóstico visual de tendências paralelas e a escolha da variável (taxa, contagem ou log).</p>
 
 <h3>8.6 Política de P&amp;D e emissões de CO2 (193 países, 2000–2020)</h3>
+<p class="hint">Base: <a href="../dados_caso/co2_pd_2000_2020.dta" download><code>co2_pd_2000_2020.dta</code></a></p>
 <p>132 países adotam uma política de P&amp;D entre 2003 e 2017; 61 nunca adotam. O efeito cresce de praticamente zero no ano da adoção para −0,14 (≈ −13%) cinco anos depois, sem sinal de tendências pré-existentes. Aqui a diferença entre os estimadores é grande: TWFE −0,069 (0,004) contra CS −0,107 (0,005), isto é, emissões cerca de 7% contra 10% menores. Como os primeiros países adotam em 2003 e o efeito continua crescendo por muitos anos, o TWFE usa como “controle” países tratados há muito tempo e atenua o efeito. É o problema da Seção 5 em escala real.</p>
 
 <h3>8.7 Outras aplicações</h3>
