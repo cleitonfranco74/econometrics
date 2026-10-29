@@ -10,6 +10,7 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <link rel="stylesheet" href="../assets/estilo.css">
 <script src="../assets/comum.js"></script>
+<script src="casos_dados.js"></script>
 </head>
 <body>
 
@@ -32,7 +33,8 @@
     <li><a href="#escalonado">5. Adoção escalonada</a></li>
     <li><a href="#exemplo">6. Exemplo e código</a></li>
     <li><a href="#simulador">7. Simulador</a></li>
-    <li><a href="#exercicios">8. Exercícios</a></li>
+    <li><a href="#casos">8. Estudos de caso</a></li>
+    <li><a href="#exercicios">9. Exercícios</a></li>
   </ul>
 </nav>
 
@@ -238,8 +240,145 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 </section>
 
 <!-- 8 -->
+<section id="casos">
+<h2>8. Estudos de caso</h2>
+<p>Bases em <a href="../dados_caso/"><code>dados_caso/</code></a>. Exceto o primeiro, todos os casos têm <strong>adoção escalonada</strong>: cada unidade entra no tratamento em um ano. Por isso, cada caso é estimado de duas formas: pelo TWFE e pelo estimador de Callaway &amp; Sant’Anna (CS), que usa como controle apenas as unidades nunca tratadas. O script <a href="codigo/casos_did.py"><code>codigo/casos_did.py</code></a> reproduz todos os números.</p>
+
+<h3>8.1 O perigo do antes e depois</h3>
+<p>Um programa de qualificação profissional para mulheres: o salário das participantes foi de US$ 103 para US$ 131 (+28). Parece um grande sucesso, mas o salário das não participantes também subiu, de US$ 97 para US$ 112 (+15), por causa do crescimento do mercado. O impacto do programa é \(28-15=\mathbf{13}\) dólares: comparar só antes e depois nos tratados mais que dobra o efeito.</p>
+
+<h3>8.2 Farmácia Popular e mortes por hipertensão (MT, 2003–2011)</h3>
+<p>Mesquita &amp; Nishimura avaliam o programa “Aqui Tem Farmácia Popular” em 141 municípios de Mato Grosso. O tratamento é o município ter farmácia credenciada; a adoção começa em Cuiabá em 2006 e se concentra em 2009–2011. A estimação usa TWFE com efeitos fixos de município e ano, testes de efeitos defasados, número de farmácias e <strong>desfechos placebo</strong> (mortes que o programa não deveria afetar).</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: mortes por hipertensão</th><th>Artigo</th><th>Base didática</th></tr></thead>
+<tbody>
+<tr><td>FP, sem efeitos fixos</td><td>4,429***<br><small>(1,135)</small></td><td>2,578***<br><small>(0,224)</small></td></tr>
+<tr><td>FP, efeitos fixos de município e ano</td><td>−0,198<br><small>(0,436)</small></td><td>0,231<br><small>(0,268)</small></td></tr>
+<tr><td>4º ano após a adoção (EF)</td><td>−3,312**<br><small>(1,472)</small></td><td>−2,255**<br><small>(0,923)</small></td></tr>
+<tr><td>3 ou mais farmácias credenciadas (EF)</td><td>−1,338 (signif.)</td><td>−1,010<br><small>(0,625)</small></td></tr>
+<tr><td>Placebos (EF): afogamento / neoplasias / pneumonia</td><td>não significativos</td><td>0,005 / −0,095 / 0,326<br><small>(0,069) / (0,423) / (0,284)</small></td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>Viés de seleção:</strong> sem efeitos fixos, o programa parece <em>aumentar</em> as mortes, porque as farmácias foram credenciadas primeiro onde havia mais mortes (municípios maiores). Com efeitos fixos, o coeficiente vai a zero.</li>
+<li><strong>Efeitos que demoram:</strong> o efeito sobre a mortalidade aparece só a partir do 4º ano, e a intensidade importa (3 ou mais farmácias).</li>
+<li><strong>Placebos:</strong> o programa não “afeta” mortes que não têm relação com hipertensão. É evidência de que o resultado não vem de uma tendência geral de saúde nos municípios tratados.</li>
+<li>Como 72 dos 76 municípios tratados aderiram em 2009–2011, há poucas observações 4 ou 5 anos após a adoção: as estimativas de longo prazo dependem de pouquíssimos municípios.</li>
+</ul>
+
+<h3>8.3 iFood e crime em São Paulo (2010–2019)</h3>
+<p>Frankenthal (2025, <em>The Gig Economy and Crime</em>) usa a entrada escalonada do iFood nos municípios paulistas. O artigo encontra redução média de 10,4% nos crimes contra a propriedade, cerca de 529 ocorrências a menos por município-ano. O efeito é maior nos horários de maior retorno das entregas e nos bairros de menor renda, e não há deslocamento do crime para áreas de alta demanda. A explicação é o custo de oportunidade do crime (Becker, 1968): o trabalho de entregador é uma alternativa de renda para jovens com pouca qualificação.</p>
+<p>A base didática (644 municípios, 227 tratados entre 2012 e 2019) reproduz esse desenho com um efeito maior e crescente no tempo:</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: ln(crimes contra a propriedade)</th><th>TWFE</th><th>Callaway &amp; Sant’Anna</th></tr></thead>
+<tbody>
+<tr><td>Efeito médio após a entrada do iFood</td><td>−0,301***<br><small>(0,008)</small></td><td>−0,362***<br><small>(0,008)</small></td></tr>
+<tr><td>No ano de entrada / 5 anos depois (estudo de eventos)</td><td>−0,107 / −0,744</td><td>−0,106 / −0,748</td></tr>
+</tbody></table></div>
+<p>Os coeficientes pré-tratamento são praticamente zero, compatíveis com tendências paralelas. O TWFE subestima o efeito médio (−0,30 contra −0,36): com efeitos que crescem no tempo, ele usa municípios <em>já tratados</em> como controle dos que entram depois, as comparações “proibidas” de Goodman-Bacon (Seção 5). O estudo de eventos com ano de referência, que separa cada período relativo, quase não sofre com isso neste caso.</p>
+
+<h3>8.4 SAMU e mortes no trânsito (MT, 2000–2020)</h3>
+<p>106 municípios adotam o SAMU entre 2004 e 2014; 35 nunca adotam. Dependente: mortes no trânsito por 100 mil habitantes.</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th></th><th>TWFE</th><th>Callaway &amp; Sant’Anna</th></tr></thead>
+<tbody>
+<tr><td>Efeito médio do SAMU</td><td>−1,81***<br><small>(0,54)</small></td><td>−1,38*<br><small>(0,81)</small></td></tr>
+</tbody></table></div>
+<p>As duas estimativas indicam redução, crescente nos anos seguintes à adoção (cerca de −2 por 100 mil hab. do 3º ao 4º ano). Mas os coeficientes pré-tratamento oscilam bastante (no CS, de −2,4 a +3,1). Taxas de mortalidade em municípios pequenos são muito ruidosas: poucos óbitos mudam muito a taxa. Esse é um caso para discutir os limites do diagnóstico visual de tendências paralelas e a escolha da variável (taxa, contagem ou log).</p>
+
+<h3>8.5 Política de P&amp;D e emissões de CO2 (193 países, 2000–2020)</h3>
+<p>132 países adotam uma política de P&amp;D entre 2003 e 2017; 61 nunca adotam. TWFE: −0,069 (0,004); CS: −0,070 (0,005), ou seja, emissões per capita cerca de 7% menores. O efeito cresce de praticamente zero no ano da adoção para −0,14 (≈ −13%) cinco anos depois, e não há sinal de tendências pré-existentes. Aqui TWFE e CS quase coincidem: os grupos de adoção são numerosos e há muitos países nunca tratados para servir de controle.</p>
+
+<h3>8.6 Outras aplicações</h3>
+<ul>
+<li><strong>Moçambique, projeto agroflorestal de carbono:</strong> como as características que determinam a participação (família, tamanho da terra) eram observáveis e só havia um corte transversal, usou-se pareamento por escore de propensão, e não DiD. Resultados: aumento de renda e consumo e redução da produção líquida de culturas.</li>
+<li><strong>Angola, malária:</strong> a exposição a terapias combinadas à base de artemisinina variou entre províncias. O DiD (2006 × 2011) mostrou que cada ponto percentual a mais de acesso às terapias reduziu em cerca de 5,2 p.p. o uso de mosquiteiros: a cura diminuiu a prevenção (substituição de políticas).</li>
+</ul>
+
+<h3>8.7 Visualizador de estudos de eventos</h3>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="vC">Caso</label><select id="vC"></select></div>
+    <div><label>Estimador</label>
+      <div class="donors" style="margin:4px 0 0"><label><input type="checkbox" id="vT" checked> TWFE</label><label><input type="checkbox" id="vS" checked> Callaway &amp; Sant’Anna</label></div></div>
+  </div>
+  <div class="chart wide"><h4 id="vTitle"></h4><svg id="vPlot" viewBox="0 0 560 330" role="img" aria-label="Estudo de eventos do caso escolhido"></svg>
+    <div class="legend"><span class="dot" style="--c:var(--bar)">TWFE (IC 95%)</span><span class="dot" style="--c:var(--accent-2)">Callaway &amp; Sant’Anna (IC 95%)</span></div></div>
+  <div class="stats-grid" id="vOut"></div>
+  <p class="hint">Tempo relativo à adoção. No TWFE, a referência é o ano −1 (coeficiente zero). No CS, os coeficientes pré-tratamento comparam cada ano com o anterior, por isso o ano −1 também é estimado. Os extremos (≤ −5 e ≥ +5) agrupam os períodos mais distantes. Erros-padrão do TWFE agrupados por unidade; do CS, por bootstrap de unidades.</p>
+</div>
+
+<h3>Código dos casos</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="cst">Stata</button>
+    <button role="tab" aria-selected="false" data-tab="cr">R</button>
+    <button role="tab" aria-selected="false" data-tab="cpy">Python</button>
+  </div>
+<div class="tabpanel active" data-panel="cst"><pre><code>* ssc install reghdfe ; ssc install csdid ; ssc install drdid ; ssc install event_plot
+use "dados_caso/ifood_crime_sp.dta", clear
+xtset cod_mun ano
+generate lcrimes = ln(crimes)
+
+* TWFE
+reghdfe lcrimes post_ifood, absorb(cod_mun ano) vce(cluster cod_mun)
+
+* Estudo de eventos TWFE (referência: ano -1)
+generate rel = cond(ifood_ano &gt; 0, ano - ifood_ano, .)
+replace rel = max(min(rel, 5), -5) if rel &lt; .
+forvalues k = 5(-1)2 {
+    generate pre`k' = (rel == -`k')
+}
+forvalues k = 0/5 {
+    generate pos`k' = (rel == `k')
+}
+reghdfe lcrimes pre5-pre2 pos0-pos5, absorb(cod_mun ano) vce(cluster cod_mun)
+
+* Callaway & Sant'Anna: gvar = ano da primeira adoção (0 = nunca tratado)
+csdid lcrimes, ivar(cod_mun) time(ano) gvar(ifood_ano)   // controle: nunca tratados
+estat simple
+estat event, window(-5 5)
+csdid_plot
+
+* Farmácia Popular: TWFE, intensidade e placebos
+use "dados_caso/farmacia_popular_mt.dta", clear
+reghdfe mortes_hipertensao fp, absorb(cod_mun ano) vce(robust)
+foreach p in mortes_afogamento mortes_neoplasias mortes_pneumonia {
+    reghdfe `p' fp, absorb(cod_mun ano) vce(robust)
+}</code></pre></div>
+<div class="tabpanel" data-panel="cr"><pre><code>library(haven); library(fixest); library(did)
+d &lt;- read_dta("dados_caso/ifood_crime_sp.dta")
+d$lcrimes &lt;- log(d$crimes)
+
+feols(lcrimes ~ post_ifood | cod_mun + ano, d, cluster = ~cod_mun)        # TWFE
+
+# Sun & Abraham (estudo de eventos robusto à adoção escalonada)
+d$coorte &lt;- ifelse(d$ifood_ano == 0, 10000, d$ifood_ano)                   # nunca tratados
+es &lt;- feols(lcrimes ~ sunab(coorte, ano) | cod_mun + ano, d, cluster = ~cod_mun)
+iplot(es); summary(es, agg = "ATT")
+
+# Callaway & Sant'Anna
+att &lt;- att_gt(yname = "lcrimes", tname = "ano", idname = "cod_mun",
+              gname = "ifood_ano", data = as.data.frame(d))
+aggte(att, type = "simple")
+ggdid(aggte(att, type = "dynamic", min_e = -5, max_e = 5))</code></pre></div>
+<div class="tabpanel" data-panel="cpy"><pre><code># Todos os casos (TWFE, estudo de eventos e Callaway & Sant'Anna didático):
+#   cd 06-diferencas-em-diferencas/codigo && python casos_did.py
+import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+
+d = pd.read_stata("dados_caso/ifood_crime_sp.dta")
+d["lcrimes"] = np.log(d["crimes"])
+smf.ols("lcrimes ~ post_ifood + C(cod_mun) + C(ano)", data=d).fit(
+    cov_type="cluster", cov_kwds={"groups": d["cod_mun"]}).params["post_ifood"]
+
+# Pacote com Callaway & Sant'Anna em Python: pip install csdid  (ou differences)</code></pre></div>
+</div>
+</section>
+
+<!-- 9 -->
 <section id="exercicios">
-<h2>8. Exercícios</h2>
+<h2>9. Exercícios</h2>
 <ol class="exercises">
 <li>
 <p>Taxa de inadimplência de cooperativas de crédito (%): tratadas por uma nova regra prudencial passaram de 6,0 para 4,5; não tratadas, de 5,0 para 4,2. Calcule o DiD e os dois estimadores ingênuos.</p>
@@ -317,6 +456,39 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
   document.getElementById('dNew').addEventListener('click',function(){seed++;run();});
   document.addEventListener('themechange',function(){run();drawES();});
   document.addEventListener('DOMContentLoaded',function(){run();drawES();});
+})();
+</script>
+<script>
+// Visualizador de estudos de eventos (resultados de codigo/casos_did.py em casos_dados.js)
+(function(){
+  if(!window.CASOS6) return;
+  var sel=document.getElementById('vC');
+  var ordem=['ifood','farmacia','samu','co2'];
+  ordem.forEach(function(k){if(!CASOS6[k])return;var o=document.createElement('option');o.value=k;o.textContent=CASOS6[k].titulo;sel.appendChild(o);});
+  function run(){
+    var c=CASOS6[sel.value], showT=document.getElementById('vT').checked, showS=document.getElementById('vS').checked;
+    var series=[]; if(showT) series.push([c.es_twfe,css('--bar'),-0.12]); if(showS) series.push([c.es_cs,css('--accent-2'),0.12]);
+    var vals=[0];
+    series.forEach(function(s){Object.keys(s[0]).forEach(function(k){var v=s[0][k]; if(isFinite(v[1])){vals.push(v[0]-1.96*v[1],v[0]+1.96*v[1]);} else vals.push(v[0]);});});
+    var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals), pad=(hi-lo)*0.08||0.1;
+    var ticks=[-5,-4,-3,-2,-1,0,1,2,3,4,5];
+    var f=plotFrame(document.getElementById('vPlot'),{H:330,xlim:[-5.6,5.6],ylim:[lo-pad,hi+pad],xticks:ticks,
+      xfmt:function(v){return v===-5?'≤−5':v===5?'≥5':(v>0?'+':'')+String(v).replace('-','−');},xlabel:'anos desde a adoção'});
+    f.svg.appendChild(svgEl('line',{x1:f.m.l,x2:f.W-f.m.r,y1:f.sy(0),y2:f.sy(0),stroke:css('--muted'),'stroke-width':1.2}));
+    plotVLine(f,-0.5,css('--muted'),'4 4','adoção');
+    series.forEach(function(s){
+      if(!s[0]['-1']) plotCI(f,-1+s[2],0,0,0,s[1]);
+      Object.keys(s[0]).forEach(function(k){var v=s[0][k], e=+k+s[2], se=isFinite(v[1])?v[1]:0; plotCI(f,e,v[0],v[0]-1.96*se,v[0]+1.96*se,s[1]);});
+    });
+    document.getElementById('vTitle').textContent=c.titulo;
+    var z=function(b,se){return Math.abs(b/se)>2.576?'***':Math.abs(b/se)>1.96?'**':Math.abs(b/se)>1.645?'*':'';};
+    statCards('vOut',[['TWFE: efeito médio',fmt(c.twfe[0],3)+z(c.twfe[0],c.twfe[1])+' <small>(ep '+fmt(c.twfe[1],3)+')</small>'],
+      ['CS: efeito médio (ATT)',fmt(c.cs[0],3)+z(c.cs[0],c.cs[1])+' <small>(ep '+fmt(c.cs[1],3)+')</small>']]);
+  }
+  sel.addEventListener('change',run);
+  document.getElementById('vT').addEventListener('change',run); document.getElementById('vS').addEventListener('change',run);
+  document.addEventListener('themechange',run);
+  document.addEventListener('DOMContentLoaded',run);
 })();
 </script>
 </body>

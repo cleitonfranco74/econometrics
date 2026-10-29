@@ -32,7 +32,8 @@
     <li><a href="#inferencia">5. Erros-padrão</a></li>
     <li><a href="#exemplo">6. Exemplo e código</a></li>
     <li><a href="#simulador">7. Simulador</a></li>
-    <li><a href="#exercicios">8. Exercícios</a></li>
+    <li><a href="#casos">8. Estudos de caso</a></li>
+    <li><a href="#exercicios">9. Exercícios</a></li>
   </ul>
 </nav>
 
@@ -224,8 +225,100 @@ reghdfe roa alavancagem tamanho, absorb(empresa ano) vce(cluster empresa)</code>
 </section>
 
 <!-- 8 -->
+<section id="casos">
+<h2>8. Estudos de caso</h2>
+<p>Três painéis de <a href="../dados_caso/"><code>dados_caso/</code></a>. Em cada um, compare o MQO empilhado (só com dummies de ano) com o modelo de efeitos fixos de unidade e de ano. Todos os erros-padrão são agrupados por unidade.</p>
+
+<h3>8.1 SAMU e mortes no trânsito (141 municípios de MT, 2000–2020)</h3>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: mortes no trânsito por 100 mil hab.</th><th>Pooled</th><th>Efeitos fixos</th><th>Pooled + frota</th><th>EF + frota</th></tr></thead>
+<tbody>
+<tr><td>SAMU ativo</td><td>−0,978*<br><small>(0,504)</small></td><td>−1,808***<br><small>(0,537)</small></td><td>−0,990*<br><small>(0,504)</small></td><td>−1,797***<br><small>(0,534)</small></td></tr>
+<tr><td>Frota (veículos por 100 hab.)</td><td></td><td></td><td>0,282**<br><small>(0,116)</small></td><td>0,264**<br><small>(0,125)</small></td></tr>
+<tr><td>Efeitos fixos de município / ano</td><td>Não / Sim</td><td>Sim / Sim</td><td>Não / Sim</td><td>Sim / Sim</td></tr>
+</tbody></table></div>
+<p>Em 2000, antes de qualquer SAMU, os municípios que viriam a recebê-lo já tinham taxa média de 5,2 mortes por 100 mil hab., contra 2,5 nos que nunca o receberam, e população média de 37 mil contra 4,4 mil. Essa diferença fixa joga contra o SAMU no <em>pooled</em>. Com efeitos fixos, comparando cada município consigo mesmo, o efeito estimado quase dobra: −1,8 morte por 100 mil hab.</p>
+<div class="box warn">
+<h4>Colinearidade dentro do município</h4>
+<p>Nesta base, o número de ortopedistas aumenta em exatamente 1 no ano em que o SAMU é implantado e não muda em nenhum outro momento. Com efeitos fixos, “ortopedistas” e “SAMU” têm a mesma variação <em>within</em>: incluir os dois gera colinearidade perfeita e coeficientes absurdos. Variáveis constantes no município (analfabetismo, IDHM, densidade rodoviária) são eliminadas pelos efeitos fixos.</p>
+</div>
+
+<h3>8.2 Desigualdade e renda (164 países, 2010–2019)</h3>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: índice de Gini</th><th>Pooled</th><th>Efeitos fixos de país e ano</th></tr></thead>
+<tbody>
+<tr><td>ln(PIB per capita)</td><td>−0,0218***<br><small>(0,0040)</small></td><td>0,0037<br><small>(0,0346)</small></td></tr>
+</tbody></table></div>
+<p>Entre países, mais renda está associada a menos desigualdade (Conteúdo 3). Dentro de cada país, ao longo de uma década, a relação desaparece. A correlação entre países reflete características permanentes (instituições, história, estrutura produtiva), não o efeito de crescer. Note também o erro-padrão nove vezes maior: o desvio-padrão de ln(PIB) <em>entre</em> países é 1,11, e <em>dentro</em> deles apenas 0,087. Em dez anos há pouca variação <em>within</em> para estimar o efeito.</p>
+
+<h3>8.3 Política de P&amp;D e emissões de CO2 (193 países, 2000–2020)</h3>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: ln(CO2 per capita)</th><th>Pooled</th><th>Efeitos fixos</th></tr></thead>
+<tbody>
+<tr><td>Política de P&amp;D ativa</td><td>−0,120**<br><small>(0,060)</small></td><td>−0,069***<br><small>(0,004)</small></td></tr>
+<tr><td>Taxa de urbanização (%)</td><td>0,0065***<br><small>(0,0014)</small></td><td>0,0001<br><small>(0,0068)</small></td></tr>
+<tr><td>Crescimento populacional (%)</td><td>−0,008<br><small>(0,016)</small></td><td>−0,145***<br><small>(0,036)</small></td></tr>
+</tbody></table></div>
+<p>Com efeitos fixos, a política está associada a emissões cerca de 6,6% menores (\(e^{-0{,}069}-1\)), com erro-padrão 15 vezes menor que no <em>pooled</em>. Isso acontece porque os efeitos fixos removem a enorme variação de nível entre países, que no <em>pooled</em> fica no resíduo. A urbanização perde efeito: ela distingue países, mas muda pouco dentro deles. Como a política é adotada em anos diferentes, o caso volta no Conteúdo 6 com estimadores de adoção escalonada.</p>
+
+<h3>Código dos casos</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="cst">Stata</button>
+    <button role="tab" aria-selected="false" data-tab="cr">R</button>
+    <button role="tab" aria-selected="false" data-tab="cpy">Python</button>
+  </div>
+<div class="tabpanel active" data-panel="cst"><pre><code>use "dados_caso/samu_mt_2000_2020.dta", clear
+xtset cod_mun ano
+generate frota_pc = frota / pop * 100
+regress tx_mortes_transito samu frota_pc i.ano, vce(cluster cod_mun)    // pooled
+xtreg   tx_mortes_transito samu frota_pc i.ano, fe vce(cluster cod_mun) // efeitos fixos
+xtsum ortopedista samu tx_analfa                                        // variação within
+
+use "dados_caso/gini_pib_mundo.dta", clear
+encode code, generate(pais)
+xtset pais year
+generate lpib = ln(gdppercapita)
+xtsum lpib ginicoefficient
+regress ginicoefficient lpib i.year, vce(cluster pais)
+xtreg   ginicoefficient lpib i.year, fe vce(cluster pais)
+
+use "dados_caso/co2_pd_2000_2020.dta", clear
+xtset cod_pais ano
+xtreg ln_co2_pc pd taxadeurbanizacao crescimentopop i.ano, fe vce(cluster cod_pais)</code></pre></div>
+<div class="tabpanel" data-panel="cr"><pre><code>library(haven); library(fixest)
+s &lt;- read_dta("dados_caso/samu_mt_2000_2020.dta")
+s$frota_pc &lt;- s$frota / s$pop * 100
+etable(feols(tx_mortes_transito ~ samu + frota_pc | ano, s, cluster = ~cod_mun),
+       feols(tx_mortes_transito ~ samu + frota_pc | cod_mun + ano, s, cluster = ~cod_mun))
+
+g &lt;- read_dta("dados_caso/gini_pib_mundo.dta")
+etable(feols(ginicoefficient ~ log(gdppercapita) | year, g, cluster = ~code),
+       feols(ginicoefficient ~ log(gdppercapita) | code + year, g, cluster = ~code))
+
+c &lt;- read_dta("dados_caso/co2_pd_2000_2020.dta")
+feols(ln_co2_pc ~ pd + taxadeurbanizacao + crescimentopop | cod_pais + ano, c, cluster = ~cod_pais)</code></pre></div>
+<div class="tabpanel" data-panel="cpy"><pre><code>import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+
+s = pd.read_stata("dados_caso/samu_mt_2000_2020.dta")
+s["frota_pc"] = s["frota"] / s["pop"] * 100
+cl = {"groups": s["cod_mun"]}
+pooled = smf.ols("tx_mortes_transito ~ samu + frota_pc + C(ano)", s).fit(cov_type="cluster", cov_kwds=cl)
+fe = smf.ols("tx_mortes_transito ~ samu + frota_pc + C(cod_mun) + C(ano)", s).fit(cov_type="cluster", cov_kwds=cl)
+print(pooled.params[["samu", "frota_pc"]], fe.params[["samu", "frota_pc"]])
+
+g = pd.read_stata("dados_caso/gini_pib_mundo.dta")
+g["lpib"] = np.log(g["gdppercapita"])
+smf.ols("ginicoefficient ~ lpib + C(code) + C(year)", g).fit(
+    cov_type="cluster", cov_kwds={"groups": g["code"]}).params["lpib"]</code></pre></div>
+</div>
+</section>
+
+<!-- 9 -->
 <section id="exercicios">
-<h2>8. Exercícios</h2>
+<h2>9. Exercícios</h2>
 <ol class="exercises">
 <li>
 <p>Uma pesquisa estima o efeito da adesão ao Novo Mercado sobre o custo de capital com um painel de empresas e efeitos fixos de empresa. Por que o efeito do setor não aparece na saída? Isso é um problema?</p>
@@ -263,7 +356,8 @@ reghdfe roa alavancagem tamanho, absorb(empresa ano) vce(cluster empresa)</code>
   var seed=5;
   var palette=['#1f5f8b','#b5562a','#2e7d4f','#7a4fa3','#c49a00','#00838f','#ad1457','#5d6b2f','#6d4c41','#3949ab','#e65100','#00695c'];
   function run(){
-    var beta=+pB.value, rho=+pC.value, N=+pN.value, T=+pT.value, R=rng(seed);
+    var el=function(id){return +document.getElementById(id).value;};
+    var beta=el("pB"), rho=el("pC"), N=el("pN"), T=el("pT"), R=rng(seed);
     var X=[],Y=[],G=[];
     for(var i=0;i<N;i++){
       var xbar=R.norm()*3, a=rho*xbar*1.2+Math.sqrt(Math.max(0,1-rho*rho))*R.norm()*3.6;

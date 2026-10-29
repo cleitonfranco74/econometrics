@@ -10,6 +10,7 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <link rel="stylesheet" href="../assets/estilo.css">
 <script src="../assets/comum.js"></script>
+<script src="casos_dados.js"></script>
 </head>
 <body>
 
@@ -32,7 +33,8 @@
     <li><a href="#testes">5. Testes</a></li>
     <li><a href="#exemplo">6. Exemplo e código</a></li>
     <li><a href="#simulador">7. Simulador</a></li>
-    <li><a href="#exercicios">8. Exercícios</a></li>
+    <li><a href="#casos">8. Estudos de caso</a></li>
+    <li><a href="#exercicios">9. Exercícios</a></li>
   </ul>
 </nav>
 
@@ -257,8 +259,187 @@ estat vif</code></pre></div>
 </section>
 
 <!-- 8 -->
+<section id="casos">
+<h2>8. Estudos de caso</h2>
+<p>As bases estão em <a href="../dados_caso/"><code>dados_caso/</code></a>. Em todos os casos, observe como o coeficiente de interesse muda quando os controles entram: é o viés de variável omitida acontecendo em dados reais.</p>
+
+<h3>8.1 Mercado de trabalho: retorno da educação (wage1)</h3>
+<p>Base clássica de Wooldridge com 526 trabalhadores. Variável dependente: ln(salário-hora).</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: ln(salário-hora)</th><th>(1)</th><th>(2)</th><th>(3)</th></tr></thead>
+<tbody>
+<tr><td>Educação (anos)</td><td>0,0827***<br><small>(0,0076)</small></td><td>0,0920***<br><small>(0,0073)</small></td><td>0,0789***<br><small>(0,0076)</small></td></tr>
+<tr><td>Experiência</td><td></td><td>0,0041**<br><small>(0,0017)</small></td><td>0,0270***<br><small>(0,0052)</small></td></tr>
+<tr><td>Experiência²</td><td></td><td></td><td>−0,0005***<br><small>(0,0001)</small></td></tr>
+<tr><td>Tempo de empresa</td><td></td><td>0,0221***<br><small>(0,0031)</small></td><td>0,0314***<br><small>(0,0072)</small></td></tr>
+<tr><td>Tempo de empresa²</td><td></td><td></td><td>−0,0006**<br><small>(0,0003)</small></td></tr>
+<tr><td>Mulher</td><td></td><td></td><td>−0,2906***<br><small>(0,0367)</small></td></tr>
+<tr><td>Casado(a) / Não branco(a)</td><td></td><td></td><td>0,0516 / −0,0257<br><small>(0,0414) / (0,0615)</small></td></tr>
+<tr><td>\(R^2\) / \(\bar R^2\)</td><td>0,186 / 0,184</td><td>0,316 / 0,312</td><td>0,443 / 0,434</td></tr>
+</tbody></table></div>
+<p class="hint">n = 526. Erros-padrão convencionais em (1)–(2) e robustos (HC1) em (3). *** p&lt;0,01; ** p&lt;0,05.</p>
+<ul>
+<li><strong><em>Ceteris paribus</em>:</strong> em (2), um ano a mais de educação, mantidas experiência e permanência, aumenta o salário em cerca de 9,2%.</li>
+<li><strong>Efeitos combinados:</strong> permanecer mais um ano na mesma empresa aumenta experiência <em>e</em> tempo de empresa: \(0{,}0041+0{,}0221=0{,}0262\), ou seja, ≈ 2,6% (teste t da soma: t = 9,8).</li>
+<li><strong>Gênero:</strong> em (3), mulheres com as mesmas características ganham \(100(e^{-0{,}2906}-1)\approx\) 25% a menos.</li>
+</ul>
+
+<h3>8.2 Economia digital: acesso à internet e renda (PNAD 2009–2012)</h3>
+<p>Microdados da PNAD com 348.692 pessoas com renda positiva. Variável dependente: ln(renda).</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Especificação</th><th>Coef. de internet</th><th>\(R^2\)</th></tr></thead>
+<tbody>
+<tr><td>(1) Só internet</td><td>0,5865***<br><small>(0,0028)</small></td><td>0,110</td></tr>
+<tr><td>(2) + ler e escrever, anos de estudo, horas, gênero, idade, raça, estado civil (como no slide)</td><td>0,3875***<br><small>(0,0029)</small></td><td>0,413</td></tr>
+<tr><td>(3) Igual a (2), mas com categorias como dummies, idade², UF e ano</td><td>0,3444***<br><small>(0,0028)</small></td><td>0,477</td></tr>
+</tbody></table></div>
+<p>Em (2), quem tem acesso à internet ganha \(100(e^{0{,}3875}-1)\approx\) 47% a mais, mantidas as demais características. O coeficiente cai de (1) para (2) porque a internet está correlacionada com escolaridade e idade, que também afetam a renda.</p>
+<div class="box warn">
+<h4>Atenção à codificação</h4>
+<p>Na especificação (2), raça, estado civil e faixa de horas trabalhadas entram como números, mas são <em>códigos</em> do IBGE (raça 2 = branca, 4 = preta, 8 = parda…). O coeficiente de “raça” não tem interpretação. A forma correta é incluir uma dummy por categoria, como em (3); o efeito da internet cai para 41% (\(e^{0{,}3444}-1\)). Mesmo assim, não é um efeito causal: habilidade, ocupação e região de moradia ainda podem estar no erro.</p>
+</div>
+
+<h3>8.3 Saúde: consumo de refrigerante e obesidade (Coca-Cola)</h3>
+<p>80 regiões × 4 anos (2022–2025). Dependente: taxa de obesidade (%). Erros-padrão agrupados por região.</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Controles incluídos</th><th>Coef. do consumo de refrigerante (L/hab.)</th><th>\(R^2\)</th></tr></thead>
+<tbody>
+<tr><td>Nenhum</td><td>0,106***<br><small>(0,034)</small></td><td>0,093</td></tr>
+<tr><td>Renda</td><td>0,097***<br><small>(0,034)</small></td><td>0,166</td></tr>
+<tr><td>Marketing</td><td>0,086**<br><small>(0,035)</small></td><td>0,097</td></tr>
+<tr><td>Atividade física, renda, marketing, urbanização</td><td>0,078**<br><small>(0,035)</small></td><td>0,171</td></tr>
+<tr><td>+ preço do refrigerante e dummies de ano</td><td>0,071*<br><small>(0,038)</small></td><td>0,178</td></tr>
+</tbody></table></div>
+<p>Cada litro per capita a mais de refrigerante está associado a 0,07–0,11 p.p. a mais de obesidade. O marketing é muito correlacionado com o consumo (r = 0,68): quando entra no modelo, “absorve” parte do coeficiente. Não inclua a prevalência de diabetes como controle: ela é consequência da obesidade, um <strong>controle ruim</strong>.</p>
+
+<h3>8.4 Saúde pública: SAMU e mortes no trânsito (MT, 2000–2020)</h3>
+<p>Painel de 141 municípios, aqui tratado como uma grande amostra de município-ano. Dependente: ln(mortes no trânsito + 1). Erros agrupados por município.</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: ln(mortes + 1)</th><th>(1)</th><th>(2)</th><th>(3)</th></tr></thead>
+<tbody>
+<tr><td>SAMU ativo</td><td><strong>0,607***</strong><br><small>(0,073)</small></td><td><strong>−0,527***</strong><br><small>(0,077)</small></td><td><strong>−0,288***</strong><br><small>(0,061)</small></td></tr>
+<tr><td>Equipamentos do SAMU</td><td></td><td>0,029***<br><small>(0,004)</small></td><td>0,020***<br><small>(0,003)</small></td></tr>
+<tr><td>Ortopedistas</td><td></td><td>0,406***<br><small>(0,032)</small></td><td>0,066*<br><small>(0,035)</small></td></tr>
+<tr><td>Taxa de analfabetismo</td><td></td><td>0,005<br><small>(0,006)</small></td><td>0,001<br><small>(0,005)</small></td></tr>
+<tr><td>ln(população)</td><td></td><td></td><td>0,460***<br><small>(0,046)</small></td></tr>
+<tr><td>\(R^2\)</td><td>0,136</td><td>0,561</td><td>0,637</td></tr>
+</tbody></table></div>
+<p>Este é o caso mais instrutivo. Sem controles, o SAMU parece <em>aumentar</em> as mortes (+0,61): o serviço foi implantado primeiro nos municípios maiores, que têm mais acidentes. Controlando pela infraestrutura de saúde (2), o sinal se inverte; controlando também pela população (3), o efeito estimado é de \(e^{-0{,}288}-1\approx\) −25%. O tamanho do município é o confundidor. O número de ortopedistas, que parecia ter grande efeito em (2), era em boa parte um indicador de tamanho. Como o porte e outras características fixas dos municípios pesam tanto, o caso é retomado com efeitos fixos (Conteúdo 5) e como diferenças em diferenças com adoção escalonada (Conteúdo 6).</p>
+
+<h3>8.5 Empresas: modelos com muitas variáveis</h3>
+<p>Cinco séries mensais ilustrativas (jan/2019–dez/2023, n = 60) em <code>estudos_caso_regressao_multipla.xlsx</code>. O dicionário separa as variáveis “originais” das “novas”, acrescentadas para ampliar o modelo.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Empresa</th><th>Variável dependente</th><th class="num">\(R^2\) só originais</th><th class="num">\(R^2\) / \(\bar R^2\) todas (8)</th><th>Principais variáveis significativas (5%)</th></tr></thead>
+<tbody>
+<tr><td>Amazon</td><td>Receita online (bi US$)</td><td class="num">0,573</td><td class="num">0,717 / 0,672</td><td>Investimento em logística (+1,56), tempo de entrega (−4,04), avaliação do cliente (+9,90)</td></tr>
+<tr><td>Google</td><td>Receita de publicidade (bi US$)</td><td class="num">0,857</td><td class="num">0,904 / 0,889</td><td>Investimento em IA (+2,81), anunciantes ativos (+1,60), CPC (+4,85), data centers (+1,61)</td></tr>
+<tr><td>Microsoft</td><td>Receita Azure (bi US$)</td><td class="num">0,293</td><td class="num">0,680 / 0,630</td><td>Usuários Office 365, contratos cloud, P&amp;D (+0,49), servidores, churn (−0,83)</td></tr>
+<tr><td>Petrobras</td><td>Lucro líquido (bi R$)</td><td class="num">0,901</td><td class="num">0,917 / 0,904</td><td>Preço do petróleo (+0,47), volume exportado (+0,06), margem de refino (+0,20)</td></tr>
+<tr><td>Mercado Livre</td><td>Volume de transações (bi US$)</td><td class="num">0,717</td><td class="num">0,883 / 0,865</td><td>Usuários, vendedores (+2,23), logística (+1,63), crédito (+0,65), abandono de carrinho (−0,16), pagamentos digitais (−0,05)</td></tr>
+</tbody></table></div>
+<ul>
+<li>O \(R^2\) sempre aumenta ao incluir variáveis; compare com o \(\bar R^2\). Na Petrobras, as novas variáveis quase nada acrescentam (0,901 → 0,904 ajustado).</li>
+<li>Coeficientes mudam quando variáveis entram. Na Amazon, o efeito da logística cai de 2,51 (só originais) para 1,56, porque marketing e número de CDs estão correlacionados com ela.</li>
+<li>Com séries mensais, verifique tendência e autocorrelação dos resíduos (teste de Durbin-Watson, <code>estat dwatson</code> no Stata) antes de confiar nos erros-padrão.</li>
+<li>Sinais inesperados merecem discussão. No Mercado Livre, a taxa de adoção de pagamentos digitais tem coeficiente negativo: multicolinearidade com o crédito concedido ou um problema real do negócio?</li>
+</ul>
+
+<h3>8.6 Laboratório de regressão múltipla</h3>
+<p>Escolha uma base, marque as variáveis explicativas e veja a tabela de regressão atualizar: coeficientes, erros-padrão, testes t, \(R^2\), \(\bar R^2\) e teste F global.</p>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="lB">Base</label><select id="lB"></select></div>
+    <div><label>Variável dependente</label><div id="lY" class="hint" style="padding-top:6px"></div></div>
+  </div>
+  <div class="donors" id="lX" aria-label="Variáveis explicativas"></div>
+  <div class="row"><button class="btn ghost" type="button" id="lAll">Marcar todas</button><button class="btn ghost" type="button" id="lNone">Desmarcar todas</button></div>
+  <div class="table-wrap"><table class="reg-table" id="lT"></table></div>
+  <div class="stats-grid" id="lOut"></div>
+  <p class="interp" id="lInterp"></p>
+</div>
+
+<h3>Código dos casos</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="cst">Stata</button>
+    <button role="tab" aria-selected="false" data-tab="cpy">Python</button>
+    <button role="tab" aria-selected="false" data-tab="cr">R</button>
+  </div>
+<div class="tabpanel active" data-panel="cst"><pre><code>* 8.1 wage1
+use "dados_caso/wage1.dta", clear
+regress LWAGE EDUC EXPER TENURE
+lincom EXPER + TENURE                        // efeito de +1 ano na mesma empresa
+regress LWAGE EDUC c.EXPER##c.EXPER c.TENURE##c.TENURE FEMALE MARRIED NONWHITE, robust
+
+* 8.2 PNAD
+use "dados_caso/pnad_2009_2011_internet_renda.dta", clear
+keep if Renda &gt; 0
+generate logrenda = ln(Renda)
+regress logrenda internet lereescrever anosestudo horas_trabalhadas genero idade raça estcivil, robust
+regress logrenda internet lereescrever anosestudo i.horas_trabalhadas genero c.idade##c.idade ///
+    i.raça i.estcivil i.uf i.ano, robust
+
+* 8.4 SAMU
+use "dados_caso/samu_mt_2000_2020.dta", clear
+generate logmortes = ln(mortes_transito + 1)
+generate lpop = ln(pop)
+regress logmortes samu, vce(cluster cod_mun)
+regress logmortes samu equipamentos ortopedista tx_analfa, vce(cluster cod_mun)
+regress logmortes samu equipamentos ortopedista tx_analfa lpop, vce(cluster cod_mun)
+
+* 8.5 Empresas (exemplo: Amazon)
+import excel "dados_caso/estudos_caso_regressao_multipla.xlsx", sheet("Amazon") firstrow clear
+describe
+regress ReceitadeVendasOnlinebiUSD InvestimentoemLogísticabiUSD-AvaliaçãoMédiadoCliente15
+estat vif</code></pre></div>
+<div class="tabpanel" data-panel="cpy"><pre><code>import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+w = pd.read_stata("dados_caso/wage1.dta")
+m = smf.ols("LWAGE ~ EDUC + EXPER + TENURE", data=w).fit()
+m.t_test("EXPER + TENURE = 0")
+
+p = pd.read_stata("dados_caso/pnad_2009_2011_internet_renda.dta", convert_categoricals=False)
+p = p[p["Renda"] &gt; 0].rename(columns={"raça": "raca"})
+p["logrenda"] = np.log(p["Renda"])
+smf.ols("logrenda ~ internet + lereescrever + anosestudo + C(horas_trabalhadas) + genero"
+        " + idade + I(idade**2) + C(raca) + C(estcivil) + C(uf) + C(ano)", data=p).fit(cov_type="HC1")
+
+s = pd.read_stata("dados_caso/samu_mt_2000_2020.dta")
+s["logmortes"] = np.log(s["mortes_transito"] + 1); s["lpop"] = np.log(s["pop"])
+smf.ols("logmortes ~ samu + equipamentos + ortopedista + tx_analfa + lpop", data=s).fit(
+    cov_type="cluster", cov_kwds={"groups": s["cod_mun"]}).summary()
+
+# Empresas: Y é a variável indicada no Dicionário
+a = pd.read_excel("dados_caso/estudos_caso_regressao_multipla.xlsx", sheet_name="Amazon")
+y = a["Receita de Vendas Online (bi USD)"]
+X = a.drop(columns=["Data", "Receita de Vendas Online (bi USD)", "log Receitas Vendas online %"])
+sm.OLS(y, sm.add_constant(X)).fit().summary()</code></pre></div>
+<div class="tabpanel" data-panel="cr"><pre><code>library(haven); library(readxl); library(fixest)
+w &lt;- read_dta("dados_caso/wage1.dta")
+m &lt;- lm(LWAGE ~ EDUC + EXPER + TENURE, data = w); summary(m)
+car::linearHypothesis(m, "EXPER + TENURE = 0")
+
+p &lt;- read_dta("dados_caso/pnad_2009_2011_internet_renda.dta")
+p &lt;- subset(p, Renda &gt; 0)
+feols(log(Renda) ~ internet + lereescrever + anosestudo + i(horas_trabalhadas) + genero +
+        idade + I(idade^2) + i(`raça`) + i(estcivil) | uf + ano, data = p, vcov = "hetero")
+
+s &lt;- read_dta("dados_caso/samu_mt_2000_2020.dta")
+feols(log(mortes_transito + 1) ~ samu + equipamentos + ortopedista + tx_analfa + log(pop),
+      data = s, cluster = ~cod_mun)
+
+a &lt;- read_excel("dados_caso/estudos_caso_regressao_multipla.xlsx", sheet = "Amazon")
+a &lt;- a[, !(names(a) %in% c("Data", "log Receitas Vendas online %"))]
+summary(lm(`Receita de Vendas Online (bi USD)` ~ ., data = a))</code></pre></div>
+</div>
+</section>
+
+<!-- 9 -->
 <section id="exercicios">
-<h2>8. Exercícios</h2>
+<h2>9. Exercícios</h2>
 <ol class="exercises">
 <li>
 <p>Estimou-se \(\widehat{\ln(\text{honorários})}=1{,}8+0{,}42\ln(\text{ativo})+0{,}25\,\text{BigFour}+0{,}10\,\text{Complexidade}\), em que BigFour é dummy. Interprete o coeficiente da BigFour (exato e aproximado).</p>
@@ -327,6 +508,42 @@ estat vif</code></pre></div>
   document.getElementById('oNew').addEventListener('click',function(){seed++;run();});
   document.addEventListener('themechange',run);
   document.addEventListener('DOMContentLoaded',run);
+})();
+</script>
+<script>
+// Laboratório de regressão múltipla (dados em casos_dados.js)
+(function(){
+  if(!window.CASOS4) return;
+  var bSel=document.getElementById('lB'), box=document.getElementById('lX');
+  Object.keys(CASOS4).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=CASOS4[k].rotulo;bSel.appendChild(o);});
+  function fill(){
+    var b=CASOS4[bSel.value]; document.getElementById('lY').textContent=b.y; box.innerHTML='';
+    b.vars.forEach(function(v,i){ if(v===b.y) return;
+      var nova=b.nova&&b.nova.indexOf(v)>=0;
+      var l=document.createElement('label'); l.innerHTML='<input type="checkbox" data-i="'+i+'"'+(nova?'':' checked')+'> '+v+(nova?' <small>(nova)</small>':'');
+      box.appendChild(l);});
+  }
+  function run(){
+    var b=CASOS4[bSel.value], yi=b.vars.indexOf(b.y), Y=b.dados[yi], n=Y.length;
+    var sel=[]; box.querySelectorAll('input').forEach(function(c){if(c.checked) sel.push(+c.dataset.i);});
+    var X=Y.map(function(_,r){return [1].concat(sel.map(function(i){return b.dados[i][r];}));});
+    var m=ols(X,Y), k=sel.length, T=document.getElementById('lT');
+    if(!m){T.innerHTML='<tr><td>Colinearidade perfeita: retire alguma variável.</td></tr>';return;}
+    var gl=n-k-1, rows='<thead><tr><th>Variável</th><th>Coef.</th><th>Erro-padrão</th><th>t</th><th>p-valor</th></tr></thead><tbody>';
+    var nomes=['Constante'].concat(sel.map(function(i){return b.vars[i];})), sig=[];
+    m.beta.forEach(function(be,j){var t=be/m.se[j], p=pT(t,gl); if(j>0&&p<0.05) sig.push(nomes[j]);
+      rows+='<tr><td>'+nomes[j]+'</td><td>'+fmt(be,4)+stars(p)+'</td><td>'+fmt(m.se[j],4)+'</td><td>'+fmt(t,2)+'</td><td>'+fmtP(p)+'</td></tr>';});
+    T.innerHTML=rows+'</tbody>';
+    var r2a=1-(1-m.r2)*(n-1)/gl, F=k>0?(m.r2/k)/((1-m.r2)/gl):NaN;
+    statCards('lOut',[['n',fmt(n,0)],['Regressores k',fmt(k,0)],['R²',fmt(m.r2)],['R² ajustado',fmt(r2a)],['F global',k>0?fmt(F,2)+' <small>(p '+fmtP(pF(F,k,gl))+')</small>':'—'],['Erro-padrão da regressão',fmt(m.s,3)]]);
+    document.getElementById('lInterp').innerHTML=k===0?'Sem regressores, a constante é a média de Y.':
+      'Erros-padrão convencionais. Significativas a 5%: '+(sig.length?sig.join('; '):'nenhuma')+'. Marque e desmarque variáveis e observe como os demais coeficientes mudam: é o viés de variável omitida (ou a multicolinearidade) em ação. O R² nunca cai ao incluir uma variável; o R² ajustado pode cair.';
+  }
+  bSel.addEventListener('change',function(){fill();run();});
+  box.addEventListener('change',run);
+  document.getElementById('lAll').addEventListener('click',function(){box.querySelectorAll('input').forEach(function(c){c.checked=true;});run();});
+  document.getElementById('lNone').addEventListener('click',function(){box.querySelectorAll('input').forEach(function(c){c.checked=false;});run();});
+  document.addEventListener('DOMContentLoaded',function(){fill();run();});
 })();
 </script>
 </body>

@@ -146,3 +146,47 @@ function plotCI(f,x,est,lo,hi,color){
   f.svg.appendChild(svgEl('line',{x1:f.sx(x),x2:f.sx(x),y1:f.sy(lo),y2:f.sy(hi),stroke:color,'stroke-width':2}));
   f.svg.appendChild(svgEl('circle',{cx:f.sx(x),cy:f.sy(est),r:4.5,fill:color}));
 }
+
+// ---------- Distribuição t, p-valores e postos (usados nos estudos de caso) ----------
+function lnGamma(z){
+  var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  var x=z,y=z,t=x+5.5; t-=(x+0.5)*Math.log(t); var s=1.000000000190015;
+  for(var j=0;j<6;j++) s+=c[j]/++y;
+  return -t+Math.log(2.5066282746310005*s/x);
+}
+function betacf(a,b,x){
+  var qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap; if(Math.abs(d)<1e-30)d=1e-30; d=1/d; var h=d;
+  for(var m=1;m<=200;m++){
+    var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d; if(Math.abs(d)<1e-30)d=1e-30; c=1+aa/c; if(Math.abs(c)<1e-30)c=1e-30; d=1/d; h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+    d=1+aa*d; if(Math.abs(d)<1e-30)d=1e-30; c=1+aa/c; if(Math.abs(c)<1e-30)c=1e-30; d=1/d;
+    var del=d*c; h*=del; if(Math.abs(del-1)<3e-12) break;
+  }
+  return h;
+}
+function betai(a,b,x){
+  if(x<=0) return 0; if(x>=1) return 1;
+  var bt=Math.exp(lnGamma(a+b)-lnGamma(a)-lnGamma(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)? bt*betacf(a,b,x)/a : 1-bt*betacf(b,a,1-x)/b;
+}
+// p-valor bilateral de uma estatística t com gl graus de liberdade
+function pT(t,gl){ return betai(gl/2,0.5,gl/(gl+t*t)); }
+// p-valor de uma estatística F(q, gl)
+function pF(F,q,gl){ return betai(gl/2,q/2,gl/(gl+q*F)); }
+function stars(p){ return p<0.01?'***':p<0.05?'**':p<0.1?'*':''; }
+function fmtP(p){ return p<0.001?'&lt;0,001':fmt(p,3); }
+function ranks(a){
+  var idx=a.map(function(v,i){return [v,i];}).sort(function(x,y){return x[0]-y[0];}), r=new Array(a.length);
+  for(var i=0;i<idx.length;){var j=i; while(j+1<idx.length&&idx[j+1][0]===idx[i][0]) j++;
+    for(var k=i;k<=j;k++) r[idx[k][1]]=(i+j)/2+1; i=j+1;}
+  return r;
+}
+function pearson(x,y){
+  var mx=mean(x),my=mean(y),sxy=0,sx=0,sy=0;
+  for(var i=0;i<x.length;i++){sxy+=(x[i]-mx)*(y[i]-my);sx+=(x[i]-mx)*(x[i]-mx);sy+=(y[i]-my)*(y[i]-my);}
+  return sxy/Math.sqrt(sx*sy);
+}
+function statCards(id,items){
+  document.getElementById(id).innerHTML=items.map(function(it){return '<div class="stat"><div class="k">'+it[0]+'</div><div class="v">'+it[1]+'</div></div>';}).join('');
+}

@@ -10,6 +10,7 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <link rel="stylesheet" href="../assets/estilo.css">
 <script src="../assets/comum.js"></script>
+<script src="casos_dados.js"></script>
 </head>
 <body>
 
@@ -31,7 +32,8 @@
     <li><a href="#inferencia">4. Inferência</a></li>
     <li><a href="#exemplo">5. Exemplo e código</a></li>
     <li><a href="#simulador">6. Simulador</a></li>
-    <li><a href="#exercicios">7. Exercícios</a></li>
+    <li><a href="#casos">7. Estudos de caso</a></li>
+    <li><a href="#exercicios">8. Exercícios</a></li>
   </ul>
 </nav>
 
@@ -261,8 +263,130 @@ regress vendas publicidade tamanho</code></pre></div>
 </section>
 
 <!-- 7 -->
+<section id="casos">
+<h2>7. Estudos de caso</h2>
+<p>As bases estão em <a href="../dados_caso/"><code>dados_caso/</code></a> (ver o <a href="../dados_caso/LEIA-ME.md">LEIA-ME</a>). As séries de empresas são <strong>ilustrativas</strong>, construídas para a disciplina, e não números oficiais das companhias. Os dados de Gini e PIB per capita vêm do Our World in Data / Banco Mundial.</p>
+
+<h3>7.1 Correlações empresariais</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Caso</th><th>Variáveis</th><th class="num">r</th><th>Pergunta para discussão</th></tr></thead>
+<tbody>
+<tr><td>Apple</td><td>Vendas de iPhones × receita de serviços</td><td class="num">0,597</td><td>Mais iPhones geram mais assinantes de serviços, ou ambos crescem com a sazonalidade de lançamentos?</td></tr>
+<tr><td>Netflix</td><td>Produções originais × novos assinantes</td><td class="num">0,591</td><td>Com 28 trimestres, quão precisa é essa estimativa? (IC 95% de r ≈ [0,28; 0,79])</td></tr>
+<tr><td>Coca-Cola</td><td>Consumo de refrigerante × obesidade</td><td class="num">0,338</td><td>A renda está correlacionada com ambos (0,10 e 0,29): é um confundidor?</td></tr>
+<tr><td>Tesla</td><td>Investimento em P&amp;D × vendas globais</td><td class="num">0,600</td><td>Causalidade reversa: vendas maiores financiam mais P&amp;D?</td></tr>
+<tr><td>Tarifaço</td><td>Exportações para os EUA × para outros mercados</td><td class="num">−0,569</td><td>Desvio de comércio: o que um exportador deixa de vender aos EUA vai para outros destinos?</td></tr>
+<tr><td>Tarifaço</td><td>Exportações para os EUA × índice de diversificação</td><td class="num">−0,656</td><td>Diversificar reduz a dependência dos EUA, ou a queda nas vendas aos EUA “aumenta” a diversificação por construção?</td></tr>
+<tr><td>Tesla × BYD</td><td>Vendas Tesla × vendas BYD</td><td class="num">−0,928</td><td>Concorrência direta (substituição) ou tendências opostas no tempo? Uma correlação tão alta entre séries temporais pede cautela.</td></tr>
+</tbody></table></div>
+<p class="hint">IC de r pela transformação de Fisher: \(z=\tfrac12\ln\frac{1+r}{1-r}\), \(ep(z)=1/\sqrt{n-3}\).</p>
+
+<h3>7.2 Desigualdade e renda: Gini × PIB per capita</h3>
+<p>Base com 164 países, de 2010 a 2019 (<code>gini_pib_mundo.dta</code>), e um recorte com seis países sul-americanos (<code>gini_pib_america_sul.dta</code>).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Corte transversal</th><th class="num">Países</th><th class="num">Pearson (PIB)</th><th class="num">Pearson (ln PIB)</th><th class="num">Spearman</th></tr></thead>
+<tbody>
+<tr><td>2010</td><td class="num">153</td><td class="num">−0,401</td><td class="num">−0,335</td><td class="num">−0,369</td></tr>
+<tr><td>2015</td><td class="num">157</td><td class="num">−0,347</td><td class="num">−0,298</td><td class="num">−0,344</td></tr>
+<tr><td>2019</td><td class="num">152</td><td class="num">−0,325</td><td class="num">−0,281</td><td class="num">−0,339</td></tr>
+</tbody></table></div>
+<p>Com a observação mais recente de cada país (n = 164), a regressão simples dá \(\widehat{Gini}=0{,}553-0{,}0197\ln(PIB)\) (ep robusto 0,004; \(R^2=0{,}088\)). É um modelo nível-log: dobrar o PIB per capita está associado a um Gini \(0{,}0197\times\ln 2\approx 0{,}014\) menor. Com um termo quadrático em \(\ln(PIB)\), o coeficiente do quadrado é negativo e significativo (p = 0,03): um formato de U invertido, como na <strong>curva de Kuznets</strong>, com pico em torno de US$ 3.500.</p>
+<p><strong>América do Sul:</strong> entre 2010 e 2019, nos seis países, o Gini caiu enquanto o PIB per capita subia. A correlação <em>dentro</em> de cada país vai de −0,62 (Brasil) a −0,92 (Peru). O Brasil foi o que menos reduziu a desigualdade (0,537 → 0,535). Duas séries com tendência no tempo tendem a ser correlacionadas; para separar tendência comum de relação econômica, veja o mesmo caso com efeitos fixos no Conteúdo 5.</p>
+
+<h3>7.3 Google: regressão linear simples</h3>
+<p>Com 60 meses de dados (<code>google_reglinear.xlsx</code>), a regressão da receita de publicidade (bi US$) no investimento em IA (bi US$):</p>
+<div class="formula">$$\widehat{Receita}=\underset{(2{,}24)}{22{,}62}+\underset{(0{,}21)}{3{,}73}\;IA,\qquad R^2=0{,}845,\quad r=0{,}919,\quad n=60$$</div>
+<p>Cada US$ 1 bi a mais investido em IA está associado a US$ 3,73 bi a mais de receita de publicidade no mesmo mês. Incluir o número de usuários ativos quase não muda o coeficiente (3,71), e o coeficiente dos usuários não é significativo. Ainda assim, é uma associação: em séries mensais, empresas investem mais quando a receita (e a expectativa de receita) é alta, o que caracteriza simultaneidade.</p>
+
+<h3>7.4 Sorvete, afogamentos e os critérios de Bradford Hill</h3>
+<p>Em uma cidade litorânea, vendas mensais de sorvete e afogamentos têm correlação muito alta, porque ambos dependem do <strong>calor</strong> (confundidor). Sites como <a href="https://www.tylervigen.com/spurious-correlations">Spurious Correlations</a> reúnem correlações altíssimas sem sentido, como o consumo de margarina nos EUA e a taxa de divórcios no Maine (r = 0,99). Antes de interpretar uma associação como causal, use os critérios de Bradford Hill (1965) como roteiro:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Critério</th><th>Pergunta</th></tr></thead>
+<tbody>
+<tr><td>Força</td><td>A associação é forte o suficiente para justificar a investigação?</td></tr>
+<tr><td>Consistência</td><td>Ela se repete em amostras, períodos e métodos diferentes?</td></tr>
+<tr><td><strong>Temporalidade</strong> (obrigatório)</td><td>A causa vem antes do efeito?</td></tr>
+<tr><td>Gradiente</td><td>Mais exposição leva a mais efeito (dose-resposta)?</td></tr>
+<tr><td>Plausibilidade e coerência</td><td>Existe um mecanismo teórico compatível com o que se sabe?</td></tr>
+<tr><td>Evidência experimental</td><td>Um experimento ou quase-experimento confirma o efeito?</td></tr>
+</tbody></table></div>
+
+<h3>7.5 Explorador de correlações</h3>
+<p>Escolha uma base e duas variáveis. A página calcula as correlações de Pearson e Spearman e a regressão linear simples.</p>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="eB">Base</label><select id="eB"></select></div>
+    <div><label for="eX">Variável X</label><select id="eX"></select></div>
+    <div><label for="eY">Variável Y</label><select id="eY"></select></div>
+  </div>
+  <div class="charts">
+    <div class="chart"><h4 id="eT">Dispersão</h4><svg id="ePlot" viewBox="0 0 560 340" role="img" aria-label="Gráfico de dispersão da base escolhida"></svg></div>
+    <div class="stats-grid" id="eOut" style="align-content:start"></div>
+  </div>
+  <p class="interp" id="eInterp"></p>
+</div>
+
+<h3>Código dos casos</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="cpy">Python</button>
+    <button role="tab" aria-selected="false" data-tab="cr">R</button>
+    <button role="tab" aria-selected="false" data-tab="cst">Stata</button>
+  </div>
+<div class="tabpanel active" data-panel="cpy"><pre><code>import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+
+# Correlações empresariais (uma aba por empresa)
+abas = pd.read_excel("dados_caso/correlacoes_empresariais.xlsx", sheet_name=None)
+for nome, d in abas.items():
+    print(nome, d.select_dtypes("number").corr().round(3), sep="\n")
+
+# Gini x PIB per capita
+g = pd.read_stata("dados_caso/gini_pib_mundo.dta")
+g["lpib"] = np.log(g["gdppercapita"])
+u = g.sort_values("year").groupby("code").tail(1)          # observação mais recente
+u[["ginicoefficient", "gdppercapita"]].corr(method="spearman")
+smf.ols("ginicoefficient ~ lpib", data=u).fit(cov_type="HC1").summary()
+smf.ols("ginicoefficient ~ lpib + I(lpib**2)", data=u).fit(cov_type="HC1").summary()
+
+# Google
+gg = pd.read_excel("dados_caso/google_reglinear.xlsx")
+gg.columns = ["data", "ia", "receita", "usuarios"]
+smf.ols("receita ~ ia", data=gg).fit().summary()</code></pre></div>
+<div class="tabpanel" data-panel="cr"><pre><code>library(haven); library(readxl)
+g &lt;- read_dta("dados_caso/gini_pib_mundo.dta")
+g$lpib &lt;- log(g$gdppercapita)
+u &lt;- g[order(g$year), ]; u &lt;- u[!duplicated(u$code, fromLast = TRUE), ]
+cor.test(u$ginicoefficient, u$gdppercapita, method = "spearman")
+summary(lm(ginicoefficient ~ lpib + I(lpib^2), data = u))
+
+gg &lt;- read_excel("dados_caso/google_reglinear.xlsx")
+names(gg) &lt;- c("data", "ia", "receita", "usuarios")
+summary(lm(receita ~ ia, data = gg))
+
+apple &lt;- read_excel("dados_caso/correlacoes_empresariais.xlsx", sheet = "Apple")
+cor(apple[, -1])</code></pre></div>
+<div class="tabpanel" data-panel="cst"><pre><code>use "dados_caso/gini_pib_mundo.dta", clear
+generate lpib = ln(gdppercapita)
+bysort code (year): keep if _n == _N            // observação mais recente
+pwcorr ginicoefficient gdppercapita lpib, sig
+spearman ginicoefficient gdppercapita
+regress ginicoefficient c.lpib##c.lpib, robust
+twoway (scatter ginicoefficient lpib) (qfit ginicoefficient lpib)
+
+import excel "dados_caso/google_reglinear.xlsx", firstrow clear
+rename (InvestimentoemIAbiUSD ReceitadePublicidadebiUSD) (ia receita)
+regress receita ia
+
+import excel "dados_caso/correlacoes_empresariais.xlsx", sheet("Apple") firstrow clear
+pwcorr _all, sig</code></pre></div>
+</div>
+</section>
+
+<!-- 8 -->
 <section id="exercicios">
-<h2>7. Exercícios</h2>
+<h2>8. Exercícios</h2>
 <ol class="exercises">
 <li>
 <p>Em uma amostra de 50 municípios, a correlação entre o número de bibliotecas e a taxa de homicídios é 0,62. Um vereador conclui que “bibliotecas aumentam a violência”. Aponte o erro e proponha uma variável que explique a correlação.</p>
@@ -332,6 +456,41 @@ regress vendas publicidade tamanho</code></pre></div>
   document.getElementById('sNew').addEventListener('click',function(){seed++;run();});
   document.addEventListener('themechange',run);
   document.addEventListener('DOMContentLoaded',run);
+})();
+</script>
+<script>
+// Explorador de correlações dos estudos de caso (dados em casos_dados.js)
+(function(){
+  if(!window.CASOS3) return;
+  var bSel=document.getElementById('eB'), xSel=document.getElementById('eX'), ySel=document.getElementById('eY');
+  var padrao={Apple:[0,1],Netflix:[0,1],CocaCola:[0,1],Tesla:[0,1],'Tarifaço':[0,1],Tesla_BYD:[0,1],Google:[0,1],Gini:[1,2],CocaPainel:[1,0]};
+  Object.keys(CASOS3).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=CASOS3[k].rotulo;bSel.appendChild(o);});
+  function fillVars(){
+    var b=CASOS3[bSel.value]; [xSel,ySel].forEach(function(sel){sel.innerHTML='';b.vars.forEach(function(v,i){var o=document.createElement('option');o.value=i;o.textContent=v;sel.appendChild(o);});});
+    var d=padrao[bSel.value]||[0,1]; xSel.value=d[0]; ySel.value=d[1];
+  }
+  function run(){
+    var b=CASOS3[bSel.value], xi=+xSel.value, yi=+ySel.value, X=b.dados[xi], Y=b.dados[yi], n=X.length;
+    var r=pearson(X,Y), rs=pearson(ranks(X),ranks(Y)), m=ols(X.map(function(x){return [1,x];}),Y);
+    var t=m.beta[1]/m.se[1], p=pT(t,n-2);
+    var pad=function(a){var lo=Math.min.apply(null,a),hi=Math.max.apply(null,a),e=(hi-lo)*0.05||1;return [lo-e,hi+e];};
+    var xr=pad(X), yr=pad(Y);
+    var f=plotFrame(document.getElementById('ePlot'),{xlim:xr,ylim:yr,xlabel:b.vars[xi],ylabel:b.vars[yi],margin:{l:56,r:14,t:12,b:42}});
+    var g=plotPoints(f,X,Y,css('--bar'),3.2,0.6);
+    if(b.nomes){ Array.prototype.forEach.call(g.childNodes,function(c,i){c.appendChild(svgEl('title',{},b.nomes[i]+': ('+fmt(X[i],2)+'; '+fmt(Y[i],3)+')'));}); }
+    plotLine(f,xr,xr.map(function(x){return f.clip(m.beta[0]+m.beta[1]*x);}),css('--accent-2'),2.5);
+    document.getElementById('eT').textContent=b.rotulo;
+    statCards('eOut',[['n',fmt(n,0)],['Pearson r',fmt(r)],['Spearman rₛ',fmt(rs)],['R²',fmt(m.r2)],
+      ['Inclinação β̂₁',fmt(m.beta[1],4)+' <small>(ep '+fmt(m.se[1],4)+')</small>'],['Intercepto β̂₀',fmt(m.beta[0],3)],['p-valor de β̂₁',fmtP(p)]]);
+    var forca=Math.abs(r)>=0.7?'forte':Math.abs(r)>=0.4?'moderada':Math.abs(r)>=0.2?'fraca':'muito fraca ou inexistente';
+    document.getElementById('eInterp').innerHTML='Correlação '+forca+' e '+(r>0?'positiva':'negativa')+'. Na reta de MQO, um aumento de 1 unidade em <em>'+b.vars[xi]+
+      '</em> está associado a uma variação de '+fmt(m.beta[1],3)+' em <em>'+b.vars[yi]+'</em>'+(p<0.05?' (significativa a 5%).':' (não significativa a 5%).')+
+      (Math.abs(r-rs)>0.15?' Pearson e Spearman diferem bastante: verifique outliers ou relação não linear no gráfico.':'')+' Lembre: associação não é causalidade.';
+  }
+  bSel.addEventListener('change',function(){fillVars();run();});
+  xSel.addEventListener('change',run); ySel.addEventListener('change',run);
+  document.addEventListener('themechange',run);
+  document.addEventListener('DOMContentLoaded',function(){fillVars();run();});
 })();
 </script>
 </body>

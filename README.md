@@ -32,6 +32,15 @@ Para regenerá-los:
 cd stats && python gerar_dados.py
 ```
 
+### Estudos de caso
+
+Os Conteúdos 3 a 6 têm uma seção de estudos de caso com bases da disciplina,
+em `stats/dados_caso/` (descrição em `stats/dados_caso/LEIA-ME.md`). Os
+exploradores interativos usam os arquivos `casos_dados.js`, gerados por
+`stats/dados_caso/preparar_web.py`. Os scripts de cada caso estão em
+`codigo/casos.*` de cada conteúdo; no Conteúdo 6, `codigo/casos_did.py`
+estima TWFE, estudos de eventos e Callaway & Sant'Anna.
+
 ### Publicar como site
 
 Em *Settings → Pages*, escolha *Deploy from a branch*, o branch principal e a
