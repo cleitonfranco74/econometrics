@@ -2,6 +2,12 @@
 # Execute a partir da pasta codigo/; as bases ficam em stats/dados_caso/.
 
 library(haven); library(fixest); library(did)
+f <- read.csv("../../dados_caso/did_ifood_sintetica.csv")
+feols(criminalidade ~ treated + post + did, f, cluster = ~id_area)          # 2x2
+feols(criminalidade ~ did | id_area + ano, f, cluster = ~id_area)          # TWFE
+m <- read.csv("../../dados_caso/did_deams_sintetica_2000_2018.csv")
+feols(taxa_homicidios_femininos ~ did | id_municipio + ano, m, cluster = ~id_municipio)
+
 d <- read_dta("../../dados_caso/ifood_crime_sp.dta")
 d$lcrimes <- log(d$crimes)
 

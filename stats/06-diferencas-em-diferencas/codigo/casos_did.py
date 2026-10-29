@@ -30,6 +30,7 @@ def estudo_eventos_twfe(df, y, g, i, t, janela=(-5, 5)):
     rel = np.clip(rel, janela[0], janela[1])
     ks = [k for k in range(janela[0], janela[1] + 1) if k != -1]
     nomes = {}
+    ks = [k for k in ks if (rel == k).any()]          # só períodos relativos observados
     for k in ks:
         nome = f"ev_m{-k}" if k < 0 else f"ev_p{k}"
         d[nome] = (rel == k).astype(int)
@@ -62,9 +63,9 @@ def callaway_santanna(df, y, g, i, t, reps=199, semente=1, janela=(-5, 5)):
     anos = list(wide.columns)
 
     def agrega(tab):
+        pos = tab[tab.e >= 0]                            # ATT geral: todos os períodos pós
         tab = tab[(tab.e >= janela[0]) & (tab.e <= janela[1])]
         din = tab.groupby("e").apply(lambda x: np.average(x.att, weights=x.n), include_groups=False)
-        pos = tab[tab.e >= 0]
         return din, np.average(pos.att, weights=pos.n)
 
     din, geral = agrega(_att_gt(wide, grupos, anos, g))
@@ -85,6 +86,12 @@ def callaway_santanna(df, y, g, i, t, reps=199, semente=1, janela=(-5, 5)):
 
 
 CASOS = {
+    "ifood_sint": dict(arquivo="did_ifood_sintetica.csv", y="criminalidade", d="did",
+                       g="g", i="id_area", t="ano",
+                       titulo="iFood e criminalidade, base sintética 2×2 (50 áreas, 2018–2025)"),
+    "deams": dict(arquivo="did_deams_sintetica_2000_2018.csv", y="taxa_homicidios_femininos", d="did",
+                  g="g", i="id_municipio", t="ano",
+                  titulo="DEAMs e homicídios femininos, base sintética 2×2 (100 municípios, 2000–2018)"),
     "farmacia": dict(arquivo="farmacia_popular_mt.dta", y="mortes_hipertensao", d="fp",
                      g="ano_adocao", i="cod_mun", t="ano",
                      titulo="Farmácia Popular e mortes por hipertensão (MT, 2003–2011)"),
@@ -102,7 +109,11 @@ CASOS = {
 if __name__ == "__main__":
     saida = {}
     for nome, c in CASOS.items():
-        df = pd.read_stata(DADOS / c["arquivo"])
+        arq = DADOS / c["arquivo"]
+        df = pd.read_csv(arq) if arq.suffix == ".csv" else pd.read_stata(arq)
+        if c["g"] == "g":                      # bases 2×2: ano de adoção comum aos tratados
+            inicio = df.loc[df["did"] == 1, c["t"]].min()
+            df["g"] = np.where(df["treated"] == 1, inicio, 0)
         if nome == "ifood":
             df["lcrimes"] = np.log(df["crimes"])
         b, se = twfe(df, c["y"], c["d"], c["i"], c["t"])

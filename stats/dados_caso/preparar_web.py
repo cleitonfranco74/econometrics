@@ -49,10 +49,25 @@ cc.columns = ["Taxa de obesidade (%)", "Consumo de refrigerante (L/hab.)", "Índ
               "Índice de marketing", "População urbana (%)"]
 c3["CocaPainel"] = tabela(cc, "Coca-Cola ampliada (80 regiões × 4 anos)")
 # Exemplos clássicos dos slides (gerados por exemplos_slides.py)
+sa = pd.read_csv(AQUI / "sorvete_afogamentos_aula.csv")
+c3["SorveteAula"] = tabela(sa[["vendas_sorvetes", "afogamentos"]].rename(columns={
+    "vendas_sorvetes": "Vendas de sorvetes", "afogamentos": "Número de afogamentos"}),
+    "Sorvete × afogamentos (12 meses, dados da aula)")
+c3["SorveteAula"]["tempo"] = sa["mes"].tolist()
+sm = pd.read_csv(AQUI / "salario_minimo_cesta_basica.csv")
+c3["Salario"] = tabela(sm[["cesta_basica", "salario_minimo"]].rename(columns={
+    "cesta_basica": "Cesta básica (R$)", "salario_minimo": "Salário mínimo (R$)"}),
+    "Salário mínimo × cesta básica (jan/2018–out/2021)")
+c3["Salario"]["tempo"] = sm["mes"].tolist()
+vo = pd.read_csv(AQUI / "vacinacao_obitos.csv")
+c3["Vacina"] = tabela(vo[["pct_vacinados_esquema_completo", "obitos"]].rename(columns={
+    "pct_vacinados_esquema_completo": "% vacinados (esquema completo)", "obitos": "Número de óbitos"}),
+    "Vacinação × óbitos (10 meses)")
+c3["Vacina"]["tempo"] = vo["mes"].tolist()
 sv = pd.read_csv(AQUI / "sorvete_afogamentos.csv")
 c3["Sorvete"] = tabela(sv[["temperatura_media_c", "sorvetes_mil_unid", "afogamentos"]].rename(columns={
     "temperatura_media_c": "Temperatura média (°C)", "sorvetes_mil_unid": "Vendas de sorvete (mil unid.)",
-    "afogamentos": "Afogamentos"}), "Sorvete × afogamentos (ilustrativo, 36 meses)")
+    "afogamentos": "Afogamentos"}), "Sorvete × afogamentos com temperatura (ilustrativo, 36 meses)")
 c3["Sorvete"]["tempo"] = sv["mes"].tolist()
 mg = pd.read_csv(AQUI / "margarina_divorcio_maine.csv")
 c3["Margarina"] = tabela(mg[["margarina_lb_per_capita_eua", "divorcios_por_mil_maine"]].rename(columns={
@@ -67,14 +82,14 @@ c3["Cage"]["tempo"] = ng["ano"].astype(str).tolist()
 ct = pd.read_csv(AQUI / "carga_tributaria_gini.csv")
 c3["Carga"] = tabela(ct[["gini", "carga_tributaria_pib"]].rename(columns={
     "gini": "Índice de Gini", "carga_tributaria_pib": "Carga tributária (% do PIB)"}),
-    "Carga tributária × Gini (17 países, aproximado)")
+    "Carga tributária × Gini (17 países)")
 c3["Carga"]["nomes"] = ct["pais"].tolist()
 sd = pd.read_csv(AQUI / "gasto_saude_suicidio_ocde.csv")
 c3["Saude"] = tabela(sd[["gasto_saude_pc_usd_ppp", "suicidio_por_100mil"]].rename(columns={
     "gasto_saude_pc_usd_ppp": "Gasto em saúde per capita (US$ PPC)", "suicidio_por_100mil": "Suicídios por 100 mil hab."}),
     "Gasto em saúde × suicídio (12 países da OCDE)")
 c3["Saude"]["nomes"] = sd["pais"].tolist()
-ordem = ["Sorvete", "Margarina", "Cage", "Carga", "Gini", "Saude", "Apple", "Netflix", "CocaCola", "Tesla",
+ordem = ["SorveteAula", "Sorvete", "Margarina", "Cage", "Carga", "Salario", "Vacina", "Gini", "Saude", "Apple", "Netflix", "CocaCola", "Tesla",
          "Tarifaço", "Tesla_BYD", "Google", "CocaPainel"]
 c3 = {k: c3[k] for k in ordem}
 js("CASOS3", c3, STATS / "03-correlacao-causalidade-regressao" / "casos_dados.js")

@@ -2,6 +2,21 @@
 * Execute a partir da pasta codigo/; as bases ficam em stats/dados_caso/.
 
 * ssc install reghdfe ; ssc install csdid ; ssc install drdid ; ssc install event_plot
+* Casos 2x2: iFood sintético e DEAMs
+import delimited "../../dados_caso/did_ifood_sintetica.csv", clear
+regress criminalidade treated post did, vce(cluster id_area)
+encode id_area, generate(area)
+xtset area ano
+xtreg criminalidade did i.ano, fe vce(cluster area)
+
+import delimited "../../dados_caso/did_deams_sintetica_2000_2018.csv", clear
+regress taxa_homicidios_femininos treated post did, vce(cluster id_municipio)
+generate lpopf = ln(pop_feminina)
+generate lpib = ln(pib_per_capita)
+regress taxa_homicidios_femininos treated post did lpopf lpib prop_eleitoras_primario, ///
+    vce(cluster id_municipio)
+
+* Adoção escalonada: iFood em SP
 use "../../dados_caso/ifood_crime_sp.dta", clear
 xtset cod_mun ano
 generate lcrimes = ln(crimes)

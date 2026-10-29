@@ -1,0 +1,11 @@
+mes,obitos,pct_vacinados_esquema_completo
+Jan,800,0.5
+Fev,1100,1.5
+Mar,2200,5.0
+Abr,3300,10.0
+Mai,2600,16.0
+Jun,2000,22.0
+Jul,1500,30.0
+Ago,1100,37.0
+Set,900,44.0
+Out,800,50.0

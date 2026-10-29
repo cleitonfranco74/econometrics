@@ -247,8 +247,72 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <h3>8.1 O perigo do antes e depois</h3>
 <p>Um programa de qualificação profissional para mulheres: o salário das participantes foi de US$ 103 para US$ 131 (+28). Parece um grande sucesso, mas o salário das não participantes também subiu, de US$ 97 para US$ 112 (+15), por causa do crescimento do mercado. O impacto do programa é \(28-15=\mathbf{13}\) dólares: comparar só antes e depois nos tratados mais que dobra o efeito.</p>
 
-<h3>8.2 Farmácia Popular e mortes por hipertensão (MT, 2003–2011)</h3>
+<h3>8.2 iFood e crime: do 2×2 à adoção escalonada</h3>
+<p>Frankenthal (2025, <em>The Gig Economy and Crime</em>) usa a entrada escalonada do iFood nos municípios paulistas. O artigo encontra redução média de 10,4% nos crimes contra a propriedade, cerca de 529 ocorrências a menos por município-ano. O efeito é maior nos horários de maior retorno das entregas e nos bairros de menor renda, e não há deslocamento do crime para áreas de alta demanda. A explicação é o custo de oportunidade do crime (Becker, 1968): o trabalho de entregador é uma alternativa de renda para jovens com pouca qualificação.</p>
+<div class="box">
+<h4>Artigo de referência</h4>
+<p>Frankenthal, I. (2025). <em>The Gig Economy and Crime</em>. Working paper, MIT. Disponível em <a href="https://economics.mit.edu/sites/default/files/inline-files/Gig_Economy_and_Crime_Oct25.pdf">economics.mit.edu (versão de outubro de 2025)</a>.</p>
+</div>
+<p>O caso usa duas bases didáticas que reproduzem o mesmo artigo em níveis crescentes de complexidade:</p>
+<div class="table-wrap"><table>
+<thead><tr><th></th><th>(a) Base sintética 2×2</th><th>(b) Base de SP com adoção escalonada</th></tr></thead>
+<tbody>
+<tr><td>Arquivo</td><td><code>did_ifood_sintetica.csv</code></td><td><code>ifood_crime_sp.dta</code></td></tr>
+<tr><td>Unidades e período</td><td>50 áreas, 2018–2025</td><td>644 municípios de SP, 2010–2019</td></tr>
+<tr><td>Tratamento</td><td>25 áreas, todas a partir de 2022</td><td>227 municípios, entrada entre 2012 e 2019</td></tr>
+<tr><td>Resultado</td><td>Taxa de criminalidade (nível)</td><td>ln(crimes contra a propriedade)</td></tr>
+<tr><td>Estimadores</td><td>Médias 2×2, MQO com interação, TWFE</td><td>TWFE, estudo de eventos, Callaway &amp; Sant’Anna</td></tr>
+<tr><td>Para que serve</td><td>Aprender a montar e interpretar o DiD</td><td>Ver o problema do TWFE com adoção escalonada</td></tr>
+</tbody></table></div>
+<p>As duas bases exageram o efeito em relação ao artigo: −10 pontos sobre uma média inicial de 54 (≈ −19%) na sintética, e −26% a −32% na de SP, contra −10,4% no artigo. São bases para aprender o método, não para reproduzir o número publicado.</p>
+<h4>(a) Base sintética 2×2</h4>
+<p>Base sintética da disciplina (<code>did_ifood_sintetica.csv</code>, com documentação em <a href="../dados_caso/documentacao_did_ifood_sintetica.docx"><code>documentacao_did_ifood_sintetica.docx</code></a>). São 50 áreas, 25 delas com expansão do iFood a partir de 2022, observadas de 2018 a 2025. A simulação tem efeito verdadeiro de −10 na taxa de criminalidade, tendência geral de queda (−3) e tratados com criminalidade inicial maior (+5).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Criminalidade média</th><th class="num">Antes (2018–2021)</th><th class="num">Depois (2022–2025)</th><th class="num">Diferença</th></tr></thead>
+<tbody>
+<tr><th>Tratadas (25)</th><td class="num">54,31</td><td class="num">41,05</td><td class="num">−13,26</td></tr>
+<tr><th>Controle (25)</th><td class="num">49,15</td><td class="num">46,41</td><td class="num">−2,74</td></tr>
+<tr><th>Diferença</th><td class="num">5,17</td><td class="num">−5,36</td><td class="num"><strong>−10,52</strong></td></tr>
+</tbody></table></div>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: criminalidade</th><th>MQO 2×2</th><th>MQO 2×2 + renda</th><th>Efeitos fixos de área e ano</th></tr></thead>
+<tbody>
+<tr><td>treated</td><td>5,167***<br><small>(1,159)</small></td><td>5,177***<br><small>(1,169)</small></td><td>—</td></tr>
+<tr><td>post</td><td>−2,736***<br><small>(0,325)</small></td><td>−2,740***<br><small>(0,315)</small></td><td>—</td></tr>
+<tr><td><strong>did</strong> (treated × post)</td><td><strong>−10,523***</strong><br><small>(0,532)</small></td><td><strong>−10,527***</strong><br><small>(0,522)</small></td><td><strong>−10,523***</strong><br><small>(0,572)</small></td></tr>
+</tbody></table></div>
+<p class="hint">Erros-padrão agrupados por área. *** p&lt;0,01.</p>
+<p>Os três modelos recuperam o efeito simulado (−10). Os coeficientes de <code>treated</code> e <code>post</code> estimam exatamente a diferença inicial (+5) e a tendência comum (−3) da documentação. A renda média não altera o resultado porque não é correlacionada com o tratamento. Na base, a intensidade (<code>pedidos_ifood</code>) não tem relação com a criminalidade entre as áreas tratadas (r = 0,01), ou seja, não há dose-resposta: um bom ponto para discutir o que o DiD binário mede. No estudo de eventos (visualizador abaixo), os coeficientes pré-2022 oscilam em torno de zero e o efeito é imediato e estável, de −10 a −11.</p>
+
+<h4>(b) Adoção escalonada nos municípios de SP</h4>
+<p>Com a entrada em anos diferentes e um efeito crescente no tempo:</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: ln(crimes contra a propriedade)</th><th>TWFE</th><th>Callaway &amp; Sant’Anna</th></tr></thead>
+<tbody>
+<tr><td>Efeito médio após a entrada do iFood</td><td>−0,301***<br><small>(0,008)</small></td><td>−0,388***<br><small>(0,009)</small></td></tr>
+<tr><td>No ano de entrada / 5 anos depois (estudo de eventos)</td><td>−0,107 / −0,744</td><td>−0,106 / −0,748</td></tr>
+</tbody></table></div>
+<p>Os coeficientes pré-tratamento são praticamente zero, compatíveis com tendências paralelas. O TWFE subestima o efeito médio (−0,30 contra −0,39 no CS): com efeitos que crescem no tempo, ele usa municípios <em>já tratados</em> como controle dos que entram depois, as comparações “proibidas” de Goodman-Bacon (Seção 5). O estudo de eventos com ano de referência, que separa cada período relativo, quase não sofre com isso neste caso: os coeficientes do TWFE e do CS ano a ano praticamente coincidem.</p>
+
+<h3>8.3 Delegacias da Mulher (DEAMs) e homicídios femininos em Mato Grosso</h3>
+<p>Base sintética da disciplina (<code>did_deams_sintetica_2000_2018.csv</code>) para a pergunta: <em>qual o impacto da Lei Maria da Penha sobre o feminicídio em Mato Grosso?</em> São 100 municípios observados de 2000 a 2018. O grupo tratado são os 40 municípios com Delegacia Especializada de Atendimento à Mulher (DEAM); o controle, os 60 sem DEAM. O período pós começa em 2007, após a Lei nº 11.340/2006 entrar em vigor. Como a lei vale para todo o país, o desenho mede o efeito da lei <em>onde há estrutura para aplicá-la</em>, isto é, a diferença que a DEAM faz depois da lei. A planilha menciona pós-tratamento até 2020, mas a base vai até 2018.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Homicídios femininos por 100 mil mulheres (média)</th><th class="num">2000–2006</th><th class="num">2007–2018</th><th class="num">Diferença</th></tr></thead>
+<tbody>
+<tr><th>Com DEAM (40)</th><td class="num">11,99</td><td class="num">8,29</td><td class="num">−3,71</td></tr>
+<tr><th>Sem DEAM (60)</th><td class="num">10,01</td><td class="num">10,04</td><td class="num">0,03</td></tr>
+<tr><th>Diferença</th><td class="num">1,98</td><td class="num">−1,75</td><td class="num"><strong>−3,73</strong></td></tr>
+</tbody></table></div>
+<p>A regressão 2×2 dá did = −3,73 (ep 0,21); com controles (log da população feminina, log do PIB per capita e proporção de eleitoras com ensino primário), −3,72; com efeitos fixos de município e ano, −3,73 (0,22). Os controles praticamente não mudam a estimativa. O estudo de eventos mostra um efeito que <strong>cresce no tempo</strong>: −0,5 em 2007, −1,9 em 2009, −3,3 em 2011 e cerca de −5 em média de 2012 em diante (no TWFE, a categoria “≥ 5” agrupa esses anos). Em 2018, a taxa média nos municípios com DEAM (6,3) já está bem abaixo da dos municípios sem DEAM (9,9). Antes de 2007, os coeficientes ficam próximos de zero, o que é compatível com tendências paralelas.</p>
+<p><strong>Para discussão:</strong> municípios com DEAM são maiores e mais urbanos (taxa inicial mais alta). Se recebessem outras políticas de segurança ao mesmo tempo, o DiD atribuiria tudo à DEAM. Que dados ajudariam a descartar essa explicação?</p>
+
+<h3>8.4 Farmácia Popular e mortes por hipertensão (MT, 2003–2011)</h3>
 <p>Mesquita &amp; Nishimura avaliam o programa “Aqui Tem Farmácia Popular” em 141 municípios de Mato Grosso. O tratamento é o município ter farmácia credenciada; a adoção começa em Cuiabá em 2006 e se concentra em 2009–2011. A estimação usa TWFE com efeitos fixos de município e ano, testes de efeitos defasados, número de farmácias e <strong>desfechos placebo</strong> (mortes que o programa não deveria afetar).</p>
+
+<div class="box">
+<h4>Artigo de referência</h4>
+<p>Mesquita, A.; Nishimura, F. <em>Programa “Aqui Tem Farmácia Popular” e hipertensão arterial: uma estratégia de identificação através de um modelo de Diferenças em Diferenças</em>. <a href="../artigos/mesquita_nishimura_farmacia_popular_hipertensao.pdf">Texto completo (PDF)</a>.</p>
+</div>
 <div class="table-wrap"><table class="reg-table">
 <thead><tr><th>Dependente: mortes por hipertensão</th><th>Artigo</th><th>Base didática</th></tr></thead>
 <tbody>
@@ -265,36 +329,25 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <li>Como 72 dos 76 municípios tratados aderiram em 2009–2011, há poucas observações 4 ou 5 anos após a adoção: as estimativas de longo prazo dependem de pouquíssimos municípios.</li>
 </ul>
 
-<h3>8.3 iFood e crime em São Paulo (2010–2019)</h3>
-<p>Frankenthal (2025, <em>The Gig Economy and Crime</em>) usa a entrada escalonada do iFood nos municípios paulistas. O artigo encontra redução média de 10,4% nos crimes contra a propriedade, cerca de 529 ocorrências a menos por município-ano. O efeito é maior nos horários de maior retorno das entregas e nos bairros de menor renda, e não há deslocamento do crime para áreas de alta demanda. A explicação é o custo de oportunidade do crime (Becker, 1968): o trabalho de entregador é uma alternativa de renda para jovens com pouca qualificação.</p>
-<p>A base didática (644 municípios, 227 tratados entre 2012 e 2019) reproduz esse desenho com um efeito maior e crescente no tempo:</p>
-<div class="table-wrap"><table class="reg-table">
-<thead><tr><th>Dependente: ln(crimes contra a propriedade)</th><th>TWFE</th><th>Callaway &amp; Sant’Anna</th></tr></thead>
-<tbody>
-<tr><td>Efeito médio após a entrada do iFood</td><td>−0,301***<br><small>(0,008)</small></td><td>−0,362***<br><small>(0,008)</small></td></tr>
-<tr><td>No ano de entrada / 5 anos depois (estudo de eventos)</td><td>−0,107 / −0,744</td><td>−0,106 / −0,748</td></tr>
-</tbody></table></div>
-<p>Os coeficientes pré-tratamento são praticamente zero, compatíveis com tendências paralelas. O TWFE subestima o efeito médio (−0,30 contra −0,36): com efeitos que crescem no tempo, ele usa municípios <em>já tratados</em> como controle dos que entram depois, as comparações “proibidas” de Goodman-Bacon (Seção 5). O estudo de eventos com ano de referência, que separa cada período relativo, quase não sofre com isso neste caso.</p>
-
-<h3>8.4 SAMU e mortes no trânsito (MT, 2000–2020)</h3>
+<h3>8.5 SAMU e mortes no trânsito (MT, 2000–2020)</h3>
 <p>106 municípios adotam o SAMU entre 2004 e 2014; 35 nunca adotam. Dependente: mortes no trânsito por 100 mil habitantes.</p>
 <div class="table-wrap"><table class="reg-table">
 <thead><tr><th></th><th>TWFE</th><th>Callaway &amp; Sant’Anna</th></tr></thead>
 <tbody>
-<tr><td>Efeito médio do SAMU</td><td>−1,81***<br><small>(0,54)</small></td><td>−1,38*<br><small>(0,81)</small></td></tr>
+<tr><td>Efeito médio do SAMU</td><td>−1,81***<br><small>(0,54)</small></td><td>−1,32<br><small>(0,84)</small></td></tr>
 </tbody></table></div>
-<p>As duas estimativas indicam redução, crescente nos anos seguintes à adoção (cerca de −2 por 100 mil hab. do 3º ao 4º ano). Mas os coeficientes pré-tratamento oscilam bastante (no CS, de −2,4 a +3,1). Taxas de mortalidade em municípios pequenos são muito ruidosas: poucos óbitos mudam muito a taxa. Esse é um caso para discutir os limites do diagnóstico visual de tendências paralelas e a escolha da variável (taxa, contagem ou log).</p>
+<p>As duas estimativas indicam redução, embora a do CS, mais imprecisa, não seja significativa a 10%, crescente nos anos seguintes à adoção (cerca de −2 por 100 mil hab. do 3º ao 4º ano). Mas os coeficientes pré-tratamento oscilam bastante (no CS, de −2,4 a +3,1). Taxas de mortalidade em municípios pequenos são muito ruidosas: poucos óbitos mudam muito a taxa. Esse é um caso para discutir os limites do diagnóstico visual de tendências paralelas e a escolha da variável (taxa, contagem ou log).</p>
 
-<h3>8.5 Política de P&amp;D e emissões de CO2 (193 países, 2000–2020)</h3>
-<p>132 países adotam uma política de P&amp;D entre 2003 e 2017; 61 nunca adotam. TWFE: −0,069 (0,004); CS: −0,070 (0,005), ou seja, emissões per capita cerca de 7% menores. O efeito cresce de praticamente zero no ano da adoção para −0,14 (≈ −13%) cinco anos depois, e não há sinal de tendências pré-existentes. Aqui TWFE e CS quase coincidem: os grupos de adoção são numerosos e há muitos países nunca tratados para servir de controle.</p>
+<h3>8.6 Política de P&amp;D e emissões de CO2 (193 países, 2000–2020)</h3>
+<p>132 países adotam uma política de P&amp;D entre 2003 e 2017; 61 nunca adotam. O efeito cresce de praticamente zero no ano da adoção para −0,14 (≈ −13%) cinco anos depois, sem sinal de tendências pré-existentes. Aqui a diferença entre os estimadores é grande: TWFE −0,069 (0,004) contra CS −0,107 (0,005), isto é, emissões cerca de 7% contra 10% menores. Como os primeiros países adotam em 2003 e o efeito continua crescendo por muitos anos, o TWFE usa como “controle” países tratados há muito tempo e atenua o efeito. É o problema da Seção 5 em escala real.</p>
 
-<h3>8.6 Outras aplicações</h3>
+<h3>8.7 Outras aplicações</h3>
 <ul>
 <li><strong>Moçambique, projeto agroflorestal de carbono:</strong> como as características que determinam a participação (família, tamanho da terra) eram observáveis e só havia um corte transversal, usou-se pareamento por escore de propensão, e não DiD. Resultados: aumento de renda e consumo e redução da produção líquida de culturas.</li>
 <li><strong>Angola, malária:</strong> a exposição a terapias combinadas à base de artemisinina variou entre províncias. O DiD (2006 × 2011) mostrou que cada ponto percentual a mais de acesso às terapias reduziu em cerca de 5,2 p.p. o uso de mosquiteiros: a cura diminuiu a prevenção (substituição de políticas).</li>
 </ul>
 
-<h3>8.7 Visualizador de estudos de eventos</h3>
+<h3>8.8 Visualizador de estudos de eventos</h3>
 <div class="calc ui">
   <div class="controls">
     <div><label for="vC">Caso</label><select id="vC"></select></div>
@@ -315,6 +368,21 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
     <button role="tab" aria-selected="false" data-tab="cpy">Python</button>
   </div>
 <div class="tabpanel active" data-panel="cst"><pre><code>* ssc install reghdfe ; ssc install csdid ; ssc install drdid ; ssc install event_plot
+* Casos 2x2: iFood sintético e DEAMs
+import delimited "dados_caso/did_ifood_sintetica.csv", clear
+regress criminalidade treated post did, vce(cluster id_area)
+encode id_area, generate(area)
+xtset area ano
+xtreg criminalidade did i.ano, fe vce(cluster area)
+
+import delimited "dados_caso/did_deams_sintetica_2000_2018.csv", clear
+regress taxa_homicidios_femininos treated post did, vce(cluster id_municipio)
+generate lpopf = ln(pop_feminina)
+generate lpib = ln(pib_per_capita)
+regress taxa_homicidios_femininos treated post did lpopf lpib prop_eleitoras_primario, ///
+    vce(cluster id_municipio)
+
+* Adoção escalonada: iFood em SP
 use "dados_caso/ifood_crime_sp.dta", clear
 xtset cod_mun ano
 generate lcrimes = ln(crimes)
@@ -346,6 +414,12 @@ foreach p in mortes_afogamento mortes_neoplasias mortes_pneumonia {
     reghdfe `p' fp, absorb(cod_mun ano) vce(robust)
 }</code></pre></div>
 <div class="tabpanel" data-panel="cr"><pre><code>library(haven); library(fixest); library(did)
+f &lt;- read.csv("dados_caso/did_ifood_sintetica.csv")
+feols(criminalidade ~ treated + post + did, f, cluster = ~id_area)          # 2x2
+feols(criminalidade ~ did | id_area + ano, f, cluster = ~id_area)          # TWFE
+m &lt;- read.csv("dados_caso/did_deams_sintetica_2000_2018.csv")
+feols(taxa_homicidios_femininos ~ did | id_municipio + ano, m, cluster = ~id_municipio)
+
 d &lt;- read_dta("dados_caso/ifood_crime_sp.dta")
 d$lcrimes &lt;- log(d$crimes)
 
@@ -366,6 +440,14 @@ ggdid(aggte(att, type = "dynamic", min_e = -5, max_e = 5))</code></pre></div>
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
+
+# Caso 2x2: iFood sintético
+f = pd.read_csv("dados_caso/did_ifood_sintetica.csv")
+f.groupby(["treated", "post"])["criminalidade"].mean().unstack()      # tabela 2x2
+smf.ols("criminalidade ~ treated + post + did", data=f).fit(
+    cov_type="cluster", cov_kwds={"groups": f["id_area"]}).summary()
+
+# Adoção escalonada: iFood em SP
 
 d = pd.read_stata("dados_caso/ifood_crime_sp.dta")
 d["lcrimes"] = np.log(d["crimes"])
@@ -408,7 +490,7 @@ smf.ols("lcrimes ~ post_ifood + C(cod_mun) + C(ano)", data=d).fit(
 
 <footer class="wrap">
 <p>Estatística e Econometria — Mestrado PROFINIT · Conteúdo 6. Dados simulados com finalidade didática.</p>
-<p>Leituras: Angrist &amp; Pischke, <em>Mostly Harmless Econometrics</em>, cap. 5; Cunningham, <em>Causal Inference: The Mixtape</em>, cap. 9; Card &amp; Krueger (1994), <em>AER</em> 84(4); Goodman-Bacon (2021) e Callaway &amp; Sant’Anna (2021), <em>Journal of Econometrics</em> 225(2); Roth, Sant’Anna, Bilinski &amp; Poe (2023), “What’s trending in difference-in-differences?”, <em>Journal of Econometrics</em> 235(2).</p>
+<p>Leituras: Angrist &amp; Pischke, <em>Mostly Harmless Econometrics</em>, cap. 5; Cunningham, <em>Causal Inference: The Mixtape</em>, cap. 9; Card &amp; Krueger (1994), <em>AER</em> 84(4); Goodman-Bacon (2021) e Callaway &amp; Sant’Anna (2021), <em>Journal of Econometrics</em> 225(2); Roth, Sant’Anna, Bilinski &amp; Poe (2023), “What’s trending in difference-in-differences?”, <em>Journal of Econometrics</em> 235(2). Estudos de caso: Frankenthal (2025), <a href="https://economics.mit.edu/sites/default/files/inline-files/Gig_Economy_and_Crime_Oct25.pdf"><em>The Gig Economy and Crime</em></a>; Mesquita &amp; Nishimura, <a href="../artigos/mesquita_nishimura_farmacia_popular_hipertensao.pdf"><em>Programa “Aqui Tem Farmácia Popular” e hipertensão arterial</em></a>.</p>
 </footer>
 
 <script>
@@ -463,7 +545,7 @@ smf.ols("lcrimes ~ post_ifood + C(cod_mun) + C(ano)", data=d).fit(
 (function(){
   if(!window.CASOS6) return;
   var sel=document.getElementById('vC');
-  var ordem=['ifood','farmacia','samu','co2'];
+  var ordem=['ifood_sint','deams','ifood','farmacia','samu','co2'];
   ordem.forEach(function(k){if(!CASOS6[k])return;var o=document.createElement('option');o.value=k;o.textContent=CASOS6[k].titulo;sel.appendChild(o);});
   function run(){
     var c=CASOS6[sel.value], showT=document.getElementById('vT').checked, showS=document.getElementById('vS').checked;

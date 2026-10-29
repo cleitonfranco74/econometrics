@@ -268,8 +268,12 @@ regress vendas publicidade tamanho</code></pre></div>
 <p>As bases estão em <a href="../dados_caso/"><code>dados_caso/</code></a> (ver o <a href="../dados_caso/LEIA-ME.md">LEIA-ME</a>). Os exemplos clássicos dos slides foram reconstruídos em <code>dados_caso/exemplos_slides.py</code>. As séries de empresas e a do sorvete são <strong>ilustrativas</strong>, construídas para a disciplina. Os dados de Gini e PIB per capita vêm do Our World in Data / Banco Mundial.</p>
 
 <h3>7.1 Sorvete e afogamentos: o confundidor clássico</h3>
-<p>Em uma cidade litorânea, as vendas mensais de sorvete e o número de afogamentos sobem e descem juntos: são altos no verão e baixos no inverno. Na série ilustrativa de 36 meses (<code>sorvete_afogamentos.csv</code>), a correlação é <strong>r = 0,94</strong>. Proibir o sorvete reduziria os afogamentos? Não: o <strong>calor</strong> leva as pessoas a tomar sorvete <em>e</em> a ir à praia.</p>
-<div class="chart wide" style="margin:12px 0"><h4>Vendas de sorvete e afogamentos por mês (escalas à esquerda e à direita)</h4><svg id="gSorv" viewBox="0 0 560 300" role="img" aria-label="Séries mensais de sorvete e afogamentos"></svg>
+<p>Em uma cidade litorânea, as vendas de sorvete e o número de afogamentos sobem e descem juntos: são altos no verão e baixos no inverno (<code>sorvete_afogamentos_aula.csv</code>).</p>
+<div class="chart wide" style="margin:12px 0"><h4>Vendas de sorvetes e afogamentos ao longo do ano (escalas à esquerda e à direita)</h4><svg id="gSorvAula" viewBox="0 0 560 280" role="img" aria-label="Séries mensais de sorvete e afogamentos"></svg>
+  <div class="legend"><span style="--c:var(--bar)">vendas de sorvetes (eixo esquerdo)</span><span style="--c:var(--accent-2)">afogamentos (eixo direito)</span></div></div>
+<p>A correlação é <strong>r = 0,98</strong>, e a regressão \(\widehat{afogamentos}=-26{,}2+0{,}371\times vendas\) tem \(R^2=0{,}96\). Proibir o sorvete reduziria os afogamentos? Não: o <strong>calor</strong> leva as pessoas a tomar sorvete <em>e</em> a ir à praia. É um confundidor.</p>
+<p><strong>Controlando a temperatura.</strong> Para ver isso nos números, a série ilustrativa de 36 meses (<code>sorvete_afogamentos.csv</code>) acrescenta a temperatura média de cada mês:</p>
+<div class="chart wide" style="margin:12px 0"><h4>Série ilustrativa de 36 meses (escalas à esquerda e à direita)</h4><svg id="gSorv" viewBox="0 0 560 260" role="img" aria-label="Séries mensais ilustrativas de sorvete e afogamentos"></svg>
   <div class="legend"><span style="--c:var(--bar)">vendas de sorvete (mil unid., eixo esquerdo)</span><span style="--c:var(--accent-2)">afogamentos (eixo direito)</span></div></div>
 <div class="table-wrap"><table class="reg-table">
 <thead><tr><th>Dependente: afogamentos</th><th>(1)</th><th>(2)</th></tr></thead>
@@ -277,7 +281,7 @@ regress vendas publicidade tamanho</code></pre></div>
 <tr><td>Vendas de sorvete (mil unid.)</td><td>0,223***<br><small>(0,014)</small></td><td>0,056<br><small>(0,072)</small></td></tr>
 <tr><td>Temperatura média (°C)</td><td></td><td>0,551**<br><small>(0,233)</small></td></tr>
 </tbody></table></div>
-<p>Quando a temperatura entra na regressão, o coeficiente do sorvete cai de 0,223 para 0,056 e deixa de ser significativo. A <strong>correlação parcial</strong> entre sorvete e afogamentos, descontado o efeito da temperatura, é só 0,13. Ela é a correlação entre os resíduos das regressões de cada variável na temperatura, a mesma ideia do teorema de Frisch-Waugh-Lovell do Conteúdo 4.</p>
+<p>A correlação simples é 0,94. Quando a temperatura entra na regressão, o coeficiente do sorvete cai de 0,223 para 0,056 e deixa de ser significativo. A <strong>correlação parcial</strong> entre sorvete e afogamentos, descontado o efeito da temperatura, é só 0,13. Ela é a correlação entre os resíduos das regressões de cada variável na temperatura, a mesma ideia do teorema de Frisch-Waugh-Lovell do Conteúdo 4.</p>
 
 <h3>7.2 Correlações espúrias</h3>
 <p>O site <a href="https://www.tylervigen.com/spurious-correlations"><strong>Spurious Correlations</strong></a>, de Tyler Vigen, reúne pares de séries com correlações altíssimas e nenhuma relação plausível entre si (também publicado no livro <em>Spurious Correlations</em>, Hachette, 2015). Vale a visita em aula. Dois exemplos célebres:</p>
@@ -287,6 +291,7 @@ regress vendas publicidade tamanho</code></pre></div>
   <div class="chart wide"><h4>Filmes com Nicolas Cage × afogamentos em piscinas nos EUA (1999–2009): r = 0,666</h4><svg id="gCage" viewBox="0 0 560 280" role="img" aria-label="Séries de filmes e afogamentos"></svg>
     <div class="legend"><span style="--c:var(--bar)">filmes com Nicolas Cage (eixo esquerdo)</span><span style="--c:var(--accent-2)">afogamentos em piscina (eixo direito)</span></div></div>
 </div>
+<p class="hint">Margarina e divórcio: série original divulgada por Tyler Vigen (<code>margarina_divorcio_maine.csv</code>; fontes: USDA e CDC). É a mesma do slide, com 8,2 lb em 2000 e r = 0,993.</p>
 <p>Por que correlações assim aparecem?</p>
 <ul>
 <li><strong>Tendências comuns:</strong> o consumo de margarina e os divórcios no Maine caíram ao longo da década por razões independentes. Quaisquer duas séries que só sobem ou só descem no tempo terão correlação alta.</li>
@@ -296,24 +301,46 @@ regress vendas publicidade tamanho</code></pre></div>
 <p>Antes de aceitar uma correlação, pergunte: existe um mecanismo plausível? A relação se mantém em outro período, em outra amostra, ou depois de retirar a tendência?</p>
 
 <h3>7.3 Carga tributária e concentração de renda</h3>
-<p>O gráfico dos slides compara a carga tributária (% do PIB) com o índice de Gini em 17 países. Os valores abaixo foram lidos do gráfico e são <strong>aproximados</strong> (<code>carga_tributaria_gini.csv</code>).</p>
+<p>Carga tributária (% do PIB) e índice de Gini em 17 países, com os valores da planilha da disciplina (<code>carga_tributaria_gini.csv</code>).</p>
 <div class="chart wide" style="margin:12px 0"><h4>Carga tributária × índice de Gini</h4><svg id="gCarga" viewBox="0 0 560 360" role="img" aria-label="Dispersão de carga tributária e Gini por país"></svg>
   <div class="legend"><span style="--c:var(--accent-2)">reta de MQO com todos os países</span><span class="dash" style="--c:var(--muted)">reta sem Brasil e Índia</span></div></div>
 <div class="table-wrap"><table>
 <thead><tr><th>Amostra</th><th class="num">n</th><th class="num">Pearson r</th></tr></thead>
 <tbody>
-<tr><td>Todos os países</td><td class="num">17</td><td class="num">−0,566</td></tr>
-<tr><td>Sem o Brasil</td><td class="num">16</td><td class="num">−0,706</td></tr>
-<tr><td>Sem Brasil e Índia</td><td class="num">15</td><td class="num">−0,842</td></tr>
-<tr><td>Spearman, todos</td><td class="num">17</td><td class="num">−0,645</td></tr>
+<tr><td>Todos os países</td><td class="num">17</td><td class="num">−0,581</td></tr>
+<tr><td>Sem o Brasil</td><td class="num">16</td><td class="num">−0,742</td></tr>
+<tr><td>Sem Brasil e Índia</td><td class="num">15</td><td class="num">−0,906</td></tr>
+<tr><td>Spearman, todos</td><td class="num">17</td><td class="num">−0,708</td></tr>
 </tbody></table></div>
+<p>Com todos os países, \(\widehat{Carga}=53{,}7-60{,}4\times Gini\) (\(R^2=0{,}34\)). Sem Brasil e Índia, a inclinação vai a −99,2 e o \(R^2\) a 0,82.</p>
 <ul>
-<li>Países com maior carga tributária tendem a ter menor desigualdade. No slide a reta “sobe” porque o eixo do Gini está invertido (de 0,60 para 0,20).</li>
-<li><strong>Pontos atípicos:</strong> o Brasil combina carga tributária de país europeu com desigualdade latino-americana, e a Índia tem carga baixa e Gini baixo. Só esses dois pontos mudam r de −0,84 para −0,57. Sempre faça o gráfico e verifique a influência de cada observação.</li>
+<li>Países com maior carga tributária tendem a ter menor desigualdade. Em gráficos com o eixo do Gini invertido (de 0,60 para 0,20), a reta aparece “subindo”.</li>
+<li><strong>Pontos atípicos:</strong> o Brasil combina carga tributária de país europeu com desigualdade latino-americana, e a Índia tem carga muito baixa (12%) e Gini moderado. Só esses dois pontos mudam r de −0,91 para −0,58. Sempre faça o gráfico e verifique a influência de cada observação.</li>
+<li><strong>Fonte dos dados:</strong> os valores de Gini da planilha são aproximados. Comparados com o Gini do Banco Mundial de 2019 (coluna <code>gini_bm_2019</code> da base, vinda de <code>gini_pib_mundo.dta</code>), há diferenças relevantes: Suécia 0,23 contra 0,29, México 0,53 contra 0,46, Índia 0,31 contra 0,26. Com o Gini oficial, r = −0,45 com todos os países e −0,89 sem Brasil e Índia; a conclusão se mantém. Em trabalhos, use séries oficiais do mesmo ano para as duas variáveis.</li>
 <li><strong>Direção da causalidade:</strong> impostos e transferências reduzem a desigualdade, ou sociedades mais igualitárias aceitam pagar mais impostos? O caso brasileiro mostra que o <em>tamanho</em> da carga não basta: importa também a composição dos tributos (consumo × renda e patrimônio) e para onde vai o gasto.</li>
 </ul>
 
-<h3>7.4 Desigualdade e renda: Gini × PIB per capita</h3>
+<h3>7.4 Salário mínimo e cesta básica: correlação por tendência</h3>
+<p>Valores mensais de jan/2018 a out/2021 (<code>salario_minimo_cesta_basica.csv</code>).</p>
+<div class="chart wide" style="margin:12px 0"><h4>Cesta básica e salário mínimo (R$, escalas à esquerda e à direita)</h4><svg id="gSal" viewBox="0 0 560 280" role="img" aria-label="Séries de cesta básica e salário mínimo"></svg>
+  <div class="legend"><span style="--c:var(--bar)">cesta básica (eixo esquerdo)</span><span style="--c:var(--accent-2)">salário mínimo (eixo direito)</span></div></div>
+<ul>
+<li>A correlação entre os níveis é <strong>0,96</strong>: as duas séries sobem com a inflação. Mas a correlação entre as <strong>variações mensais</strong> é só 0,20. O salário mínimo muda uma vez por ano, em janeiro, e a cesta sobe todo mês.</li>
+<li>Na regressão do salário na cesta, o coeficiente cai de 0,321 para 0,144 quando se inclui uma tendência linear: boa parte da “relação” era a tendência comum. Com séries temporais, compare variações (ou inclua tendência) antes de concluir.</li>
+<li>A pergunta econômica relevante é outra: o <strong>poder de compra</strong>. Em jan/2018 o salário mínimo comprava 0,97 cesta; em out/2021, apenas 0,72. Correlação alta entre níveis não diz que o salário “acompanhou” a cesta.</li>
+</ul>
+
+<h3>7.5 Vacinação e óbitos: a correlação muda de sinal</h3>
+<p>Dez meses de uma campanha de vacinação (<code>vacinacao_obitos.csv</code>): percentual da população com esquema completo e número de óbitos.</p>
+<div class="chart wide" style="margin:12px 0"><h4>% vacinados e óbitos por mês (escalas à esquerda e à direita)</h4><svg id="gVac" viewBox="0 0 560 280" role="img" aria-label="Séries de vacinação e óbitos"></svg>
+  <div class="legend"><span style="--c:var(--bar)">% vacinados, esquema completo (eixo esquerdo)</span><span style="--c:var(--accent-2)">óbitos (eixo direito)</span></div></div>
+<ul>
+<li>No período todo, r = −0,40 (Spearman −0,26): uma correlação “fraca”. Mas ela esconde duas fases. De janeiro a abril, óbitos e vacinação <em>sobem juntos</em> (r = +0,996), porque a vacinação começa no meio de uma onda da doença. De abril a outubro, com a cobertura crescendo, os óbitos caem (r = −0,97).</li>
+<li>Ler o r = +0,996 do início como “a vacina aumenta os óbitos” é confundir correlação com causalidade, e ignora a <strong>temporalidade</strong>: o efeito da vacina depende de semanas para a imunização e de uma cobertura mínima. A onda epidemiológica é um confundidor que varia no tempo.</li>
+<li>A correlação de Pearson resume uma relação <em>linear e estável</em>. Quando a relação muda ao longo do tempo, um único r engana: faça o gráfico, divida os períodos e pense nas defasagens.</li>
+</ul>
+
+<h3>7.6 Desigualdade e renda: Gini × PIB per capita</h3>
 <p>Base com 164 países, de 2010 a 2019 (<code>gini_pib_mundo.dta</code>), e um recorte com seis países sul-americanos (<code>gini_pib_america_sul.dta</code>).</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Corte transversal</th><th class="num">Países</th><th class="num">Pearson (PIB)</th><th class="num">Pearson (ln PIB)</th><th class="num">Spearman</th></tr></thead>
@@ -325,16 +352,16 @@ regress vendas publicidade tamanho</code></pre></div>
 <p>Com a observação mais recente de cada país (n = 164), a regressão simples dá \(\widehat{Gini}=0{,}553-0{,}0197\ln(PIB)\) (ep robusto 0,004; \(R^2=0{,}088\)). É um modelo nível-log: dobrar o PIB per capita está associado a um Gini \(0{,}0197\times\ln 2\approx 0{,}014\) menor. Com um termo quadrático em \(\ln(PIB)\), o coeficiente do quadrado é negativo e significativo (p = 0,03): um formato de U invertido, como na <strong>curva de Kuznets</strong>, com pico em torno de US$ 3.500.</p>
 <p><strong>América do Sul:</strong> entre 2010 e 2019, nos seis países, o Gini caiu enquanto o PIB per capita subia. A correlação <em>dentro</em> de cada país vai de −0,62 (Brasil) a −0,92 (Peru). O Brasil foi o que menos reduziu a desigualdade (0,537 → 0,535). Duas séries com tendência no tempo tendem a ser correlacionadas; para separar tendência comum de relação econômica, veja o mesmo caso com efeitos fixos no Conteúdo 5.</p>
 
-<h3>7.5 Gasto em saúde e suicídio (12 países da OCDE)</h3>
+<h3>7.7 Gasto em saúde e suicídio (12 países da OCDE)</h3>
 <p>Os EUA gastam muito mais em saúde por habitante que os demais países ricos (US$ 14.800 contra US$ 5.500–9.700 em 2024) e têm taxa de suicídio relativamente alta. Valores aproximados do gráfico dos slides (<code>gasto_saude_suicidio_ocde.csv</code>; fontes: Peterson-KFF Health System Tracker e OECD Health Statistics).</p>
 <div class="chart wide" style="margin:12px 0"><h4>Gasto em saúde per capita × suicídios por 100 mil hab.</h4><svg id="gSaude" viewBox="0 0 560 340" role="img" aria-label="Dispersão de gasto em saúde e suicídio por país"></svg></div>
 <p>A correlação linear é quase nula (r = 0,10), e sem os EUA passa a −0,31. O slide ajusta uma parábola com 12 pontos: o “U” é produzido por um único país no extremo direito. Lições: (i) um ponto extremo pode criar ou desfazer uma relação; (ii) com n = 12, curvas flexíveis se ajustam ao ruído; (iii) correlação entre médias de países (<strong>correlação ecológica</strong>) não diz nada sobre indivíduos.</p>
 
-<h3>7.6 Posse de armas e suicídio: quando desagregar revela o mecanismo</h3>
+<h3>7.8 Posse de armas e suicídio: quando desagregar revela o mecanismo</h3>
 <p>Entre países, a relação entre armas e suicídio é confusa, porque culturas, sistemas de saúde e registros diferem. Entre os 50 estados americanos, comparáveis em muitos aspectos, ela é nítida. No gráfico dos slides (valores ilustrativos), a correlação entre a proporção de lares com armas e o suicídio <em>por arma de fogo</em> é de 0,93. A literatura (Miller e Hemenway, Harvard; RAND) encontra r ≈ 0,8 para o suicídio por arma e r ≈ 0,7 para o suicídio total, mas associação <strong>nula</strong> com o suicídio por outros meios.</p>
 <p>Esse padrão é informativo. Se estados com mais armas tivessem simplesmente pessoas mais propensas ao suicídio (um confundidor), o suicídio por outros meios também seria maior. Como não é, a evidência aponta para um efeito de <strong>método e letalidade</strong>: o acesso à arma torna as tentativas mais fatais. Usar um desfecho que não deveria ser afetado é a ideia dos <strong>desfechos placebo</strong>, que reaparece no caso da Farmácia Popular (Conteúdo 6).</p>
 
-<h3>7.7 Correlações empresariais</h3>
+<h3>7.9 Correlações empresariais</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>Caso</th><th>Variáveis</th><th class="num">r</th><th>Pergunta para discussão</th></tr></thead>
 <tbody>
@@ -348,12 +375,12 @@ regress vendas publicidade tamanho</code></pre></div>
 </tbody></table></div>
 <p class="hint">IC de r pela transformação de Fisher: \(z=\tfrac12\ln\frac{1+r}{1-r}\), \(ep(z)=1/\sqrt{n-3}\).</p>
 
-<h3>7.8 Google: regressão linear simples</h3>
+<h3>7.10 Google: regressão linear simples</h3>
 <p>Com 60 meses de dados (<code>google_reglinear.xlsx</code>), a regressão da receita de publicidade (bi US$) no investimento em IA (bi US$):</p>
 <div class="formula">$$\widehat{Receita}=\underset{(2{,}24)}{22{,}62}+\underset{(0{,}21)}{3{,}73}\;IA,\qquad R^2=0{,}845,\quad r=0{,}919,\quad n=60$$</div>
 <p>Cada US$ 1 bi a mais investido em IA está associado a US$ 3,73 bi a mais de receita de publicidade no mesmo mês. Incluir o número de usuários ativos quase não muda o coeficiente (3,71), e o coeficiente dos usuários não é significativo. Ainda assim, é uma associação: em séries mensais, empresas investem mais quando a receita (e a expectativa de receita) é alta, o que caracteriza simultaneidade.</p>
 
-<h3>7.9 Critérios de Bradford Hill</h3>
+<h3>7.11 Critérios de Bradford Hill</h3>
 <p>Antes de interpretar uma associação como causal, use os critérios de Bradford Hill (1965) como roteiro:</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Critério</th><th>Pergunta</th></tr></thead>
@@ -366,7 +393,7 @@ regress vendas publicidade tamanho</code></pre></div>
 <tr><td>Evidência experimental</td><td>Um experimento ou quase-experimento confirma o efeito?</td></tr>
 </tbody></table></div>
 
-<h3>7.10 Explorador de correlações</h3>
+<h3>7.12 Explorador de correlações</h3>
 <p>Escolha uma base e duas variáveis. A página calcula as correlações de Pearson e Spearman e a regressão linear simples.</p>
 <div class="calc ui">
   <div class="controls">
@@ -584,6 +611,9 @@ pwcorr _all, sig</code></pre></div>
       f.svg.appendChild(svgEl('text',{x:px,y:py,style:'fill:'+css('--text')},nomes[i]));});
   }
   function run(){
+    var SA=CASOS3.SorveteAula; dual('gSorvAula',SA.tempo,SA.dados[0],SA.dados[1],1);
+    var SL=CASOS3.Salario; dual('gSal',SL.tempo,SL.dados[0],SL.dados[1],6);
+    var VC=CASOS3.Vacina; dual('gVac',VC.tempo,VC.dados[0],VC.dados[1],1);
     var S=CASOS3.Sorvete; dual('gSorv',S.tempo.map(function(t){var m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];return m[+t.slice(5)-1]+'/'+t.slice(2,4);}),S.dados[1],S.dados[2],3);
     var M=CASOS3.Margarina; dual('gMarg',M.tempo,M.dados[0],M.dados[1],1);
     var C=CASOS3.Cage; dual('gCage',C.tempo,C.dados[0],C.dados[1],1);
@@ -599,7 +629,7 @@ pwcorr _all, sig</code></pre></div>
 (function(){
   if(!window.CASOS3) return;
   var bSel=document.getElementById('eB'), xSel=document.getElementById('eX'), ySel=document.getElementById('eY');
-  var padrao={Sorvete:[1,2],Apple:[0,1],Netflix:[0,1],CocaCola:[0,1],Tesla:[0,1],'Tarifaço':[0,1],Tesla_BYD:[0,1],Google:[0,1],Gini:[1,2],CocaPainel:[1,0]};
+  var padrao={Sorvete:[1,2],Salario:[0,1],Vacina:[0,1],SorveteAula:[0,1],Apple:[0,1],Netflix:[0,1],CocaCola:[0,1],Tesla:[0,1],'Tarifaço':[0,1],Tesla_BYD:[0,1],Google:[0,1],Gini:[1,2],CocaPainel:[1,0]};
   Object.keys(CASOS3).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=CASOS3[k].rotulo;bSel.appendChild(o);});
   function fillVars(){
     var b=CASOS3[bSel.value]; [xSel,ySel].forEach(function(sel){sel.innerHTML='';b.vars.forEach(function(v,i){var o=document.createElement('option');o.value=i;o.textContent=v;sel.appendChild(o);});});

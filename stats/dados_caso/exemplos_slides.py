@@ -2,10 +2,12 @@
 
 - sorvete_afogamentos.csv: série mensal ILUSTRATIVA (simulada) de uma cidade litorânea,
   em que a temperatura afeta vendas de sorvete e afogamentos.
-- carga_tributaria_gini.csv: valores APROXIMADOS lidos do gráfico “Carga tributária ×
-  concentração de renda” dos slides da disciplina.
-- margarina_divorcio_maine.csv e nicolas_cage_afogamentos.csv: correlações espúrias
-  divulgadas por Tyler Vigen (tylervigen.com/spurious-correlations).
+- nicolas_cage_afogamentos.csv: correlação espúria divulgada por Tyler Vigen
+  (tylervigen.com/spurious-correlations).
+
+As bases sorvete_afogamentos_aula.csv, margarina_divorcio_maine.csv,
+carga_tributaria_gini.csv, salario_minimo_cesta_basica.csv e vacinacao_obitos.csv
+vêm das planilhas da disciplina e não são geradas aqui.
 - gasto_saude_suicidio_ocde.csv: valores aproximados do gráfico dos slides
   (gasto: Peterson-KFF Health System Tracker 2024; suicídio: OECD Health Statistics).
 """
@@ -25,20 +27,6 @@ afog = np.round(4 + 0.75 * (temp - 22) + rng.normal(0, 0.9, 36)).clip(0).astype(
 meses = pd.period_range("2022-01", periods=36, freq="M").astype(str)
 pd.DataFrame({"mes": meses, "temperatura_media_c": temp, "sorvetes_mil_unid": sorvete,
               "afogamentos": afog}).to_csv(AQUI / "sorvete_afogamentos.csv", index=False)
-
-pd.DataFrame({
-    "pais": ["Brasil", "México", "Chile", "Peru", "Equador", "EUA", "Reino Unido", "Austrália",
-             "Canadá", "Noruega", "Dinamarca", "Espanha", "Suécia", "Alemanha", "Índia", "Holanda", "Bélgica"],
-    "gini": [0.570, 0.550, 0.494, 0.446, 0.426, 0.376, 0.373, 0.339, 0.329, 0.326, 0.321, 0.323,
-             0.312, 0.311, 0.301, 0.286, 0.283],
-    "carga_tributaria_pib": [36.7, 18.8, 22.6, 16.2, 19.8, 31.3, 38.9, 32.2, 39.4, 44.0, 53.0, 37.3,
-                             54.3, 39.9, 19.2, 42.5, 47.6],
-}).to_csv(AQUI / "carga_tributaria_gini.csv", index=False)
-
-pd.DataFrame({"ano": range(2000, 2010),
-              "margarina_lb_per_capita_eua": [8.2, 7.0, 6.5, 5.3, 5.2, 4.0, 4.6, 4.5, 4.2, 3.7],
-              "divorcios_por_mil_maine": [5.0, 4.7, 4.6, 4.4, 4.3, 4.1, 4.2, 4.2, 4.2, 4.1]}
-             ).to_csv(AQUI / "margarina_divorcio_maine.csv", index=False)
 
 pd.DataFrame({"ano": range(1999, 2010),
               "afogamentos_em_piscina_eua": [109, 102, 102, 98, 85, 95, 96, 98, 123, 94, 102],
