@@ -31,12 +31,13 @@
     <li><a href="#ideia">1. Ideia</a></li>
     <li><a href="#did22">2. O DiD 2×2</a></li>
     <li><a href="#hipoteses">3. Hipóteses</a></li>
-    <li><a href="#eventos">4. Estudo de eventos</a></li>
-    <li><a href="#escalonado">5. Adoção escalonada</a></li>
-    <li><a href="#exemplo">6. Exemplo e código</a></li>
-    <li><a href="#simulador">7. Simulador</a></li>
-    <li><a href="#casos">8. Estudos de caso</a></li>
-    <li><a href="#exercicios">9. Exercícios</a></li>
+    <li><a href="#tendencias">4. Tendências paralelas</a></li>
+    <li><a href="#eventos">5. Estudo de eventos</a></li>
+    <li><a href="#escalonado">6. Adoção escalonada</a></li>
+    <li><a href="#exemplo">7. Exemplo e código</a></li>
+    <li><a href="#simulador">8. Simulador</a></li>
+    <li><a href="#casos">9. Estudos de caso</a></li>
+    <li><a href="#exercicios">10. Exercícios</a></li>
   </ul>
 </nav>
 
@@ -99,8 +100,135 @@
 </section>
 
 <!-- 4 -->
+<section id="tendencias">
+<h2>4. A regra de ouro: tendências paralelas</h2>
+<p>Todo o DiD repousa sobre uma premissa: <strong>na ausência da política, tratados e controles teriam evoluído da mesma forma.</strong> O grupo de controle serve de molde para desenhar o caminho que os tratados teriam seguido sem o tratamento, o contrafactual. Os grupos podem ter <em>níveis</em> diferentes; o que precisa ser igual é a <em>variação</em>.</p>
+
+<h3>4.1 Visualizando o contrafactual em três passos</h3>
+<div class="calc ui">
+  <div class="row" role="group" aria-label="Passos">
+    <button class="btn" type="button" data-passo="1">Passo 1: o mundo observável</button>
+    <button class="btn ghost" type="button" data-passo="2">Passo 2: o contrafactual</button>
+    <button class="btn ghost" type="button" data-passo="3">Passo 3: o efeito</button>
+  </div>
+  <div class="chart wide"><svg id="tpPlot" viewBox="0 0 560 320" role="img" aria-label="Trajetórias de tratados, controles e contrafactual"></svg></div>
+  <p class="interp" id="tpTexto"></p>
+</div>
+
+<h3>4.2 A hipótese em notação</h3>
+<div class="formula">$$E\big[Y_{\text{depois}}(0)-Y_{\text{antes}}(0)\mid D=1\big]=E\big[Y_{\text{depois}}(0)-Y_{\text{antes}}(0)\mid D=0\big]$$</div>
+<p>A variação do resultado <em>sem tratamento</em>, \(Y(0)\), seria a mesma nos dois grupos. O lado esquerdo nunca é observado depois do tratamento, porque os tratados foram tratados. Por isso a hipótese <strong>não pode ser testada diretamente</strong>: só é possível reunir evidências a favor ou contra ela, quase sempre olhando o período anterior à política.</p>
+
+<h3>4.3 Como avaliar a hipótese</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Verificação</th><th>Como fazer</th><th>O que se espera</th></tr></thead>
+<tbody>
+<tr><td><strong>Gráfico das médias</strong></td><td>Média do resultado por ano, para tratados e controles, antes da política</td><td>Linhas aproximadamente paralelas (a distância entre elas é estável)</td></tr>
+<tr><td><strong>Estudo de eventos</strong></td><td>Coeficientes de cada ano antes do tratamento (Seção 5) e teste F conjunto</td><td>Coeficientes pré próximos de zero e não significativos em conjunto</td></tr>
+<tr><td><strong>Tendência diferencial</strong></td><td>Só com dados pré, regredir o resultado em <em>tratado × tempo</em> com efeitos fixos</td><td>Coeficiente pequeno e não significativo</td></tr>
+<tr><td><strong>Placebo de data</strong></td><td>Fingir que a política começou antes (ex.: 2 anos antes), usando apenas o período pré</td><td>Nenhum “efeito” na data falsa</td></tr>
+<tr><td><strong>Desfecho placebo</strong></td><td>Estimar o mesmo DiD para um resultado que a política não deveria afetar</td><td>Nenhum efeito (ex.: mortes por afogamento no caso da Farmácia Popular)</td></tr>
+<tr><td><strong>Grupos de controle alternativos</strong></td><td>Repetir com outro grupo de comparação (vizinhos, nunca tratados, ainda não tratados)</td><td>Estimativas parecidas</td></tr>
+</tbody></table></div>
+<p><strong>No exemplo deste conteúdo</strong> (Seção 7), a diferença entre tratados e controles de 2010 a 2014 fica estável, entre 27,8 e 33,1. Usando só esses anos:</p>
+<ul>
+<li>tendência diferencial dos tratados: 0,90 por ano (ep 0,80; p = 0,26);</li>
+<li>placebo de data, com tratamento falso em 2012: 3,59 (ep 2,30; p = 0,12).</li>
+</ul>
+<p>Nenhum dos dois é significativo, o que é compatível com tendências paralelas. Lembre: “não rejeitar” não é “provar”. Com poucos anos ou dados ruidosos, o teste tem baixo poder (Roth, 2022).</p>
+
+<h3>4.4 Ameaças comuns</h3>
+<ul>
+<li><strong>Seleção por choques passageiros (<em>Ashenfelter’s dip</em>):</strong> pessoas entram em programas de qualificação logo depois de uma queda de salário. A recuperação natural depois aparece como “efeito” do programa. Municípios que aderem a uma política após um ano ruim sofrem do mesmo problema (regressão à média).</li>
+<li><strong>Antecipação:</strong> as unidades mudam o comportamento quando a política é anunciada, antes de ela começar.</li>
+<li><strong>Choques simultâneos:</strong> outra política ou evento atinge só os tratados no mesmo período.</li>
+<li><strong>Tendências estruturais diferentes:</strong> municípios grandes e pequenos, ou ricos e pobres, crescem em ritmos diferentes mesmo sem política.</li>
+<li><strong>Escala:</strong> tendências paralelas em nível e em logaritmo são hipóteses diferentes (veja o quadro da Seção 3).</li>
+</ul>
+
+<h3>4.5 O que fazer quando a hipótese é duvidosa</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Estratégia</th><th>Ideia</th><th>Ferramentas</th></tr></thead>
+<tbody>
+<tr><td>DiD condicional</td><td>Exigir tendências paralelas só entre unidades com as mesmas características pré-tratamento</td><td>Sant’Anna &amp; Zhao (2020), duplamente robusto: <code>drdid</code> (Stata/R), opção de covariáveis no <code>csdid</code>/<code>did</code></td></tr>
+<tr><td>Pareamento + DiD</td><td>Escolher controles parecidos com os tratados antes da política</td><td><code>teffects psmatch</code>, <code>MatchIt</code></td></tr>
+<tr><td>Tendências específicas</td><td>Incluir tendência linear por grupo (ou por unidade)</td><td>Use com cuidado: pode absorver parte de um efeito que cresce no tempo</td></tr>
+<tr><td>Diferenças triplas (DDD)</td><td>Usar um terceiro grupo, não elegível, para retirar tendências diferenciais</td><td>Interação tratado × pós × elegível</td></tr>
+<tr><td>Controle sintético / SDID</td><td>Construir um controle que reproduza a trajetória pré dos tratados</td><td>Conteúdo 8; <code>sdid</code>, <code>synthdid</code></td></tr>
+<tr><td>Análise de sensibilidade</td><td>Perguntar quanto a tendência poderia divergir sem anular o resultado</td><td>Rambachan &amp; Roth (2023): <code>HonestDiD</code> (R e Stata)</td></tr>
+</tbody></table></div>
+
+<h3>4.6 Código</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="tst">Stata</button>
+    <button role="tab" aria-selected="false" data-tab="tr">R</button>
+    <button role="tab" aria-selected="false" data-tab="tpy">Python</button>
+  </div>
+<div class="tabpanel active" data-panel="tst"><pre><code>import delimited "dados/programa_saude.csv", clear
+xtset municipio ano
+
+* 1. Gráfico das médias
+collapse (mean) gasto_saude_pc, by(ano tratado)
+twoway (connected gasto_saude_pc ano if tratado == 1) ///
+       (connected gasto_saude_pc ano if tratado == 0), xline(2014.5)
+
+* 2. Teste formal com o comando nativo (Stata 17+)
+import delimited "dados/programa_saude.csv", clear
+generate D = tratado * pos
+didregress (gasto_saude_pc) (D), group(municipio) time(ano)
+estat ptrends              // H0: tendências paralelas no pré-tratamento
+estat trendplots
+
+* 3. Tendência diferencial e placebo de data, só com o período pré
+preserve
+keep if ano &lt;= 2014
+generate tend  = tratado * (ano - 2010)
+generate falso = tratado * (ano &gt;= 2012)
+reghdfe gasto_saude_pc tend,  absorb(municipio ano) vce(cluster municipio)
+reghdfe gasto_saude_pc falso, absorb(municipio ano) vce(cluster municipio)
+restore</code></pre></div>
+<div class="tabpanel" data-panel="tr"><pre><code>library(fixest)
+d &lt;- read.csv("dados/programa_saude.csv")
+
+# 1. Gráfico das médias
+m &lt;- aggregate(gasto_saude_pc ~ ano + tratado, d, mean)
+plot(m$ano[m$tratado == 1], m$gasto_saude_pc[m$tratado == 1], type = "b",
+     ylim = range(m$gasto_saude_pc), xlab = "ano", ylab = "gasto")
+lines(m$ano[m$tratado == 0], m$gasto_saude_pc[m$tratado == 0], type = "b", col = "red")
+abline(v = 2014.5, lty = 2)
+
+# 2. Estudo de eventos e teste conjunto das pré-tendências
+es &lt;- feols(gasto_saude_pc ~ i(ano, tratado, ref = 2014) | municipio + ano,
+            d, cluster = ~municipio)
+wald(es, keep = "201[0-3]")
+
+# 3. Placebo de data (só período pré)
+pre &lt;- subset(d, ano &lt;= 2014)
+pre$falso &lt;- pre$tratado * (pre$ano &gt;= 2012)
+feols(gasto_saude_pc ~ falso | municipio + ano, pre, cluster = ~municipio)
+
+# 4. Sensibilidade (Rambachan & Roth): remotes::install_github("asheshrambachan/HonestDiD")</code></pre></div>
+<div class="tabpanel" data-panel="tpy"><pre><code>import pandas as pd
+import statsmodels.formula.api as smf
+
+d = pd.read_csv("dados/programa_saude.csv")
+print(d.groupby(["ano", "tratado"])["gasto_saude_pc"].mean().unstack())   # médias por ano
+
+pre = d[d["ano"] &lt;= 2014].copy()
+cl = {"groups": pre["municipio"]}
+pre["tend"] = pre["tratado"] * (pre["ano"] - 2010)          # tendência diferencial
+pre["falso"] = pre["tratado"] * (pre["ano"] &gt;= 2012)         # placebo de data
+for v in ["tend", "falso"]:
+    m = smf.ols(f"gasto_saude_pc ~ {v} + C(municipio) + C(ano)", data=pre).fit(
+        cov_type="cluster", cov_kwds=cl)
+    print(v, round(m.params[v], 3), round(m.bse[v], 3), round(m.pvalues[v], 3))</code></pre></div>
+</div>
+</section>
+
+<!-- 5 -->
 <section id="eventos">
-<h2>4. Estudo de eventos</h2>
+<h2>5. Estudo de eventos</h2>
 <p>Em vez de um único \(\delta\), estima-se um coeficiente para cada período relativo ao tratamento, omitindo o período imediatamente anterior (\(k=-1\)) como referência:</p>
 <div class="formula">$$y_{it}=\alpha_i+\lambda_t+\sum_{k\neq-1}\delta_k\,\mathbf 1[t-E_i=k]\cdot Tratado_i+u_{it}$$</div>
 <ul>
@@ -110,9 +238,9 @@
 </ul>
 </section>
 
-<!-- 5 -->
+<!-- 6 -->
 <section id="escalonado">
-<h2>5. Adoção escalonada (<em>staggered</em>)</h2>
+<h2>6. Adoção escalonada (<em>staggered</em>)</h2>
 <p>Quando as unidades são tratadas em datas diferentes, o TWFE é uma média ponderada de todas as comparações 2×2 possíveis (Goodman-Bacon, 2021). Algumas delas usam unidades <strong>já tratadas como controle</strong>. Se o efeito varia com o tempo, essas comparações “proibidas” podem receber peso negativo, e o \(\hat\delta\) do TWFE pode ter até o sinal errado.</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Estimador</th><th>Ideia</th><th>Stata</th><th>R</th></tr></thead>
@@ -125,9 +253,9 @@
 <p>Com uma única data de adoção, como no exemplo abaixo, o TWFE equivale ao DiD 2×2 e não tem esse problema.</p>
 </section>
 
-<!-- 6 -->
+<!-- 7 -->
 <section id="exemplo">
-<h2>6. Exemplo: programa municipal de saúde</h2>
+<h2>7. Exemplo: programa municipal de saúde</h2>
 <p>Painel <strong>simulado</strong> de 100 municípios de 2010 a 2019 (<a href="dados/programa_saude.csv"><code>dados/programa_saude.csv</code></a>). 40 municípios adotam o programa em 2015. O efeito verdadeiro é de +R$ 30 per capita no primeiro ano, crescendo R$ 5 por ano (média de <strong>+R$ 40</strong> em 2015–2019). Os municípios tratados já gastavam mais antes (nível diferente), mas as tendências sem o programa são paralelas.</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Gasto médio (R$ per capita)</th><th class="num">Antes (2010–2014)</th><th class="num">Depois (2015–2019)</th><th class="num">Diferença</th></tr></thead>
@@ -222,9 +350,9 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 </div>
 </section>
 
-<!-- 7 -->
+<!-- 8 -->
 <section id="simulador">
-<h2>7. Simulador: quando as tendências não são paralelas</h2>
+<h2>8. Simulador: quando as tendências não são paralelas</h2>
 <p>Médias anuais de um grupo tratado e de um grupo de controle, com tratamento a partir do ano 6. Ajuste o efeito verdadeiro e uma tendência diferencial dos tratados (violação de tendências paralelas). A linha tracejada é o contrafactual que o DiD supõe.</p>
 <div class="calc ui">
   <div class="controls">
@@ -241,15 +369,15 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 </div>
 </section>
 
-<!-- 8 -->
+<!-- 9 -->
 <section id="casos">
-<h2>8. Estudos de caso</h2>
+<h2>9. Estudos de caso</h2>
 <p>Bases em <a href="../dados_caso/index.html"><code>dados_caso/</code></a>. Exceto o primeiro, todos os casos têm <strong>adoção escalonada</strong>: cada unidade entra no tratamento em um ano. Por isso, cada caso é estimado de duas formas: pelo TWFE e pelo estimador de Callaway &amp; Sant’Anna (CS), que usa como controle apenas as unidades nunca tratadas. O script <a href="codigo/casos_did.py"><code>codigo/casos_did.py</code></a> reproduz todos os números.</p>
 
-<h3>8.1 O perigo do antes e depois</h3>
+<h3>9.1 O perigo do antes e depois</h3>
 <p>Um programa de qualificação profissional para mulheres: o salário das participantes foi de US$ 103 para US$ 131 (+28). Parece um grande sucesso, mas o salário das não participantes também subiu, de US$ 97 para US$ 112 (+15), por causa do crescimento do mercado. O impacto do programa é \(28-15=\mathbf{13}\) dólares: comparar só antes e depois nos tratados mais que dobra o efeito.</p>
 
-<h3>8.2 iFood e crime: do 2×2 à adoção escalonada</h3>
+<h3>9.2 iFood e crime: do 2×2 à adoção escalonada</h3>
 <p>Frankenthal (2025, <em>The Gig Economy and Crime</em>) usa a entrada escalonada do iFood nos municípios paulistas. O artigo encontra redução média de 10,4% nos crimes contra a propriedade, cerca de 529 ocorrências a menos por município-ano. O efeito é maior nos horários de maior retorno das entregas e nos bairros de menor renda, e não há deslocamento do crime para áreas de alta demanda. A explicação é o custo de oportunidade do crime (Becker, 1968): o trabalho de entregador é uma alternativa de renda para jovens com pouca qualificação.</p>
 <div class="box">
 <h4>Artigo de referência</h4>
@@ -294,9 +422,9 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <tr><td>Efeito médio após a entrada do iFood</td><td>−0,301***<br><small>(0,008)</small></td><td>−0,388***<br><small>(0,009)</small></td></tr>
 <tr><td>No ano de entrada / 5 anos depois (estudo de eventos)</td><td>−0,107 / −0,744</td><td>−0,106 / −0,748</td></tr>
 </tbody></table></div>
-<p>Os coeficientes pré-tratamento são praticamente zero, compatíveis com tendências paralelas. O TWFE subestima o efeito médio (−0,30 contra −0,39 no CS): com efeitos que crescem no tempo, ele usa municípios <em>já tratados</em> como controle dos que entram depois, as comparações “proibidas” de Goodman-Bacon (Seção 5). O estudo de eventos com ano de referência, que separa cada período relativo, quase não sofre com isso neste caso: os coeficientes do TWFE e do CS ano a ano praticamente coincidem.</p>
+<p>Os coeficientes pré-tratamento são praticamente zero, compatíveis com tendências paralelas. O TWFE subestima o efeito médio (−0,30 contra −0,39 no CS): com efeitos que crescem no tempo, ele usa municípios <em>já tratados</em> como controle dos que entram depois, as comparações “proibidas” de Goodman-Bacon (Seção 6). O estudo de eventos com ano de referência, que separa cada período relativo, quase não sofre com isso neste caso: os coeficientes do TWFE e do CS ano a ano praticamente coincidem.</p>
 
-<h3>8.3 Delegacias da Mulher (DEAMs) e homicídios femininos em Mato Grosso</h3>
+<h3>9.3 Delegacias da Mulher (DEAMs) e homicídios femininos em Mato Grosso</h3>
 <p>Base sintética da disciplina (<a href="../dados_caso/did_deams_sintetica_2000_2018.csv" download><code>did_deams_sintetica_2000_2018.csv</code></a>) para a pergunta: <em>qual o impacto da Lei Maria da Penha sobre o feminicídio em Mato Grosso?</em> São 100 municípios observados de 2000 a 2018. O grupo tratado são os 40 municípios com Delegacia Especializada de Atendimento à Mulher (DEAM); o controle, os 60 sem DEAM. O período pós começa em 2007, após a Lei nº 11.340/2006 entrar em vigor. Como a lei vale para todo o país, o desenho mede o efeito da lei <em>onde há estrutura para aplicá-la</em>, isto é, a diferença que a DEAM faz depois da lei. A planilha menciona pós-tratamento até 2020, mas a base vai até 2018.</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Homicídios femininos por 100 mil mulheres (média)</th><th class="num">2000–2006</th><th class="num">2007–2018</th><th class="num">Diferença</th></tr></thead>
@@ -308,7 +436,7 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <p>A regressão 2×2 dá did = −3,73 (ep 0,21); com controles (log da população feminina, log do PIB per capita e proporção de eleitoras com ensino primário), −3,72; com efeitos fixos de município e ano, −3,73 (0,22). Os controles praticamente não mudam a estimativa. O estudo de eventos mostra um efeito que <strong>cresce no tempo</strong>: −0,5 em 2007, −1,9 em 2009, −3,3 em 2011 e cerca de −5 em média de 2012 em diante (no TWFE, a categoria “≥ 5” agrupa esses anos). Em 2018, a taxa média nos municípios com DEAM (6,3) já está bem abaixo da dos municípios sem DEAM (9,9). Antes de 2007, os coeficientes ficam próximos de zero, o que é compatível com tendências paralelas.</p>
 <p><strong>Para discussão:</strong> municípios com DEAM são maiores e mais urbanos (taxa inicial mais alta). Se recebessem outras políticas de segurança ao mesmo tempo, o DiD atribuiria tudo à DEAM. Que dados ajudariam a descartar essa explicação?</p>
 
-<h3>8.4 Farmácia Popular e mortes por hipertensão (MT, 2003–2011)</h3>
+<h3>9.4 Farmácia Popular e mortes por hipertensão (MT, 2003–2011)</h3>
 <p class="hint">Base: <a href="../dados_caso/farmacia_popular_mt.dta" download><code>farmacia_popular_mt.dta</code></a></p>
 <p>Mesquita &amp; Nishimura avaliam o programa “Aqui Tem Farmácia Popular” em 141 municípios de Mato Grosso. O tratamento é o município ter farmácia credenciada; a adoção começa em Cuiabá em 2006 e se concentra em 2009–2011. A estimação usa TWFE com efeitos fixos de município e ano, testes de efeitos defasados, número de farmácias e <strong>desfechos placebo</strong> (mortes que o programa não deveria afetar).</p>
 
@@ -332,7 +460,7 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <li>Como 72 dos 76 municípios tratados aderiram em 2009–2011, há poucas observações 4 ou 5 anos após a adoção: as estimativas de longo prazo dependem de pouquíssimos municípios.</li>
 </ul>
 
-<h3>8.5 SAMU e mortes no trânsito (MT, 2000–2020)</h3>
+<h3>9.5 SAMU e mortes no trânsito (MT, 2000–2020)</h3>
 <p class="hint">Base: <a href="../dados_caso/samu_mt_2000_2020.dta" download><code>samu_mt_2000_2020.dta</code></a></p>
 <p>106 municípios adotam o SAMU entre 2004 e 2014; 35 nunca adotam. Dependente: mortes no trânsito por 100 mil habitantes.</p>
 <div class="table-wrap"><table class="reg-table">
@@ -342,17 +470,17 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 </tbody></table></div>
 <p>As duas estimativas indicam redução, embora a do CS, mais imprecisa, não seja significativa a 10%, crescente nos anos seguintes à adoção (cerca de −2 por 100 mil hab. do 3º ao 4º ano). Mas os coeficientes pré-tratamento oscilam bastante (no CS, de −2,4 a +3,1). Taxas de mortalidade em municípios pequenos são muito ruidosas: poucos óbitos mudam muito a taxa. Esse é um caso para discutir os limites do diagnóstico visual de tendências paralelas e a escolha da variável (taxa, contagem ou log).</p>
 
-<h3>8.6 Política de P&amp;D e emissões de CO2 (193 países, 2000–2020)</h3>
+<h3>9.6 Política de P&amp;D e emissões de CO2 (193 países, 2000–2020)</h3>
 <p class="hint">Base: <a href="../dados_caso/co2_pd_2000_2020.dta" download><code>co2_pd_2000_2020.dta</code></a></p>
-<p>132 países adotam uma política de P&amp;D entre 2003 e 2017; 61 nunca adotam. O efeito cresce de praticamente zero no ano da adoção para −0,14 (≈ −13%) cinco anos depois, sem sinal de tendências pré-existentes. Aqui a diferença entre os estimadores é grande: TWFE −0,069 (0,004) contra CS −0,107 (0,005), isto é, emissões cerca de 7% contra 10% menores. Como os primeiros países adotam em 2003 e o efeito continua crescendo por muitos anos, o TWFE usa como “controle” países tratados há muito tempo e atenua o efeito. É o problema da Seção 5 em escala real.</p>
+<p>132 países adotam uma política de P&amp;D entre 2003 e 2017; 61 nunca adotam. O efeito cresce de praticamente zero no ano da adoção para −0,14 (≈ −13%) cinco anos depois, sem sinal de tendências pré-existentes. Aqui a diferença entre os estimadores é grande: TWFE −0,069 (0,004) contra CS −0,107 (0,005), isto é, emissões cerca de 7% contra 10% menores. Como os primeiros países adotam em 2003 e o efeito continua crescendo por muitos anos, o TWFE usa como “controle” países tratados há muito tempo e atenua o efeito. É o problema da Seção 6 em escala real.</p>
 
-<h3>8.7 Outras aplicações</h3>
+<h3>9.7 Outras aplicações</h3>
 <ul>
 <li><strong>Moçambique, projeto agroflorestal de carbono:</strong> como as características que determinam a participação (família, tamanho da terra) eram observáveis e só havia um corte transversal, usou-se pareamento por escore de propensão, e não DiD. Resultados: aumento de renda e consumo e redução da produção líquida de culturas.</li>
 <li><strong>Angola, malária:</strong> a exposição a terapias combinadas à base de artemisinina variou entre províncias. O DiD (2006 × 2011) mostrou que cada ponto percentual a mais de acesso às terapias reduziu em cerca de 5,2 p.p. o uso de mosquiteiros: a cura diminuiu a prevenção (substituição de políticas).</li>
 </ul>
 
-<h3>8.8 Visualizador de estudos de eventos</h3>
+<h3>9.8 Visualizador de estudos de eventos</h3>
 <div class="calc ui">
   <div class="controls">
     <div><label for="vC">Caso</label><select id="vC"></select></div>
@@ -463,9 +591,9 @@ smf.ols("lcrimes ~ post_ifood + C(cod_mun) + C(ano)", data=d).fit(
 </div>
 </section>
 
-<!-- 9 -->
+<!-- 10 -->
 <section id="exercicios">
-<h2>9. Exercícios</h2>
+<h2>10. Exercícios</h2>
 <ol class="exercises">
 <li>
 <p>Taxa de inadimplência de cooperativas de crédito (%): tratadas por uma nova regra prudencial passaram de 6,0 para 4,5; não tratadas, de 5,0 para 4,2. Calcule o DiD e os dois estimadores ingênuos.</p>
@@ -577,6 +705,47 @@ smf.ols("lcrimes ~ post_ifood + C(cod_mun) + C(ano)", data=d).fit(
   document.getElementById('vT').addEventListener('change',run); document.getElementById('vS').addEventListener('change',run);
   document.addEventListener('themechange',run);
   document.addEventListener('DOMContentLoaded',run);
+})();
+</script>
+<script>
+// Seção 4: contrafactual em três passos
+(function(){
+  var passo=1, anos=[1,2,3,4,5,6,7,8];
+  var C=anos.map(function(t){return 40+2.5*t;});
+  var T=anos.map(function(t){return 52+2.5*t+(t>=5?6+3*(t-5):0);});
+  var CF=anos.map(function(t){return 52+2.5*t;});
+  var textos={
+    1:'Aqui vemos a realidade: o grupo tratado melhorou muito depois da política, e o grupo de controle também melhorou. Antes da política, as duas linhas eram paralelas. Mas qual parcela da melhora dos tratados se deve à política?',
+    2:'Como o cenário sem política não existe para os tratados, usamos a inclinação do controle para desenhá-lo (linha tracejada). Supomos que os tratados teriam seguido a mesma evolução do controle se a política nunca tivesse existido. Essa é a hipótese de tendências paralelas.',
+    3:'O efeito da política não é a diferença entre onde os tratados começaram e onde terminaram. É a distância entre onde eles terminaram e onde estariam sem a intervenção (o contrafactual). Esse é o efeito médio do tratamento sobre os tratados (ATT).'};
+  function draw(){
+    var f=plotFrame(document.getElementById('tpPlot'),{H:320,xlim:[0.5,10.4],ylim:[38,92],xticks:anos,xfmt:function(v){return String(v);},xlabel:'tempo (período)',ylabel:'indicador'});
+    plotVLine(f,4.5,css('--muted'),'4 4','política');
+    plotLine(f,anos,C,css('--bar'),2.8); plotPoints(f,anos,C,css('--bar'),3.5,1);
+    plotLine(f,anos,T,css('--accent-2'),2.8); plotPoints(f,anos,T,css('--accent-2'),3.5,1);
+    var xl=f.sx(8)+(passo>=3?26:12);
+    f.svg.appendChild(svgEl('text',{x:xl,y:f.sy(T[7])+4,style:'fill:'+css('--accent-2')+';font-weight:600'},'tratados'));
+    f.svg.appendChild(svgEl('text',{x:xl,y:f.sy(C[7])+4,style:'fill:'+css('--bar')+';font-weight:600'},'controle'));
+    if(passo>=2){
+      plotLine(f,anos.slice(3),CF.slice(3),css('--accent-2'),2.2,'7 5');
+      f.svg.appendChild(svgEl('circle',{cx:f.sx(8),cy:f.sy(CF[7]),r:5.5,fill:css('--accent-2')}));
+      f.svg.appendChild(svgEl('text',{x:f.sx(8)+(passo>=3?26:12),y:f.sy(CF[7])+4,style:'fill:'+css('--text')},'contrafactual'));
+    }
+    if(passo>=3){
+      var x=f.sx(8)+10;
+      f.svg.appendChild(svgEl('line',{x1:x,x2:x,y1:f.sy(T[7]),y2:f.sy(CF[7]),stroke:css('--accent-2'),'stroke-width':3}));
+      [T[7],CF[7]].forEach(function(v){f.svg.appendChild(svgEl('line',{x1:x-5,x2:x+5,y1:f.sy(v),y2:f.sy(v),stroke:css('--accent-2'),'stroke-width':3}));});
+      f.svg.appendChild(svgEl('text',{x:x+16,y:(f.sy(T[7])+f.sy(CF[7]))/2+4,style:'fill:'+css('--accent-2')+';font-weight:700'},'ATT = '+(T[7]-CF[7])));
+      var x0=f.sx(4)-10;
+      f.svg.appendChild(svgEl('line',{x1:x0,x2:x0,y1:f.sy(T[3]),y2:f.sy(C[3]),stroke:css('--muted'),'stroke-width':1.5,'stroke-dasharray':'3 3'}));
+      f.svg.appendChild(svgEl('text',{x:x0-4,y:(f.sy(T[3])+f.sy(C[3]))/2+4,'text-anchor':'end'},'nível: '+(T[3]-C[3])));
+    }
+    document.getElementById('tpTexto').textContent=textos[passo];
+    document.querySelectorAll('[data-passo]').forEach(function(b){b.className=+b.dataset.passo===passo?'btn':'btn ghost';});
+  }
+  document.querySelectorAll('[data-passo]').forEach(function(b){b.addEventListener('click',function(){passo=+b.dataset.passo;draw();});});
+  document.addEventListener('themechange',draw);
+  document.addEventListener('DOMContentLoaded',draw);
 })();
 </script>
 </body>
