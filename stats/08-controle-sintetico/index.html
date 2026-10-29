@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controle Sintético</title>
+<meta name="description" content="Conteúdo 8: método de controle sintético — pesos, ajuste pré-tratamento, inferência por placebos e extensões, com simulador interativo, código em Python, R e Stata e exercícios.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/comum.js"></script>
+<style>
+.donors{display:flex;flex-wrap:wrap;gap:6px 14px;font:13px system-ui,sans-serif;margin:6px 0 10px}
+.donors label{display:flex;align-items:center;gap:4px;font-weight:500;margin:0}
+.wbar{display:grid;grid-template-columns:90px 1fr 54px;gap:6px;align-items:center;font:13px system-ui,sans-serif;margin:3px 0}
+.wbar .b{height:12px;background:var(--bar);border-radius:3px}
+.wbar .n{text-align:right;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="crumbs ui"><a href="../index.html">← Todos os conteúdos</a></p>
+    <p class="eyebrow">Estatística e Econometria · Mestrado PROFINIT · Conteúdo 8</p>
+    <h1>Controle sintético</h1>
+    <p class="lede">Quando só uma unidade é tratada (um estado, um país, uma empresa), não há grupo de controle óbvio. O controle sintético constrói um, combinando unidades não tratadas com pesos escolhidos pelos dados.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sumário">
+  <ul>
+    <li><a href="#ideia">1. Ideia</a></li>
+    <li><a href="#metodo">2. Método</a></li>
+    <li><a href="#hipoteses">3. Hipóteses</a></li>
+    <li><a href="#inferencia">4. Inferência</a></li>
+    <li><a href="#extensoes">5. Extensões</a></li>
+    <li><a href="#exemplo">6. Exemplo e código</a></li>
+    <li><a href="#simulador">7. Laboratório</a></li>
+    <li><a href="#exercicios">8. Exercícios</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<div class="objectives">
+  <h4>Ao final deste conteúdo você deve ser capaz de</h4>
+  <ul>
+    <li>explicar quando o controle sintético é preferível ao DiD;</li>
+    <li>interpretar pesos, ajuste pré-tratamento (RMSPE) e a trajetória do efeito;</li>
+    <li>fazer inferência por placebos e calcular o p-valor de permutação;</li>
+    <li>estimar o método em Stata, R ou Python e avaliar sua robustez.</li>
+  </ul>
+</div>
+
+<!-- 1 -->
+<section id="ideia">
+<h2>1. A ideia</h2>
+<p>Em 1988 a Califórnia aprovou a Proposition 99, que aumentou impostos sobre cigarros. Qual estado serve de comparação? Nenhum estado sozinho se parece com a Califórnia, e a média dos demais também não. Abadie, Diamond &amp; Hainmueller (2010) construíram uma “Califórnia sintética”, média ponderada de Colorado, Connecticut, Montana, Nevada e Utah, que reproduzia o consumo de cigarros californiano antes de 1988. A diferença entre a Califórnia real e a sintética depois de 1988 estima o efeito da lei.</p>
+<p>Outras aplicações clássicas: terrorismo no País Basco (Abadie &amp; Gardeazabal, 2003), reunificação alemã (Abadie, Diamond &amp; Hainmueller, 2015). No Brasil, o método é usado para avaliar leis estaduais, desastres (como Mariana e Brumadinho), grandes obras e reformas tributárias locais.</p>
+<p>Para Athey &amp; Imbens (2017), é “provavelmente a inovação mais importante na literatura de avaliação de políticas nos últimos 15 anos”.</p>
+</section>
+
+<!-- 2 -->
+<section id="metodo">
+<h2>2. O método</h2>
+<p>Unidade \(1\) é tratada a partir de \(T_0+1\); as unidades \(2,\dots,J+1\) formam o <strong><em>donor pool</em></strong>. O contrafactual é estimado por:</p>
+<div class="formula">$$\hat Y_{1t}(0)=\sum_{j=2}^{J+1}w_j^*Y_{jt},\qquad \hat\tau_{1t}=Y_{1t}-\hat Y_{1t}(0),\quad t>T_0$$</div>
+<p>Os pesos resolvem:</p>
+<div class="formula">$$\mathbf W^*=\arg\min_{\mathbf W}\;(\mathbf X_1-\mathbf X_0\mathbf W)'\mathbf V(\mathbf X_1-\mathbf X_0\mathbf W)\quad\text{s.a.}\quad w_j\ge0,\;\sum_j w_j=1$$</div>
+<ul>
+<li>\(\mathbf X_1\) e \(\mathbf X_0\): <strong>preditores</strong> pré-tratamento do tratado e dos doadores (valores defasados do resultado e covariáveis, como PIB per capita ou escolaridade).</li>
+<li>\(\mathbf V\): matriz diagonal com a importância de cada preditor, escolhida para minimizar o erro de previsão do resultado no pré-tratamento.</li>
+<li>As restrições \(w_j\ge0\) e \(\sum w_j=1\) impedem <strong>extrapolação</strong>: o sintético está no fecho convexo dos doadores. Os pesos costumam ser esparsos, poucos doadores com peso positivo, o que torna o contrafactual transparente e discutível.</li>
+</ul>
+<div class="box">
+<h4>Relação com DiD e regressão</h4>
+<p>O DiD usa pesos iguais para todos os controles e permite uma diferença constante de nível. A regressão pode atribuir pesos negativos ou maiores que 1 (extrapolação), sem que o pesquisador os veja. O controle sintético escolhe pesos que fazem o tratado e o sintético coincidirem no pré-tratamento, e os expõe.</p>
+</div>
+</section>
+
+<!-- 3 -->
+<section id="hipoteses">
+<h2>3. Hipóteses e cuidados</h2>
+<ul>
+<li><strong>Bom ajuste pré-tratamento:</strong> o sintético deve reproduzir a trajetória do tratado por um período longo. Se o tratado é extremo (maior PIB, maior arrecadação), nenhuma média convexa o reproduz, e o método não deve ser usado.</li>
+<li><strong>Justificativa:</strong> se o resultado segue um modelo de fatores \(Y_{it}(0)=\delta_t+\boldsymbol\lambda_t'\boldsymbol\mu_i+\varepsilon_{it}\), reproduzir uma longa série pré-tratamento implica reproduzir as cargas \(\boldsymbol\mu_i\) não observadas. É uma generalização dos efeitos fixos, que permite fatores variando no tempo.</li>
+<li><strong><em>Donor pool</em> limpo:</strong> exclua unidades que sofreram intervenções parecidas ou choques idiossincráticos grandes, e unidades afetadas por transbordamentos do tratamento (estados vizinhos que recebem consumidores ou empresas).</li>
+<li><strong>Sem antecipação:</strong> se o efeito começa no anúncio da política, use a data do anúncio como \(T_0\).</li>
+<li><strong>Evite sobreajuste:</strong> doadores demais em relação ao número de períodos pré-tratamento permitem “encaixar” ruído.</li>
+</ul>
+</section>
+
+<!-- 4 -->
+<section id="inferencia">
+<h2>4. Inferência por placebos</h2>
+<p>Com uma única unidade tratada, a inferência assintótica usual não se aplica. Usa-se inferência por <strong>permutação</strong>:</p>
+<ol>
+<li><strong>Placebo no espaço:</strong> aplique o método a cada doador, como se ele tivesse sido tratado em \(T_0\). Isso gera uma distribuição de “efeitos” sob a hipótese nula de nenhum efeito.</li>
+<li>Compare a <strong>razão RMSPE pós/pré</strong> de cada unidade, que penaliza placebos com ajuste ruim no pré-tratamento:
+<div class="formula">$$RMSPE_{\text{pré}}=\sqrt{\frac1{T_0}\sum_{t\le T_0}\hat\tau_{1t}^2},\qquad r_1=\frac{RMSPE_{\text{pós}}}{RMSPE_{\text{pré}}},\qquad p=\frac{\#\{j: r_j\ge r_1\}}{J+1}$$</div></li>
+<li><strong>Placebo no tempo:</strong> finja que a política ocorreu antes (por exemplo, \(T_0-5\)) usando só dados pré-tratamento. Não deve aparecer efeito.</li>
+<li><strong><em>Leave-one-out</em>:</strong> retire, um de cada vez, os doadores com peso positivo e reestime. O resultado não deve depender de um único doador.</li>
+</ol>
+<p>Note que o menor p-valor possível é \(1/(J+1)\): com 15 doadores, \(1/16=0{,}0625\).</p>
+</section>
+
+<!-- 5 -->
+<section id="extensoes">
+<h2>5. Extensões</h2>
+<ul>
+<li><strong><em>Synthetic Difference-in-Differences</em></strong> (Arkhangelsky et al., 2021): combina pesos de unidades e de períodos com efeitos fixos; funciona com várias unidades tratadas. Stata <code>sdid</code>; R <code>synthdid</code>.</li>
+<li><strong><em>Augmented SC</em></strong> (Ben-Michael, Feller &amp; Rothstein, 2021): corrige o viés quando o ajuste pré-tratamento é imperfeito. R <code>augsynth</code>.</li>
+<li><strong>Várias unidades tratadas em datas diferentes:</strong> controle sintético para cada uma, com agregação posterior, ou SDID.</li>
+<li><strong>Inferência conformal</strong> (Chernozhukov, Wüthrich &amp; Zhu, 2021): intervalos de confiança para a trajetória do efeito.</li>
+</ul>
+</section>
+
+<!-- 6 -->
+<section id="exemplo">
+<h2>6. Exemplo: reforma tributária estadual</h2>
+<p>Dados <strong>simulados</strong> (<a href="dados/painel_sintetico.csv"><code>dados/painel_sintetico.csv</code></a>): um índice de arrecadação per capita para um estado tratado e 15 estados doadores, de 2000 a 2019. O tratado faz uma reforma em 2012 com efeito verdadeiro de −2 pontos no primeiro ano, acumulando −2 por ano até <strong>−16 em 2019</strong> (média de −9 em 2012–2019).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Resultado</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Doadores com peso positivo</td><td>05 (0,309); 11 (0,202); 04 (0,167); 07 (0,142); 14 (0,101); 10 (0,043); 06 (0,036)</td></tr>
+<tr><td>RMSPE pré-tratamento (2000–2011)</td><td>0,60</td></tr>
+<tr><td>RMSPE pós-tratamento (2012–2019)</td><td>11,86</td></tr>
+<tr><td>Efeito estimado em 2012 / 2019</td><td>−4,33 / −17,90 <small>(verdadeiros: −2 / −16)</small></td></tr>
+<tr><td>Efeito médio 2012–2019</td><td>−10,89 <small>(verdadeiro: −9)</small></td></tr>
+<tr><td>Razão RMSPE pós/pré</td><td>19,6: a maior entre as 16 unidades (p = 1/16 = 0,0625)</td></tr>
+<tr><td>Para comparação: DiD contra a média simples dos doadores</td><td>−7,19</td></tr>
+</tbody></table></div>
+<p>O sintético acompanha o tratado com erro médio de 0,6 ponto ao longo de 12 anos e diverge depois de 2012. O efeito estimado cresce ao longo do tempo, como o verdadeiro. A média simples dos doadores tem trajetória pré-tratamento diferente da do tratado, e o DiD contra ela subestima o efeito. O p-valor de 0,0625 é o menor possível com 15 doadores: o resultado é o mais extremo da distribuição de placebos, mas a 5% não seria “significativo”. É uma limitação inerente a ter poucas unidades.</p>
+
+<h3>Código</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="stata">Stata</button>
+    <button role="tab" aria-selected="false" data-tab="r">R</button>
+    <button role="tab" aria-selected="false" data-tab="py">Python</button>
+  </div>
+<div class="tabpanel active" data-panel="stata"><pre><code>* ssc install synth ; ssc install synth_runner
+import delimited "dados/painel_sintetico.csv", clear
+encode unidade, generate(id)          // "Tratado" recebe id = 16 (ordem alfabética)
+tsset id ano
+
+* Preditores: o resultado em cada ano pré-tratamento
+local preds
+forvalues a = 2000/2011 {
+    local preds `preds' y(`a')
+}
+synth y `preds', trunit(16) trperiod(2012) fig
+matrix list e(W_weights)
+
+* Placebos no espaço, p-valores e gráficos
+synth_runner y `preds', trunit(16) trperiod(2012) gen_vars
+effect_graphs
+pval_graphs</code></pre></div>
+<div class="tabpanel" data-panel="r"><pre><code>library(tidysynth)   # install.packages("tidysynth")
+library(dplyr)
+df &lt;- read.csv("dados/painel_sintetico.csv")
+
+sc &lt;- df |&gt;
+  synthetic_control(outcome = y, unit = unidade, time = ano,
+                    i_unit = "Tratado", i_time = 2012,
+                    generate_placebos = TRUE) |&gt;
+  generate_predictor(time_window = 2000:2005, y_00_05 = mean(y)) |&gt;
+  generate_predictor(time_window = 2006:2011, y_06_11 = mean(y)) |&gt;
+  generate_predictor(time_window = 2011, y_2011 = y) |&gt;
+  generate_weights(optimization_window = 2000:2011) |&gt;
+  generate_control()
+
+sc |&gt; plot_trends()          # tratado x sintético
+sc |&gt; plot_differences()     # trajetória do efeito
+sc |&gt; plot_weights()
+sc |&gt; plot_placebos()        # placebos no espaço
+sc |&gt; grab_significance()    # razão RMSPE e p-valor de permutação</code></pre></div>
+<div class="tabpanel" data-panel="py"><pre><code>import numpy as np
+import pandas as pd
+from scipy.optimize import minimize
+
+df = pd.read_csv("dados/painel_sintetico.csv")
+Y = df.pivot(index="ano", columns="unidade", values="y")
+pre = Y.index.values &lt; 2012
+doadores = [c for c in Y.columns if c != "Tratado"]
+
+def pesos(y1, Y0):
+    J = Y0.shape[1]
+    res = minimize(lambda w: np.sum((y1 - Y0 @ w) ** 2), np.full(J, 1 / J),
+                   method="SLSQP", bounds=[(0, 1)] * J,
+                   constraints=[{"type": "eq", "fun": lambda w: w.sum() - 1}])
+    return res.x
+
+w = pesos(Y["Tratado"].values[pre], Y[doadores].values[pre])
+sintetico = Y[doadores].values @ w
+efeito = Y["Tratado"].values - sintetico
+# Placebos e p-valor: ver codigo/analise.py
+# Alternativa pronta: pip install pysyncon</code></pre></div>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="simulador">
+<h2>7. Laboratório interativo</h2>
+<p>Os pesos são recalculados no navegador (mínimos quadrados com \(w\ge0\), \(\sum w=1\), sobre o resultado nos anos de ajuste). Escolha a unidade “tratada” (um doador vira placebo), altere a janela de ajuste e retire doadores do <em>donor pool</em>.</p>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="cU">Unidade analisada</label><select id="cU"></select></div>
+    <div><label for="cS">Início da janela de ajuste <output for="cS"></output></label><input type="range" id="cS" min="2000" max="2010" step="1" value="2000"></div>
+  </div>
+  <div class="donors" id="cD" aria-label="Donor pool"></div>
+  <div class="charts">
+    <div class="chart"><h4>Trajetórias</h4><svg id="cPlot" viewBox="0 0 560 320"></svg>
+      <div class="legend"><span style="--c:var(--accent-2)">unidade analisada</span><span class="dash" style="--c:var(--bar)">sintético</span><span style="--c:var(--border)">doadores</span></div></div>
+    <div class="chart"><h4>Pesos</h4><div id="cW" style="padding:4px"></div></div>
+  </div>
+  <div class="chart wide" style="margin-top:12px"><h4>Efeito estimado (real − sintético): unidade analisada e placebos de todas as unidades</h4><svg id="gPlot" viewBox="0 0 560 300"></svg>
+    <div class="legend"><span style="--c:var(--accent-2)">unidade analisada</span><span style="--c:var(--muted)">placebos</span></div></div>
+  <div class="stats-grid" id="cOut"></div>
+  <p class="interp" id="cInterp"></p>
+</div>
+</section>
+
+<!-- 8 -->
+<section id="exercicios">
+<h2>8. Exercícios</h2>
+<ol class="exercises">
+<li>
+<p>Um sintético tem pesos 0,6 para o estado A e 0,4 para o B. Em 2020 (pós-tratamento), o resultado foi 50 no tratado, 40 em A e 55 em B. Calcule o efeito.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Sintético: \(0{,}6\times40+0{,}4\times55=24+22=46\). Efeito: \(50-46=\mathbf{+4}\).</p></div></details>
+</li>
+<li>
+<p>O tratado tem a maior renda per capita de todas as unidades, em todos os anos. Por que o controle sintético tende a falhar? Que alternativa considerar?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Com \(w\ge0\) e \(\sum w=1\), o sintético é uma média ponderada e nunca supera o maior doador: o tratado está fora do fecho convexo, e o ajuste pré-tratamento será ruim. Alternativas: modelar a variável em taxa de crescimento ou índice (base 100), usar o controle sintético aumentado (que permite extrapolação com correção de viés), o SDID (que permite diferença de nível) ou outro desenho.</p></div></details>
+</li>
+<li>
+<p>Com 20 doadores, a razão RMSPE pós/pré do tratado é a 3ª maior entre as 21 unidades. Qual o p-valor de permutação? E se fosse a maior?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>\(p=3/21\approx\mathbf{0{,}143}\). Se fosse a maior, \(p=1/21\approx\mathbf{0{,}048}\), o menor possível com esse número de unidades.</p></div></details>
+</li>
+<li>
+<p>Ao avaliar uma lei estadual de incentivo fiscal, o sintético dá peso 0,7 a um estado vizinho que recebeu empresas que migraram do estado tratado. Qual o problema e o sentido do viés?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Violação de “sem transbordamentos”: o doador foi afetado pelo tratamento. Se o vizinho <em>perdeu</em> empresas para o tratado, seu resultado cai após a lei, o sintético cai junto e o efeito estimado (tratado − sintético) fica <strong>superestimado</strong>. Retire do <em>donor pool</em> unidades sujeitas a transbordamentos.</p></div></details>
+</li>
+<li>
+<p>No laboratório, escolha a janela de ajuste começando em 2010 (só 2 anos). O que acontece com o ajuste, os pesos e os placebos? Por que janelas longas são recomendadas?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Com 2 anos e 15 doadores há muito mais pesos do que restrições: várias combinações reproduzem perfeitamente os 2 pontos (sobreajuste), mas não a trajetória anterior. O sintético pode divergir do tratado antes de 2010, os pesos mudam bastante e os placebos ficam mais dispersos. Uma janela longa obriga o sintético a reproduzir a dinâmica, e não apenas o nível, o que, no modelo de fatores, equivale a reproduzir as características não observadas.</p></div></details>
+</li>
+</ol>
+</section>
+
+<nav class="pager" aria-label="Navegação entre conteúdos"><a href="../07-regressao-descontinua/index.html">← Conteúdo 7: Regressão descontínua</a><a href="../index.html">Índice de conteúdos →</a></nav>
+</main>
+
+<footer class="wrap">
+<p>Estatística e Econometria — Mestrado PROFINIT · Conteúdo 8. Dados simulados com finalidade didática.</p>
+<p>Leituras: Abadie (2021), “Using synthetic controls: feasibility, data requirements, and methodological aspects”, <em>Journal of Economic Literature</em> 59(2); Abadie, Diamond &amp; Hainmueller (2010), <em>JASA</em> 105(490); Abadie &amp; Gardeazabal (2003), <em>AER</em> 93(1); Arkhangelsky et al. (2021), <em>AER</em> 111(12); Cunningham, <em>Causal Inference: The Mixtape</em>, cap. 10.</p>
+</footer>
+
+<script>
+(function(){
+  var anos=[];for(var a=2000;a<=2019;a++)anos.push(a);
+  var nomes=['Tratado'];for(var j=1;j<=15;j++)nomes.push('Doador '+(j<10?'0':'')+j);
+  var Y=[[97.81,99.72,98.81,102.78,103.44,106.4,105.76,107.46,111.18,112.06,113.3,115.77,113.87,114.56,113.13,112.23,113.5,112.16,114.87,113.9],[104.33,101.87,102.68,100.06,103.36,103.88,102.51,111.04,110.68,115.57,115.05,115.04,111.22,111.2,110.99,110.72,112.69,113.7,117.33,118.41],[91.48,89.06,88.44,87.18,91.39,91.14,97.13,97.6,102.67,101.28,105.24,104.65,104.94,104.49,105.63,106.04,107.44,108.49,113.81,116.27],[118.72,118.53,119.0,119.51,120.87,122.46,123.94,127.09,129.75,129.59,131.33,132.46,134.67,134.42,131.03,132.88,136.09,138.41,139.09,142.78],[84.72,89.23,92.98,92.8,96.13,96.44,95.91,96.83,98.09,98.62,102.02,103.85,110.42,112.62,116.39,119.1,124.0,125.77,129.28,129.73],[111.73,117.01,115.44,120.87,118.21,123.49,123.78,126.9,131.13,130.02,132.92,135.54,138.02,140.99,143.09,143.87,146.83,151.64,154.18,157.98],[111.28,112.64,111.56,115.2,116.55,117.88,117.96,117.82,121.49,120.24,122.89,124.41,126.81,126.85,130.59,130.31,132.68,133.81,132.54,137.9],[92.5,93.48,95.93,99.27,98.5,101.44,100.8,100.24,101.57,103.4,106.81,105.48,110.83,111.4,114.17,114.77,118.85,121.31,121.33,120.77],[101.09,103.2,104.07,104.02,102.5,103.61,105.52,107.21,104.98,109.93,108.1,105.97,109.34,109.78,109.98,112.91,114.98,114.48,115.54,115.96],[91.18,97.49,98.41,101.01,103.71,101.87,103.2,102.85,103.38,104.78,105.42,106.54,113.91,117.37,121.63,125.46,127.1,126.7,129.71,130.15],[87.0,85.45,86.81,89.84,89.11,88.84,90.77,89.85,90.67,92.04,94.21,95.17,99.14,97.55,100.64,102.65,102.51,102.56,105.48,105.99],[93.92,94.48,91.04,91.32,96.83,95.98,98.42,100.84,102.24,106.4,107.51,108.53,109.35,109.76,107.19,111.51,110.19,114.1,113.91,114.73],[97.63,102.81,105.66,107.05,107.92,105.7,107.26,105.65,106.32,107.5,107.1,107.93,115.51,119.29,121.73,124.7,125.02,128.15,128.52,125.67],[96.35,95.6,96.1,93.72,94.39,98.05,100.3,104.85,107.64,109.1,112.24,112.44,109.2,107.99,108.61,108.25,104.86,107.52,112.1,116.34],[91.13,87.94,88.61,89.14,88.03,93.1,96.02,98.73,101.88,104.51,105.19,105.64,103.48,104.41,103.84,99.4,101.82,104.57,108.59,113.62],[127.36,129.68,130.08,132.2,133.3,134.94,134.9,136.88,135.51,137.52,140.44,140.29,144.21,146.85,150.27,150.85,155.19,157.02,158.39,161.78]];
+  var T0=12; // índice de 2012
+
+  // Projeção no simplex (Duchi et al., 2008)
+  function projSimplex(v){
+    var u=v.slice().sort(function(a,b){return b-a;}),css_=0,rho=0,th=0;
+    for(var i=0;i<u.length;i++){css_+=u[i]; var t=(css_-1)/(i+1); if(u[i]-t>0){rho=i;th=t;}}
+    return v.map(function(x){return Math.max(0,x-th);});
+  }
+  // min ||y - X w||² com w no simplex, por gradiente projetado acelerado (FISTA)
+  function scWeights(y,X){
+    var J=X[0].length, n=y.length, L=0;
+    for(var i=0;i<n;i++) for(var j=0;j<J;j++) L+=X[i][j]*X[i][j];
+    L*=2; var step=1/L;
+    var w=new Array(J).fill(1/J), z=w.slice(), tk=1;
+    for(var it=0;it<4000;it++){
+      var r=[]; for(i=0;i<n;i++){var s=0; for(j=0;j<J;j++) s+=X[i][j]*z[j]; r.push(s-y[i]);}
+      var g=new Array(J).fill(0); for(i=0;i<n;i++) for(j=0;j<J;j++) g[j]+=2*X[i][j]*r[i];
+      var wn=projSimplex(z.map(function(v,k){return v-step*g[k];}));
+      var tn=(1+Math.sqrt(1+4*tk*tk))/2;
+      z=wn.map(function(v,k){return v+((tk-1)/tn)*(v-w[k]);});
+      w=wn; tk=tn;
+    }
+    return w;
+  }
+  // Sintético da unidade u usando o pool (índices), janela de ajuste [s, T0)
+  function fit(u,pool,s){
+    var y=[],X=[];
+    for(var t=s;t<T0;t++){y.push(Y[u][t]); X.push(pool.map(function(j){return Y[j][t];}));}
+    var w=scWeights(y,X);
+    var syn=anos.map(function(_,t){return pool.reduce(function(acc,j,k){return acc+w[k]*Y[j][t];},0);});
+    var gap=anos.map(function(_,t){return Y[u][t]-syn[t];});
+    var rm=function(lo,hi){var s2=0;for(var t=lo;t<hi;t++)s2+=gap[t]*gap[t];return Math.sqrt(s2/(hi-lo));};
+    return {w:w,syn:syn,gap:gap,pre:rm(s,T0),post:rm(T0,anos.length)};
+  }
+
+  var sel=document.getElementById('cU'), box=document.getElementById('cD');
+  nomes.forEach(function(nm,i){var o=document.createElement('option');o.value=i;o.textContent=i===0?'Tratado (estado reformado)':nm+' (placebo)';sel.appendChild(o);});
+  nomes.slice(1).forEach(function(nm,k){
+    var l=document.createElement('label'); l.innerHTML='<input type="checkbox" checked data-j="'+(k+1)+'"> '+nm.replace('Doador ','D');
+    box.appendChild(l);
+  });
+
+  function run(){
+    var u=+sel.value, s=+document.getElementById('cS').value-2000;
+    var active=[0]; box.querySelectorAll('input').forEach(function(c){if(c.checked) active.push(+c.dataset.j);});
+    var pool=active.filter(function(j){return j!==u && j!==0;});
+    if(pool.length<2){document.getElementById('cInterp').textContent='Selecione pelo menos 2 doadores.';return;}
+    var main=fit(u,pool,s);
+    // Placebos: cada unidade ativa contra as demais ativas (exceto o tratado real)
+    var units=active.indexOf(u)<0?active.concat([u]):active, res=[];
+    units.forEach(function(v){
+      if(v===u){res.push({u:v,r:main.post/main.pre,gap:main.gap});return;}
+      var p=units.filter(function(j){return j!==v && j!==0;});
+      if(p.length<2) return;
+      var f=fit(v,p,s); res.push({u:v,r:f.post/f.pre,gap:f.gap});
+    });
+    // Gráfico de trajetórias
+    var all=[].concat.apply([],pool.map(function(j){return Y[j];})).concat(Y[u]);
+    var f=plotFrame(document.getElementById('cPlot'),{H:320,xlim:[2000,2019],ylim:[Math.min.apply(null,all)-2,Math.max.apply(null,all)+2],xfmt:function(v){return String(v);}});
+    pool.forEach(function(j){plotLine(f,anos,Y[j],css('--border'),1.2);});
+    plotVLine(f,2011.5,css('--muted'),'4 4','política');
+    if(s>0) f.svg.appendChild(svgEl('rect',{x:f.sx(2000),y:f.m.t,width:f.sx(2000+s)-f.sx(2000),height:f.H-f.m.b-f.m.t,fill:css('--surface-2'),'fill-opacity':0.7}));
+    plotLine(f,anos,main.syn,css('--bar'),2.5,'7 5');
+    plotLine(f,anos,Y[u],css('--accent-2'),2.8);
+    // Pesos
+    document.getElementById('cW').innerHTML=pool.map(function(j,k){return {n:nomes[j],w:main.w[k]};})
+      .sort(function(a,b){return b.w-a.w;}).filter(function(o){return o.w>0.005;})
+      .map(function(o){return '<div class="wbar"><span>'+o.n+'</span><div><div class="b" style="width:'+(o.w*100).toFixed(1)+'%"></div></div><span class="n">'+fmt(o.w,3)+'</span></div>';}).join('');
+    // Gaps
+    var gall=[].concat.apply([],res.map(function(r){return r.gap.slice(s);}));
+    var lim=Math.min(40,Math.max(5,Math.max.apply(null,gall.map(Math.abs))));
+    var g=plotFrame(document.getElementById('gPlot'),{H:300,xlim:[2000,2019],ylim:[-lim,lim],xfmt:function(v){return String(v);}});
+    g.svg.appendChild(svgEl('line',{x1:g.m.l,x2:g.W-g.m.r,y1:g.sy(0),y2:g.sy(0),stroke:css('--muted'),'stroke-width':1}));
+    plotVLine(g,2011.5,css('--muted'),'4 4');
+    res.forEach(function(r){if(r.u!==u) plotLine(g,anos.slice(s),r.gap.slice(s).map(g.clip),css('--muted'),1,null).setAttribute('stroke-opacity','0.55');});
+    plotLine(g,anos.slice(s),main.gap.slice(s).map(g.clip),css('--accent-2'),3);
+    var rank=res.slice().sort(function(a,b){return b.r-a.r;}).findIndex(function(r){return r.u===u;})+1;
+    var postMean=mean(main.gap.slice(T0));
+    var items=[['RMSPE pré',fmt(main.pre,2)],['RMSPE pós',fmt(main.post,2)],['Razão pós/pré',fmt(main.post/main.pre,1)],
+      ['Posição da razão',rank+' de '+res.length],['p-valor de permutação',fmt(rank/res.length,3)],['Efeito médio 2012–2019',fmt(postMean,2)]];
+    document.getElementById('cOut').innerHTML=items.map(function(it){return '<div class="stat"><div class="k">'+it[0]+'</div><div class="v">'+it[1]+'</div></div>';}).join('');
+    document.getElementById('cInterp').textContent=(u===0?
+      'Estado tratado: efeito verdadeiro de −2 em 2012 até −16 em 2019 (média −9). ':
+      nomes[u]+' não foi tratado: qualquer “efeito” aqui é ruído ou falha de ajuste. ')+
+      'O sintético usa os anos '+(2000+s)+'–2011 para o ajuste'+(s>0?' (a faixa sombreada não entra no ajuste)':'')+'. '+
+      (main.pre>2?'O ajuste pré-tratamento é ruim (RMSPE pré > 2): desconfie da estimativa.':'');
+  }
+  sel.addEventListener('change',run);
+  document.getElementById('cS').addEventListener('input',run);
+  box.addEventListener('change',run);
+  document.addEventListener('themechange',run);
+  document.addEventListener('DOMContentLoaded',run);
+})();
+</script>
+</body>
+</html>

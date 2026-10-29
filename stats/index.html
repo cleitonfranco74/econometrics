@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estatística e Econometria</title>
+<meta name="description" content="Conteúdos de Estatística e Econometria do Mestrado PROFINIT: medidas descritivas, regressão, dados em painel e métodos de inferência causal.">
+<link rel="stylesheet" href="assets/estilo.css">
+<script src="assets/comum.js"></script>
+</head>
+<body>
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="eyebrow">Mestrado PROFINIT</p>
+    <h1>Estatística e Econometria</h1>
+    <p class="lede">Das medidas descritivas aos métodos quase-experimentais de avaliação de políticas. Cada conteúdo traz teoria, exemplo aplicado, código em Python, R e Stata, um simulador interativo e exercícios com gabarito.</p>
+  </div>
+</header>
+<main class="wrap">
+<section>
+<h2>Fundamentos</h2>
+<div class="cards">
+  <a href="02-medidas-descritivas/index.html"><span class="num">Conteúdo 2</span><h3>Medidas descritivas</h3><p>Tendência central, separatrizes, dispersão, forma e associação. Calculadora interativa.</p></a>
+  <a href="03-correlacao-causalidade-regressao/index.html"><span class="num">Conteúdo 3</span><h3>Correlação, causalidade e regressão simples</h3><p>Resultados potenciais, viés de seleção, confundidores e MQO.</p></a>
+  <a href="04-regressao-multipla/index.html"><span class="num">Conteúdo 4</span><h3>Regressão linear múltipla</h3><p><em>Ceteris paribus</em>, Frisch-Waugh-Lovell, viés de variável omitida, testes t e F.</p></a>
+  <a href="05-dados-em-painel/index.html"><span class="num">Conteúdo 5</span><h3>Dados em painel</h3><p>Efeitos fixos, primeiras diferenças, efeitos aleatórios, Hausman e erros agrupados.</p></a>
+</div>
+</section>
+<section>
+<h2>Inferência causal com quase-experimentos</h2>
+<div class="cards">
+  <a href="06-diferencas-em-diferencas/index.html"><span class="num">Conteúdo 6</span><h3>Diferenças em diferenças</h3><p>Tendências paralelas, TWFE, estudo de eventos e adoção escalonada.</p></a>
+  <a href="07-regressao-descontinua/index.html"><span class="num">Conteúdo 7</span><h3>Regressão descontínua</h3><p>RDD sharp e fuzzy, polinômios locais, largura de banda e validação do desenho.</p></a>
+  <a href="08-controle-sintetico/index.html"><span class="num">Conteúdo 8</span><h3>Controle sintético</h3><p>Pesos, ajuste pré-tratamento, placebos e inferência por permutação.</p></a>
+</div>
+</section>
+<section>
+<h2>Sobre os dados</h2>
+<p>Os exemplos dos Conteúdos 3 a 8 usam dados <strong>simulados</strong>, com efeitos verdadeiros conhecidos, para que se possa comparar cada estimativa com a resposta certa. Eles são gerados pelo script <a href="gerar_dados.py"><code>gerar_dados.py</code></a> com semente fixa.</p>
+</section>
+</main>
+<footer class="wrap"><p>Estatística e Econometria — Mestrado PROFINIT.</p></footer>
+</body>
+</html>

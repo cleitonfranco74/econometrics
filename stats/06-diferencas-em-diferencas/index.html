@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diferenças em Diferenças</title>
+<meta name="description" content="Conteúdo 6: diferenças em diferenças — estimador 2x2, tendências paralelas, TWFE, estudo de eventos e adoção escalonada, com simulador, código em Python, R e Stata e exercícios.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/comum.js"></script>
+</head>
+<body>
+
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="crumbs ui"><a href="../index.html">← Todos os conteúdos</a></p>
+    <p class="eyebrow">Estatística e Econometria · Mestrado PROFINIT · Conteúdo 6</p>
+    <h1>Diferenças em diferenças</h1>
+    <p class="lede">Para avaliar uma política, compare quanto os tratados mudaram com quanto mudaram os não tratados. A ideia é simples, mas depende de uma hipótese forte: as tendências paralelas.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sumário">
+  <ul>
+    <li><a href="#ideia">1. Ideia</a></li>
+    <li><a href="#did22">2. O DiD 2×2</a></li>
+    <li><a href="#hipoteses">3. Hipóteses</a></li>
+    <li><a href="#eventos">4. Estudo de eventos</a></li>
+    <li><a href="#escalonado">5. Adoção escalonada</a></li>
+    <li><a href="#exemplo">6. Exemplo e código</a></li>
+    <li><a href="#simulador">7. Simulador</a></li>
+    <li><a href="#exercicios">8. Exercícios</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<div class="objectives">
+  <h4>Ao final deste conteúdo você deve ser capaz de</h4>
+  <ul>
+    <li>calcular o estimador DiD com médias e por regressão;</li>
+    <li>explicar e avaliar a hipótese de tendências paralelas;</li>
+    <li>estimar e interpretar um estudo de eventos;</li>
+    <li>reconhecer os problemas do TWFE com adoção escalonada e conhecer os estimadores modernos.</li>
+  </ul>
+</div>
+
+<!-- 1 -->
+<section id="ideia">
+<h2>1. A ideia</h2>
+<p>Em 2015, 40 de 100 municípios aderiram a um programa de saúde. Como medir seu efeito sobre o gasto em saúde per capita?</p>
+<ul>
+<li><strong>Antes × depois nos tratados:</strong> mistura o efeito com tudo o que mudou no tempo (inflação, transferências federais, envelhecimento da população).</li>
+<li><strong>Tratados × controles depois:</strong> mistura o efeito com diferenças permanentes entre os grupos (os municípios que aderiram já gastavam mais).</li>
+<li><strong>Diferenças em diferenças:</strong> a variação dos controles estima o que teria acontecido aos tratados sem o programa. Subtraí-la da variação dos tratados elimina tanto as diferenças fixas entre grupos quanto os choques comuns no tempo.</li>
+</ul>
+<p>Exemplo clássico: Card &amp; Krueger (1994) compararam o emprego em lanchonetes de Nova Jersey (que aumentou o salário mínimo) e da Pensilvânia (que não aumentou), antes e depois do aumento.</p>
+</section>
+
+<!-- 2 -->
+<section id="did22">
+<h2>2. O DiD 2×2</h2>
+<div class="formula">$$\hat\delta_{DiD}=\big(\bar y_{T,\text{depois}}-\bar y_{T,\text{antes}}\big)-\big(\bar y_{C,\text{depois}}-\bar y_{C,\text{antes}}\big)$$</div>
+<p>Com resultados potenciais, a diferença populacional se decompõe em:</p>
+<div class="formula">$$\underbrace{E[Y_{1}(1)-Y_{1}(0)\mid D=1]}_{ATT}+\underbrace{\big\{E[Y_1(0)-Y_0(0)\mid D=1]-E[Y_1(0)-Y_0(0)\mid D=0]\big\}}_{\text{diferença de tendências sem tratamento}}$$</div>
+<p>O DiD identifica o ATT se o segundo termo for zero, isto é, se as <strong>tendências forem paralelas</strong>.</p>
+<h3>Forma de regressão</h3>
+<div class="formula">$$y_{it}=\beta_0+\beta_1\,Tratado_i+\beta_2\,Pos_t+\delta\,(Tratado_i\times Pos_t)+u_{it}$$</div>
+<div class="table-wrap"><table>
+<thead><tr><th></th><th>Antes (\(Pos=0\))</th><th>Depois (\(Pos=1\))</th><th>Diferença</th></tr></thead>
+<tbody>
+<tr><th>Controle</th><td>\(\beta_0\)</td><td>\(\beta_0+\beta_2\)</td><td>\(\beta_2\)</td></tr>
+<tr><th>Tratado</th><td>\(\beta_0+\beta_1\)</td><td>\(\beta_0+\beta_1+\beta_2+\delta\)</td><td>\(\beta_2+\delta\)</td></tr>
+<tr><th>Diferença</th><td>\(\beta_1\)</td><td>\(\beta_1+\delta\)</td><td><strong>\(\delta\)</strong></td></tr>
+</tbody></table></div>
+<p>Com painel, a versão com <strong>efeitos fixos bidirecionais</strong> (TWFE) substitui \(Tratado_i\) e \(Pos_t\) por efeitos fixos de unidade e de período: \(y_{it}=\alpha_i+\lambda_t+\delta D_{it}+u_{it}\), com \(D_{it}=Tratado_i\times Pos_t\). Covariáveis podem ser incluídas, desde que não sejam afetadas pelo tratamento (ver “controles ruins” no Conteúdo 4). Os erros-padrão devem ser agrupados no nível em que o tratamento é atribuído.</p>
+</section>
+
+<!-- 3 -->
+<section id="hipoteses">
+<h2>3. Hipóteses</h2>
+<ol>
+<li><strong>Tendências paralelas:</strong> na ausência do tratamento, o resultado médio dos tratados teria evoluído como o dos controles. Os <em>níveis</em> podem diferir; o que precisa ser igual é a <em>variação</em>. A hipótese é sobre um contrafactual e não pode ser testada diretamente.</li>
+<li><strong>Ausência de antecipação:</strong> as unidades não reagem antes de o tratamento começar (prefeitos que mudam o gasto ao saber que o programa virá).</li>
+<li><strong>SUTVA / sem transbordamentos:</strong> o tratamento de uma unidade não afeta o resultado das outras (pacientes que migram para o município vizinho tratado).</li>
+<li><strong>Composição estável:</strong> em cortes transversais repetidos, a composição dos grupos não muda por causa do tratamento.</li>
+</ol>
+<div class="box warn">
+<h4>Tendências paralelas e escala</h4>
+<p>A hipótese depende da forma funcional: tendências paralelas em nível e em logaritmo são hipóteses diferentes, e não podem valer ambas (salvo casos especiais). Escolha a escala com base no problema econômico e verifique-a no estudo de eventos.</p>
+</div>
+</section>
+
+<!-- 4 -->
+<section id="eventos">
+<h2>4. Estudo de eventos</h2>
+<p>Em vez de um único \(\delta\), estima-se um coeficiente para cada período relativo ao tratamento, omitindo o período imediatamente anterior (\(k=-1\)) como referência:</p>
+<div class="formula">$$y_{it}=\alpha_i+\lambda_t+\sum_{k\neq-1}\delta_k\,\mathbf 1[t-E_i=k]\cdot Tratado_i+u_{it}$$</div>
+<ul>
+<li><strong>Coeficientes pré-tratamento</strong> (\(k<-1\)) próximos de zero são evidência compatível com tendências paralelas. Não são prova: o teste tem baixo poder, e condicionar a análise a “passar no pré-teste” distorce a inferência (Roth, 2022).</li>
+<li><strong>Coeficientes pós-tratamento</strong> mostram a dinâmica: efeito imediato, crescente ou que se dissipa.</li>
+<li>Para robustez a violações moderadas, veja a análise de sensibilidade de Rambachan &amp; Roth (2023), pacote <code>HonestDiD</code>.</li>
+</ul>
+</section>
+
+<!-- 5 -->
+<section id="escalonado">
+<h2>5. Adoção escalonada (<em>staggered</em>)</h2>
+<p>Quando as unidades são tratadas em datas diferentes, o TWFE é uma média ponderada de todas as comparações 2×2 possíveis (Goodman-Bacon, 2021). Algumas delas usam unidades <strong>já tratadas como controle</strong>. Se o efeito varia com o tempo, essas comparações “proibidas” podem receber peso negativo, e o \(\hat\delta\) do TWFE pode ter até o sinal errado.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Estimador</th><th>Ideia</th><th>Stata</th><th>R</th></tr></thead>
+<tbody>
+<tr><td>Callaway &amp; Sant’Anna (2021)</td><td>ATT por coorte de adoção e período, agregados depois; controles: nunca tratados ou ainda não tratados</td><td><code>csdid</code></td><td><code>did</code></td></tr>
+<tr><td>Sun &amp; Abraham (2021)</td><td>Estudo de eventos com interações coorte × período</td><td><code>eventstudyinteract</code></td><td><code>fixest::sunab</code></td></tr>
+<tr><td>de Chaisemartin &amp; D’Haultfœuille (2020)</td><td>Compara unidades que mudam de status com as que não mudam</td><td><code>did_multiplegt</code></td><td><code>DIDmultiplegt</code></td></tr>
+<tr><td>Borusyak, Jaravel &amp; Spiess (2024)</td><td>Imputação: estima o contrafactual com as observações não tratadas</td><td><code>did_imputation</code></td><td><code>didimputation</code></td></tr>
+</tbody></table></div>
+<p>Com uma única data de adoção, como no exemplo abaixo, o TWFE equivale ao DiD 2×2 e não tem esse problema.</p>
+</section>
+
+<!-- 6 -->
+<section id="exemplo">
+<h2>6. Exemplo: programa municipal de saúde</h2>
+<p>Painel <strong>simulado</strong> de 100 municípios de 2010 a 2019 (<a href="dados/programa_saude.csv"><code>dados/programa_saude.csv</code></a>). 40 municípios adotam o programa em 2015. O efeito verdadeiro é de +R$ 30 per capita no primeiro ano, crescendo R$ 5 por ano (média de <strong>+R$ 40</strong> em 2015–2019). Os municípios tratados já gastavam mais antes (nível diferente), mas as tendências sem o programa são paralelas.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Gasto médio (R$ per capita)</th><th class="num">Antes (2010–2014)</th><th class="num">Depois (2015–2019)</th><th class="num">Diferença</th></tr></thead>
+<tbody>
+<tr><th>Tratados (40)</th><td class="num">345,16</td><td class="num">424,27</td><td class="num">79,11</td></tr>
+<tr><th>Controles (60)</th><td class="num">315,00</td><td class="num">354,96</td><td class="num">39,96</td></tr>
+<tr><th>Diferença</th><td class="num">30,16</td><td class="num">69,31</td><td class="num"><strong>39,16</strong></td></tr>
+</tbody></table></div>
+<p>A regressão com interação e o TWFE dão o mesmo \(\hat\delta=39{,}16\), com erro-padrão agrupado por município de 1,26 e 1,33, respectivamente. Note os vieses das comparações simples: antes × depois nos tratados daria 79,11 (o dobro); tratados × controles depois daria 69,31.</p>
+
+<div class="chart wide" style="margin:16px 0">
+  <h4>Estudo de eventos: coeficientes e IC 95% (referência: 2014)</h4>
+  <svg id="esPlot" viewBox="0 0 560 320" role="img" aria-label="Gráfico de estudo de eventos"></svg>
+  <div class="legend"><span class="dot" style="--c:var(--bar)">estimativa e IC 95%</span><span class="dash" style="--c:var(--accent-2)">efeito verdadeiro</span></div>
+</div>
+<p>Os coeficientes de 2010–2013 são pequenos e não significativos (teste F conjunto: F = 0,88, p = 0,48), compatíveis com tendências paralelas. Depois de 2015 o efeito aparece e cresce, acompanhando o valor verdadeiro.</p>
+
+<h3>Código</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="py">Python</button>
+    <button role="tab" aria-selected="false" data-tab="r">R</button>
+    <button role="tab" aria-selected="false" data-tab="stata">Stata</button>
+  </div>
+<div class="tabpanel active" data-panel="py"><pre><code>import pandas as pd
+import statsmodels.formula.api as smf
+
+df = pd.read_csv("dados/programa_saude.csv")
+cl = {"groups": df["municipio"]}
+
+# DiD com as quatro médias
+m = df.groupby(["tratado", "pos"])["gasto_saude_pc"].mean().unstack()
+(m.loc[1, 1] - m.loc[1, 0]) - (m.loc[0, 1] - m.loc[0, 0])
+
+# Regressão com interação
+smf.ols("gasto_saude_pc ~ tratado * pos", data=df).fit(
+    cov_type="cluster", cov_kwds=cl).summary()
+
+# TWFE
+df["D"] = df["tratado"] * df["pos"]
+smf.ols("gasto_saude_pc ~ D + C(municipio) + C(ano)", data=df).fit(
+    cov_type="cluster", cov_kwds=cl).params["D"]
+
+# Estudo de eventos (2014 = referência)
+anos = [a for a in range(2010, 2020) if a != 2014]
+for a in anos:
+    df[f"ev_{a}"] = ((df["ano"] == a) & (df["tratado"] == 1)).astype(int)
+es = smf.ols("gasto_saude_pc ~ " + " + ".join(f"ev_{a}" for a in anos)
+             + " + C(municipio) + C(ano)", data=df).fit(cov_type="cluster", cov_kwds=cl)
+es.f_test("ev_2010 = 0, ev_2011 = 0, ev_2012 = 0, ev_2013 = 0")</code></pre></div>
+<div class="tabpanel" data-panel="r"><pre><code>library(fixest)
+df &lt;- read.csv("dados/programa_saude.csv")
+
+# 2x2 e TWFE
+feols(gasto_saude_pc ~ tratado * pos, data = df, cluster = ~municipio)
+df$D &lt;- df$tratado * df$pos
+feols(gasto_saude_pc ~ D | municipio + ano, data = df, cluster = ~municipio)
+
+# Estudo de eventos
+es &lt;- feols(gasto_saude_pc ~ i(ano, tratado, ref = 2014) | municipio + ano,
+            data = df, cluster = ~municipio)
+iplot(es)
+wald(es, keep = "201[0-3]")    # pré-tendências
+
+# Adoção escalonada: Callaway & Sant'Anna
+# library(did)
+# df$g &lt;- ifelse(df$tratado == 1, 2015, 0)   # ano da primeira adoção (0 = nunca)
+# att &lt;- att_gt(yname = "gasto_saude_pc", tname = "ano", idname = "municipio",
+#               gname = "g", data = df)
+# aggte(att, type = "dynamic")</code></pre></div>
+<div class="tabpanel" data-panel="stata"><pre><code>import delimited "dados/programa_saude.csv", clear
+xtset municipio ano
+
+regress gasto_saude_pc i.tratado##i.pos, vce(cluster municipio)
+generate D = tratado * pos
+reghdfe gasto_saude_pc D, absorb(municipio ano) vce(cluster municipio)
+
+* Comando nativo (Stata 17+)
+didregress (gasto_saude_pc) (D), group(municipio) time(ano)
+estat trendplots
+estat ptrends
+
+* Estudo de eventos (2014 = referência)
+reghdfe gasto_saude_pc ib2014.ano#1.tratado, absorb(municipio ano) vce(cluster municipio)
+coefplot, keep(*.ano#1.tratado) vertical yline(0)
+testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tratado
+
+* Adoção escalonada: ssc install csdid
+* generate g = cond(tratado == 1, 2015, 0)
+* csdid gasto_saude_pc, ivar(municipio) time(ano) gvar(g)
+* estat event</code></pre></div>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="simulador">
+<h2>7. Simulador: quando as tendências não são paralelas</h2>
+<p>Médias anuais de um grupo tratado e de um grupo de controle, com tratamento a partir do ano 6. Ajuste o efeito verdadeiro e uma tendência diferencial dos tratados (violação de tendências paralelas). A linha tracejada é o contrafactual que o DiD supõe.</p>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="dE">Efeito verdadeiro <output for="dE"></output></label><input type="range" id="dE" min="-20" max="40" step="1" value="20"></div>
+    <div><label for="dV">Tendência extra dos tratados (por ano) <output for="dV"></output></label><input type="range" id="dV" min="-5" max="5" step="0.5" value="0" data-dec="1"></div>
+    <div><label for="dG">Diferença de nível entre grupos <output for="dG"></output></label><input type="range" id="dG" min="-30" max="30" step="1" value="15"></div>
+    <div><label for="dR">Ruído <output for="dR"></output></label><input type="range" id="dR" min="0" max="8" step="0.5" value="2" data-dec="1"></div>
+  </div>
+  <div class="row"><button class="btn ghost" type="button" id="dNew">Nova amostra</button></div>
+  <div class="chart wide"><svg id="dPlot" viewBox="0 0 560 340" role="img" aria-label="Trajetórias de tratados e controles"></svg>
+    <div class="legend"><span style="--c:var(--accent-2)">tratados</span><span style="--c:var(--bar)">controles</span><span class="dash" style="--c:var(--accent-2)">contrafactual do DiD</span></div></div>
+  <div class="stats-grid" id="dOut"></div>
+  <p class="interp" id="dInterp"></p>
+</div>
+</section>
+
+<!-- 8 -->
+<section id="exercicios">
+<h2>8. Exercícios</h2>
+<ol class="exercises">
+<li>
+<p>Taxa de inadimplência de cooperativas de crédito (%): tratadas por uma nova regra prudencial passaram de 6,0 para 4,5; não tratadas, de 5,0 para 4,2. Calcule o DiD e os dois estimadores ingênuos.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Antes × depois nos tratados: \(4{,}5-6{,}0=-1{,}5\) p.p. Tratados × controles depois: \(4{,}5-4{,}2=+0{,}3\) p.p. DiD: \((-1{,}5)-(-0{,}8)=\mathbf{-0{,}7}\) <strong>p.p.</strong> A regra reduziu a inadimplência em 0,7 p.p., supondo tendências paralelas.</p></div></details>
+</li>
+<li>
+<p>Na regressão \(y=\beta_0+\beta_1Tratado+\beta_2Pos+\delta(Tratado\times Pos)+u\), estimou-se \(\hat\beta_0=100\), \(\hat\beta_1=12\), \(\hat\beta_2=8\), \(\hat\delta=5\). Monte a tabela das quatro médias.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Controle antes = 100; controle depois = 108; tratado antes = 112; tratado depois = 100 + 12 + 8 + 5 = 125. DiD = (125 − 112) − (108 − 100) = 13 − 8 = 5 = \(\hat\delta\).</p></div></details>
+</li>
+<li>
+<p>No estudo de eventos de uma nova exigência de controle interno nas prefeituras, os coeficientes de \(k=-4,-3,-2\) são 8, 6 e 3 (todos significativos) e os pós-tratamento estão entre 10 e 12. O que você conclui?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Os coeficientes pré-tratamento declinam em direção a zero: há <strong>tendência diferencial pré-existente</strong>. Os tratados vinham se aproximando dos controles antes da lei, e projetada essa tendência, parte (ou todo) o “efeito” pós-tratamento pode ser continuação dela. As tendências paralelas são implausíveis; considere controles mais comparáveis, tendências específicas por grupo ou a análise de sensibilidade de Rambachan &amp; Roth.</p></div></details>
+</li>
+<li>
+<p>Municípios adotaram um consórcio intermunicipal em 2013, 2015 e 2017. Um artigo estima \(y_{it}=\alpha_i+\lambda_t+\delta D_{it}+u_{it}\). Qual o problema potencial e que alternativa você sugeriria?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Adoção escalonada: o TWFE usa municípios que adotaram em 2013 como “controles” dos que adotaram depois. Se o efeito cresce com o tempo de adoção, essas comparações contaminam \(\hat\delta\) (pesos negativos, Goodman-Bacon). Alternativas: Callaway &amp; Sant’Anna (<code>csdid</code>/<code>did</code>), Sun &amp; Abraham ou imputação (Borusyak et al.), usando como controles apenas os nunca ou ainda não tratados.</p></div></details>
+</li>
+<li>
+<p>No simulador, deixe o efeito em 0 e a tendência extra em +2 por ano. Quanto o DiD estima? Explique o valor.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>O DiD estima aproximadamente <strong>+10</strong>, embora o efeito seja nulo. Com média dos anos 1–5 contra média dos anos 6–10, a distância média entre os períodos é de 5 anos, e a tendência diferencial de 2 por ano gera \(2\times5=10\) de viés. A violação de tendências paralelas aparece como “efeito”.</p></div></details>
+</li>
+</ol>
+</section>
+
+<nav class="pager" aria-label="Navegação entre conteúdos"><a href="../05-dados-em-painel/index.html">← Conteúdo 5: Dados em painel</a><a href="../07-regressao-descontinua/index.html">Conteúdo 7: Regressão descontínua →</a></nav>
+</main>
+
+<footer class="wrap">
+<p>Estatística e Econometria — Mestrado PROFINIT · Conteúdo 6. Dados simulados com finalidade didática.</p>
+<p>Leituras: Angrist &amp; Pischke, <em>Mostly Harmless Econometrics</em>, cap. 5; Cunningham, <em>Causal Inference: The Mixtape</em>, cap. 9; Card &amp; Krueger (1994), <em>AER</em> 84(4); Goodman-Bacon (2021) e Callaway &amp; Sant’Anna (2021), <em>Journal of Econometrics</em> 225(2); Roth, Sant’Anna, Bilinski &amp; Poe (2023), “What’s trending in difference-in-differences?”, <em>Journal of Econometrics</em> 235(2).</p>
+</footer>
+
+<script>
+(function(){
+  // Estudo de eventos estimado em codigo/analise.py
+  var es=[[2010,-3.33,3.26],[2011,-2.93,3.61],[2012,1.99,3.66],[2013,-0.61,3.47],[2014,0,0],
+          [2015,29.81,3.62],[2016,30.71,3.55],[2017,37.58,3.41],[2018,41.85,3.46],[2019,50.97,3.51]];
+  function drawES(){
+    var f=plotFrame(document.getElementById('esPlot'),{H:320,xlim:[2009.5,2019.5],ylim:[-15,62],xticks:[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019],xfmt:function(v){return String(v);},ylabel:'efeito (R$ per capita)'});
+    f.svg.appendChild(svgEl('line',{x1:f.m.l,x2:f.W-f.m.r,y1:f.sy(0),y2:f.sy(0),stroke:css('--muted'),'stroke-width':1.2}));
+    plotVLine(f,2014.5,css('--muted'),'4 4','programa');
+    plotLine(f,[2009.5,2014.5],[0,0],css('--accent-2'),2,'7 5');
+    plotLine(f,[2015,2016,2017,2018,2019],[30,35,40,45,50],css('--accent-2'),2,'7 5');
+    es.forEach(function(e){plotCI(f,e[0],e[1],e[1]-1.96*e[2],e[1]+1.96*e[2],e[0]===2014?css('--muted'):css('--bar'));});
+  }
+  var seed=1;
+  function run(){
+    var eff=+dE.value, v=+dV.value, gap=+dG.value, sd=+dR.value, R=rng(seed);
+    var yrs=[1,2,3,4,5,6,7,8,9,10], T=[],C=[],CF=[];
+    yrs.forEach(function(t){
+      var base=50+3*t;
+      C.push(base+sd*R.norm());
+      var cf=base+gap+v*(t-5.5);
+      T.push(cf+(t>=6?eff:0)+sd*R.norm());
+    });
+    var m=function(a,lo,hi){return mean(a.slice(lo,hi));};
+    var tA=m(T,0,5),tD=m(T,5,10),cA=m(C,0,5),cD=m(C,5,10), did=(tD-tA)-(cD-cA);
+    // contrafactual do DiD: tratados = controles + diferença média pré
+    var shift=tA-cA;
+    var all=T.concat(C), lo=Math.min.apply(null,all)-5, hi=Math.max.apply(null,all)+5;
+    var f=plotFrame(document.getElementById('dPlot'),{xlim:[0.5,10.5],ylim:[lo,hi],xticks:yrs,xfmt:function(v){return 'ano '+v;},ylabel:'resultado médio'});
+    plotVLine(f,5.5,css('--muted'),'4 4','tratamento');
+    plotLine(f,yrs.slice(4),C.slice(4).map(function(c){return c+shift;}),css('--accent-2'),2,'7 5');
+    plotLine(f,yrs,C,css('--bar'),2.5); plotPoints(f,yrs,C,css('--bar'),3.5,1);
+    plotLine(f,yrs,T,css('--accent-2'),2.5); plotPoints(f,yrs,T,css('--accent-2'),3.5,1);
+    var bias=v*5;
+    var items=[['Efeito verdadeiro',fmt(eff,1)],['Estimativa DiD',fmt(did,2)],['Viés da tendência (≈ 5 × tendência extra)',fmt(bias,1)],
+      ['Antes × depois (tratados)',fmt(tD-tA,2)],['Tratados × controles (depois)',fmt(tD-cD,2)]];
+    document.getElementById('dOut').innerHTML=items.map(function(it){return '<div class="stat"><div class="k">'+it[0]+'</div><div class="v">'+it[1]+'</div></div>';}).join('');
+    document.getElementById('dInterp').textContent=v===0?
+      'Com tendências paralelas, o DiD recupera o efeito verdadeiro (a menos do ruído). A diferença de nível entre os grupos não importa.':
+      'As tendências não são paralelas: o DiD atribui ao tratamento a divergência que já existia e erra em cerca de '+fmt(bias,1)+'. Observe nos anos 1–5 que as linhas já se afastavam (ou aproximavam) antes do tratamento; é isso que o estudo de eventos procura detectar.';
+  }
+  ['dE','dV','dG','dR'].forEach(function(id){document.getElementById(id).addEventListener('input',run);});
+  document.getElementById('dNew').addEventListener('click',function(){seed++;run();});
+  document.addEventListener('themechange',function(){run();drawES();});
+  document.addEventListener('DOMContentLoaded',function(){run();drawES();});
+})();
+</script>
+</body>
+</html>

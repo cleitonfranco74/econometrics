@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regressão Linear Múltipla</title>
+<meta name="description" content="Conteúdo 4: regressão linear múltipla, interpretação ceteris paribus, Frisch-Waugh-Lovell, viés de variável omitida, variáveis binárias, interações, testes t e F, com simulador, código em Python, R e Stata e exercícios.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/comum.js"></script>
+</head>
+<body>
+
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="crumbs ui"><a href="../index.html">← Todos os conteúdos</a></p>
+    <p class="eyebrow">Estatística e Econometria · Mestrado PROFINIT · Conteúdo 4</p>
+    <h1>Regressão linear múltipla</h1>
+    <p class="lede">Como “manter tudo o mais constante” com dados observacionais: o modelo com vários regressores, o viés de variável omitida e as ferramentas para especificar e testar modelos.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sumário">
+  <ul>
+    <li><a href="#modelo">1. Modelo</a></li>
+    <li><a href="#fwl">2. Interpretação parcial</a></li>
+    <li><a href="#ovb">3. Variável omitida</a></li>
+    <li><a href="#especificacao">4. Especificação</a></li>
+    <li><a href="#testes">5. Testes</a></li>
+    <li><a href="#exemplo">6. Exemplo e código</a></li>
+    <li><a href="#simulador">7. Simulador</a></li>
+    <li><a href="#exercicios">8. Exercícios</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<div class="objectives">
+  <h4>Ao final deste conteúdo você deve ser capaz de</h4>
+  <ul>
+    <li>estimar e interpretar coeficientes de uma regressão múltipla como efeitos <em>ceteris paribus</em>;</li>
+    <li>calcular o sinal e a magnitude do viés de variável omitida;</li>
+    <li>usar variáveis binárias, termos quadráticos e interações;</li>
+    <li>realizar testes t e F e diagnosticar multicolinearidade;</li>
+    <li>distinguir bons controles de controles ruins.</li>
+  </ul>
+</div>
+
+<!-- 1 -->
+<section id="modelo">
+<h2>1. O modelo</h2>
+<div class="formula">$$y_i=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\dots+\beta_kx_{ik}+u_i\qquad\Longleftrightarrow\qquad \mathbf y=\mathbf X\boldsymbol\beta+\mathbf u$$</div>
+<p>O estimador de MQO minimiza \(\sum_i \hat u_i^2\) e tem forma fechada em notação matricial:</p>
+<div class="formula">$$\hat{\boldsymbol\beta}=(\mathbf X'\mathbf X)^{-1}\mathbf X'\mathbf y,\qquad \widehat{Var}(\hat{\boldsymbol\beta})=\hat\sigma^2(\mathbf X'\mathbf X)^{-1},\quad \hat\sigma^2=\frac{SQR}{n-k-1}$$</div>
+
+<h3>Hipóteses (Wooldridge, RLM.1–RLM.6)</h3>
+<ol>
+<li>Linearidade nos parâmetros;</li>
+<li>Amostragem aleatória;</li>
+<li><strong>Ausência de colinearidade perfeita:</strong> nenhum regressor é combinação linear exata dos outros (\(\mathbf X'\mathbf X\) é invertível);</li>
+<li><strong>Média condicional zero:</strong> \(E[u\mid x_1,\dots,x_k]=0\);</li>
+<li>Homocedasticidade: \(Var(u\mid \mathbf x)=\sigma^2\);</li>
+<li>Normalidade de \(u\) (só para inferência exata em amostras pequenas).</li>
+</ol>
+<div class="box">
+<h4>Teorema de Gauss-Markov</h4>
+<p>Sob RLM.1–RLM.5, o MQO é o <strong>melhor estimador linear não viesado</strong> (BLUE): entre os estimadores lineares e não viesados, é o de menor variância. Sob RLM.1–RLM.4 ele já é não viesado; RLM.5 garante a eficiência e a validade da fórmula usual de variância.</p>
+</div>
+</section>
+
+<!-- 2 -->
+<section id="fwl">
+<h2>2. Interpretação: o efeito parcial</h2>
+<p>\(\beta_j=\partial E[y\mid\mathbf x]/\partial x_j\): variação esperada em \(y\) quando \(x_j\) aumenta uma unidade, <strong>mantidos constantes os demais regressores incluídos</strong>.</p>
+<h3>Teorema de Frisch-Waugh-Lovell (FWL)</h3>
+<p>O coeficiente \(\hat\beta_1\) da regressão múltipla é idêntico ao obtido em dois passos:</p>
+<ol>
+<li>regrida \(x_1\) nos demais regressores e guarde o resíduo \(\tilde x_1\), a parte de \(x_1\) “não explicada” pelos controles;</li>
+<li>regrida \(y\) em \(\tilde x_1\): \(\hat\beta_1=\sum\tilde x_{i1}y_i/\sum\tilde x_{i1}^2\).</li>
+</ol>
+<p>Ou seja, a regressão múltipla usa <em>apenas a variação de \(x_1\) que não é explicada pelos controles</em>. É assim que ela “mantém tudo o mais constante”, e é por isso que controles muito correlacionados com \(x_1\) deixam pouca variação e aumentam o erro-padrão.</p>
+</section>
+
+<!-- 3 -->
+<section id="ovb">
+<h2>3. Viés de variável omitida</h2>
+<p>Suponha que o modelo verdadeiro seja \(y=\beta_0+\beta_1x_1+\beta_2x_2+u\), mas estimamos o modelo “curto” sem \(x_2\). Sendo \(\tilde\delta_1\) a inclinação da regressão auxiliar de \(x_2\) em \(x_1\):</p>
+<div class="formula">$$\tilde\beta_1=\hat\beta_1+\hat\beta_2\,\tilde\delta_1\qquad\Rightarrow\qquad E[\tilde\beta_1]=\beta_1+\underbrace{\beta_2\,\delta_1}_{\text{viés}}$$</div>
+<div class="table-wrap"><table>
+<thead><tr><th>Sinal do viés</th><th>\(Corr(x_1,x_2)>0\)</th><th>\(Corr(x_1,x_2)<0\)</th></tr></thead>
+<tbody>
+<tr><th>\(\beta_2>0\)</th><td>positivo (superestima)</td><td>negativo (subestima)</td></tr>
+<tr><th>\(\beta_2<0\)</th><td>negativo (subestima)</td><td>positivo (superestima)</td></tr>
+</tbody></table></div>
+<p>Não há viés se a variável omitida não afeta \(y\) (\(\beta_2=0\)) <strong>ou</strong> não é correlacionada com \(x_1\) (\(\delta_1=0\)). A fórmula é a mesma do confundidor do Conteúdo 3, agora em álgebra de regressão.</p>
+
+<h3>Bons e maus controles</h3>
+<ul>
+<li><strong>Bom controle:</strong> variável determinada <em>antes</em> do tratamento que afeta \(y\) e está correlacionada com \(x_1\) (um confundidor).</li>
+<li><strong>Controle ruim (<em>bad control</em>):</strong> variável que é ela própria <em>resultado</em> de \(x_1\). Exemplo: ao estimar o efeito da educação sobre o salário, controlar pela ocupação remove parte do efeito que passa pela ocupação (mediador) e pode introduzir viés de seleção.</li>
+<li>Variáveis que só afetam \(y\) (e não \(x_1\)) não corrigem viés, mas <strong>reduzem o erro-padrão</strong>.</li>
+</ul>
+</section>
+
+<!-- 4 -->
+<section id="especificacao">
+<h2>4. Especificação do modelo</h2>
+<h3>4.1 Variáveis binárias (dummies)</h3>
+<p>Em \(\ln(sal)=\beta_0+\delta_0\,mulher+\beta_1educ+u\), \(\delta_0\) é a diferença de intercepto entre mulheres e homens com a mesma educação. Em modelos log, a diferença percentual exata é \(100\,(e^{\delta_0}-1)\). Com \(g\) categorias, inclua \(g-1\) dummies; incluir todas mais o intercepto gera colinearidade perfeita (<em>armadilha da variável dummy</em>).</p>
+<h3>4.2 Termos quadráticos</h3>
+<p>Em \(y=\beta_0+\beta_1x+\beta_2x^2+u\), o efeito marginal depende do nível: \(\partial y/\partial x=\beta_1+2\beta_2x\). Com \(\beta_1>0\) e \(\beta_2<0\) o efeito é decrescente, com ponto de máximo em \(x^*=-\beta_1/(2\beta_2)\).</p>
+<h3>4.3 Interações</h3>
+<p>Em \(y=\beta_0+\beta_1x+\beta_2d+\beta_3(x\cdot d)+u\), o efeito de \(x\) é \(\beta_1\) quando \(d=0\) e \(\beta_1+\beta_3\) quando \(d=1\). O termo \(\beta_3\) testa se o efeito difere entre os grupos. É exatamente esta estrutura que aparece no estimador de diferenças em diferenças (Conteúdo 6).</p>
+</section>
+
+<!-- 5 -->
+<section id="testes">
+<h2>5. Ajuste e testes</h2>
+<div class="formula">$$\bar R^2=1-\frac{SQR/(n-k-1)}{SQT/(n-1)}\qquad\qquad F=\frac{(SQR_r-SQR_{ir})/q}{SQR_{ir}/(n-k-1)}\sim F_{q,\;n-k-1}$$</div>
+<ul>
+<li>O \(R^2\) nunca diminui ao incluir regressores; o \(\bar R^2\) penaliza regressores inúteis.</li>
+<li><strong>Teste t</strong> para uma restrição (\(H_0:\beta_j=0\)); <strong>teste F</strong> para \(q\) restrições conjuntas (\(H_0:\beta_2=\beta_3=0\)), comparando os modelos restrito (r) e irrestrito (ir).</li>
+<li>Variáveis podem ser individualmente não significativas e conjuntamente significativas, situação comum com termos quadráticos e com regressores correlacionados.</li>
+</ul>
+<h3>Multicolinearidade</h3>
+<div class="formula">$$Var(\hat\beta_j)=\frac{\sigma^2}{SQT_j\,(1-R_j^2)},\qquad VIF_j=\frac{1}{1-R_j^2}$$</div>
+<p>\(R_j^2\) é o \(R^2\) da regressão de \(x_j\) nos demais regressores. Multicolinearidade alta (VIF &gt; 10, pela regra prática) <strong>não causa viés</strong>; apenas aumenta a variância. A solução geralmente é mais dados, não retirar uma variável relevante, o que criaria viés de omissão.</p>
+</section>
+
+<!-- 6 -->
+<section id="exemplo">
+<h2>6. Exemplo: retorno da educação</h2>
+<p>Dados <strong>simulados</strong> de 600 trabalhadores (<a href="dados/salarios.csv"><code>dados/salarios.csv</code></a>). O processo gerador tem retorno verdadeiro da educação de <strong>8%</strong> por ano de estudo. A “habilidade” afeta o salário e é correlacionada com a educação (r = 0,675). Na vida real ela não é observada; aqui está disponível para fins didáticos.</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: ln(salário-hora)</th><th>(1)</th><th>(2)</th><th>(3)</th></tr></thead>
+<tbody>
+<tr><td>Educação (anos)</td><td>0,1072***<br><small>(0,0056)</small></td><td>0,1055***<br><small>(0,0054)</small></td><td>0,0746***<br><small>(0,0068)</small></td></tr>
+<tr><td>Experiência</td><td></td><td>0,0195***<br><small>(0,0059)</small></td><td>0,0201***<br><small>(0,0056)</small></td></tr>
+<tr><td>Experiência²</td><td></td><td>−0,00023<br><small>(0,00016)</small></td><td>−0,00023<br><small>(0,00015)</small></td></tr>
+<tr><td>Mulher</td><td></td><td>−0,1560***<br><small>(0,0310)</small></td><td>−0,1597***<br><small>(0,0299)</small></td></tr>
+<tr><td>Habilidade</td><td></td><td></td><td>0,1310***<br><small>(0,0195)</small></td></tr>
+<tr><td>\(n\)</td><td>600</td><td>600</td><td>600</td></tr>
+<tr><td>\(R^2\) / \(\bar R^2\)</td><td>0,377 / 0,376</td><td>0,453 / 0,450</td><td>0,491 / 0,486</td></tr>
+</tbody></table></div>
+<p class="hint">Erros-padrão robustos (HC1) entre parênteses. *** p&lt;0,01.</p>
+<div class="box">
+<h4>Interpretação</h4>
+<ul>
+<li><strong>Coluna (2):</strong> um ano a mais de estudo está associado a salário ≈ 10,6% maior, mantidos experiência e sexo. Mulheres com mesma educação e experiência ganham \(100(e^{-0{,}156}-1)\approx\) 14,4% a menos.</li>
+<li><strong>Experiência:</strong> efeito marginal aos 10 anos = \(0{,}0195+2(-0{,}00023)(10)\approx 1{,}5\%\) por ano. O termo quadrático não é significativo isoladamente, mas o teste F conjunto de experiência e experiência² dá F = 30,6 (p &lt; 0,001).</li>
+<li><strong>Viés de variável omitida:</strong> ao incluir a habilidade (3), o retorno da educação cai de 0,1055 para 0,0746, perto do valor verdadeiro (0,08). Confira a fórmula: \(\tilde\delta_1=0{,}2358\) (habilidade em educação, com os demais controles) e \(0{,}0746+0{,}1310\times0{,}2358=0{,}1055\). O viés é positivo porque a habilidade aumenta o salário e é positivamente correlacionada com a educação.</li>
+<li><strong>Lição:</strong> as colunas (1) e (2) têm \(R^2\) razoável e coeficientes muito significativos, e mesmo assim superestimam o efeito causal em cerca de 30%. Na prática, sem a habilidade observada, seria preciso outra estratégia: variáveis instrumentais, painel com efeitos fixos (Conteúdo 5) ou um quase-experimento.</li>
+</ul>
+</div>
+
+<h3>Código</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="py">Python</button>
+    <button role="tab" aria-selected="false" data-tab="r">R</button>
+    <button role="tab" aria-selected="false" data-tab="stata">Stata</button>
+  </div>
+<div class="tabpanel active" data-panel="py"><pre><code>import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+
+df = pd.read_csv("dados/salarios.csv")
+df["lsal"] = np.log(df["salario_hora"])
+
+m1 = smf.ols("lsal ~ educ", data=df).fit(cov_type="HC1")
+m2 = smf.ols("lsal ~ educ + exper + I(exper**2) + mulher", data=df).fit(cov_type="HC1")
+m3 = smf.ols("lsal ~ educ + exper + I(exper**2) + mulher + habilidade",
+             data=df).fit(cov_type="HC1")
+print(m2.summary())
+
+# Teste F conjunto
+print(m2.f_test("exper = 0, I(exper ** 2) = 0"))
+
+# Viés de variável omitida: b_curto = b_longo + gamma * delta
+delta = smf.ols("habilidade ~ educ + exper + I(exper**2) + mulher",
+                data=df).fit().params["educ"]
+m3.params["educ"] + m3.params["habilidade"] * delta   # = m2.params["educ"]
+
+# Frisch-Waugh-Lovell
+df["r_educ"] = smf.ols("educ ~ exper + I(exper**2) + mulher", data=df).fit().resid
+smf.ols("lsal ~ r_educ", data=df).fit().params       # mesmo coeficiente de m2
+
+# Interação: o retorno da educação difere por sexo?
+smf.ols("lsal ~ educ * mulher + exper + I(exper**2)", data=df).fit(cov_type="HC1").summary()</code></pre></div>
+<div class="tabpanel" data-panel="r"><pre><code>library(fixest)   # install.packages("fixest")
+df &lt;- read.csv("dados/salarios.csv")
+df$lsal &lt;- log(df$salario_hora)
+
+m1 &lt;- feols(lsal ~ educ, data = df, vcov = "hetero")
+m2 &lt;- feols(lsal ~ educ + exper + I(exper^2) + mulher, data = df, vcov = "hetero")
+m3 &lt;- feols(lsal ~ educ + exper + I(exper^2) + mulher + habilidade, data = df, vcov = "hetero")
+etable(m1, m2, m3)                      # tabela lado a lado
+
+wald(m2, keep = "exper")                # teste F conjunto
+
+# Viés de variável omitida
+delta &lt;- coef(lm(habilidade ~ educ + exper + I(exper^2) + mulher, data = df))["educ"]
+coef(m3)["educ"] + coef(m3)["habilidade"] * delta
+
+# Interação
+feols(lsal ~ educ * mulher + exper + I(exper^2), data = df, vcov = "hetero")
+
+# VIF
+library(car); vif(lm(lsal ~ educ + exper + mulher, data = df))</code></pre></div>
+<div class="tabpanel" data-panel="stata"><pre><code>import delimited "dados/salarios.csv", clear
+generate lsal = ln(salario_hora)
+
+regress lsal educ, robust
+estimates store m1
+regress lsal educ c.exper##c.exper i.mulher, robust
+estimates store m2
+test exper c.exper#c.exper              // teste F conjunto
+margins, dydx(exper) at(exper = 10)     // efeito marginal aos 10 anos
+regress lsal educ c.exper##c.exper i.mulher habilidade, robust
+estimates store m3
+estimates table m1 m2 m3, b(%9.4f) se stats(N r2 r2_a)
+
+* Viés de variável omitida
+quietly regress habilidade educ c.exper##c.exper i.mulher
+display _b[educ]
+
+* Interação
+regress lsal c.educ##i.mulher c.exper##c.exper, robust
+
+* VIF
+quietly regress lsal educ exper mulher
+estat vif</code></pre></div>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="simulador">
+<h2>7. Simulador: viés de variável omitida e FWL</h2>
+<p>Gera \(x_2\sim N(0,1)\), \(x_1=a\,x_2+v\) e \(y=1\cdot x_1+\beta_2x_2+u\); o efeito verdadeiro de \(x_1\) é 1. À esquerda, a regressão curta (sem \(x_2\)). À direita, o gráfico FWL: resíduos de \(y\) contra resíduos de \(x_1\), ambos depois de retirar \(x_2\). A inclinação é o coeficiente da regressão longa.</p>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="oD">Efeito de x₂ sobre x₁ (a) <output for="oD"></output></label><input type="range" id="oD" min="-2" max="2" step="0.1" value="1" data-dec="1"></div>
+    <div><label for="oB">Efeito de x₂ em y (β₂) <output for="oB"></output></label><input type="range" id="oB" min="-2" max="2" step="0.1" value="1" data-dec="1"></div>
+    <div><label for="oN">n <output for="oN"></output></label><input type="range" id="oN" min="30" max="1000" step="10" value="300"></div>
+  </div>
+  <div class="row"><button class="btn ghost" type="button" id="oNew">Nova amostra</button></div>
+  <div class="charts" style="grid-template-columns:1fr 1fr">
+    <div class="chart"><h4>Regressão curta: y contra x₁</h4><svg id="oP1" viewBox="0 0 400 300"></svg></div>
+    <div class="chart"><h4>FWL: ỹ contra x̃₁ (x₂ “retirado”)</h4><svg id="oP2" viewBox="0 0 400 300"></svg></div>
+  </div>
+  <div class="stats-grid" id="oOut"></div>
+  <p class="interp" id="oInterp"></p>
+</div>
+</section>
+
+<!-- 8 -->
+<section id="exercicios">
+<h2>8. Exercícios</h2>
+<ol class="exercises">
+<li>
+<p>Estimou-se \(\widehat{\ln(\text{honorários})}=1{,}8+0{,}42\ln(\text{ativo})+0{,}25\,\text{BigFour}+0{,}10\,\text{Complexidade}\), em que BigFour é dummy. Interprete o coeficiente da BigFour (exato e aproximado).</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Mantidos ativo e complexidade, empresas auditadas por Big Four pagam honorários cerca de 25% maiores (aproximação) ou exatamente \(100(e^{0{,}25}-1)\approx\mathbf{28{,}4\%}\) maiores. Sem um desenho de identificação, isso não é necessariamente o efeito causal de contratar uma Big Four, pois há seleção de clientes.</p></div></details>
+</li>
+<li>
+<p>Um pesquisador estima o efeito do tamanho do conselho de administração sobre o valor da empresa (Q de Tobin) omitindo o tamanho da empresa. Sabendo que empresas maiores têm conselhos maiores e que o tamanho reduz o Q de Tobin, qual o sinal do viés?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>\(\beta_2<0\) (tamanho reduz Q) e \(Corr(\text{conselho},\text{tamanho})>0\): viés = \(\beta_2\delta_1<0\). O coeficiente do conselho fica <strong>viesado para baixo</strong>, tornando o efeito estimado mais negativo do que o verdadeiro.</p></div></details>
+</li>
+<li>
+<p>No modelo \(\widehat{sal}=3{,}2+0{,}045\,exper-0{,}0009\,exper^2\), qual o efeito marginal de um ano de experiência para quem tem 5 e 20 anos? Em que nível de experiência o salário é máximo?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>\(\partial sal/\partial exper = 0{,}045 - 0{,}0018\,exper\). Aos 5 anos: \(0{,}045-0{,}009=\mathbf{0{,}036}\). Aos 20: \(0{,}045-0{,}036=\mathbf{0{,}009}\). Máximo em \(0{,}045/0{,}0018=\mathbf{25}\) anos.</p></div></details>
+</li>
+<li>
+<p>Num modelo com \(n=200\) e \(k=5\), \(SQR=420\). Retirando duas variáveis, \(SQR=470\). Teste a significância conjunta delas a 5% (\(F_{0{,}95;2;194}\approx 3{,}04\)).</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>\(F=\dfrac{(470-420)/2}{420/(200-5-1)}=\dfrac{25}{2{,}165}\approx\mathbf{11{,}55}\) &gt; 3,04: rejeita-se \(H_0\). As duas variáveis são conjuntamente significativas.</p></div></details>
+</li>
+<li>
+<p>Para estimar o efeito de um programa de capacitação sobre a produtividade de servidores, um colega propõe controlar pelo cargo ocupado <em>após</em> o programa. Comente.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>É um <strong>controle ruim</strong>. O cargo após o programa pode ser resultado do próprio programa (promoções), ou seja, é um mediador. Controlar por ele elimina parte do efeito e compara grupos selecionados de modo diferente. Controles devem ser medidos antes do tratamento.</p></div></details>
+</li>
+<li>
+<p>Uma regressão tem \(R^2=0{,}85\) e nenhuma variável individualmente significativa, mas o teste F global é altamente significativo. Qual o diagnóstico provável e o que <em>não</em> fazer?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Multicolinearidade elevada: os regressores juntos explicam \(y\), mas é difícil separar o efeito de cada um, e os erros-padrão ficam grandes. Verifique os VIFs. Não retire variáveis relevantes só para “ganhar significância”, pois isso cria viés de variável omitida. Teste hipóteses conjuntas, use mais dados ou reformule a pergunta.</p></div></details>
+</li>
+</ol>
+</section>
+
+<nav class="pager" aria-label="Navegação entre conteúdos"><a href="../03-correlacao-causalidade-regressao/index.html">← Conteúdo 3: Correlação e causalidade</a><a href="../05-dados-em-painel/index.html">Conteúdo 5: Dados em painel →</a></nav>
+</main>
+
+<footer class="wrap">
+<p>Estatística e Econometria — Mestrado PROFINIT · Conteúdo 4. Dados simulados com finalidade didática.</p>
+<p>Leituras: Wooldridge, <em>Introdução à Econometria</em>, caps. 3–7; Angrist &amp; Pischke, <em>Mostly Harmless Econometrics</em>, cap. 3 (inclusive “bad controls”, seção 3.2.3); Cinelli, Forney &amp; Pearl (2022), “A crash course in good and bad controls”, <em>Sociological Methods &amp; Research</em>.</p>
+</footer>
+
+<script>
+(function(){
+  var seed=11;
+  function run(){
+    var d=+oD.value, b2=+oB.value, n=+oN.value, R=rng(seed), X1=[],X2=[],Y=[];
+    for(var i=0;i<n;i++){var x2=R.norm(), x1=d*x2+R.norm(); X1.push(x1);X2.push(x2);Y.push(x1+b2*x2+R.norm());}
+    var shortM=ols(X1.map(function(x){return [1,x];}),Y);
+    var longM=ols(X1.map(function(x,i){return [1,x,X2[i]];}),Y);
+    var aux=ols(X2.map(function(z){return [1,z];}),X1), auy=ols(X2.map(function(z){return [1,z];}),Y);
+    var rx=aux.resid, ry=auy.resid;
+    var delta=ols(X1.map(function(x){return [1,x];}),X2).beta[1];
+    function panel(id,xs,ys,b0,b1,col){
+      var xr=[Math.min.apply(null,xs),Math.max.apply(null,xs)], yr=[Math.min.apply(null,ys),Math.max.apply(null,ys)];
+      var f=plotFrame(document.getElementById(id),{W:400,H:300,xlim:xr,ylim:yr,margin:{l:40,r:10,t:10,b:30}});
+      plotPoints(f,xs,ys,css('--muted'),2.3,0.4);
+      plotLine(f,xr,xr.map(function(x){return f.clip(b0+b1*x);}),col,3);
+      var mx=mean(xs),my=mean(ys);
+      plotLine(f,xr,xr.map(function(x){return f.clip(my+1*(x-mx));}),css('--accent-2'),2,'7 5');
+    }
+    panel('oP1',X1,Y,shortM.beta[0],shortM.beta[1],css('--bar'));
+    var fwl=ols(rx.map(function(x){return [1,x];}),ry);
+    panel('oP2',rx,ry,fwl.beta[0],fwl.beta[1],css('--ok'));
+    var items=[['β̂₁ regressão curta',fmt(shortM.beta[1])],['β̂₁ regressão longa',fmt(longM.beta[1])],['β̂₁ via FWL',fmt(fwl.beta[1])],
+      ['δ̃ (regressão de x₂ em x₁)',fmt(delta)],['β̂₂ · δ̃ (viés)',fmt(longM.beta[2]*delta)],['Efeito verdadeiro','1,000']];
+    document.getElementById('oOut').innerHTML=items.map(function(it){return '<div class="stat"><div class="k">'+it[0]+'</div><div class="v">'+it[1]+'</div></div>';}).join('');
+    document.getElementById('oInterp').textContent='Identidade: β̂ curto = β̂ longo + β̂₂·δ̃ → '+fmt(shortM.beta[1])+' = '+fmt(longM.beta[1])+' + '+fmt(longM.beta[2]*delta)+
+      '. Tracejado laranja: inclinação verdadeira (1). '+(Math.abs(d*b2)<0.05?'Com a·β₂ ≈ 0 não há viés.':'O viés é '+(longM.beta[2]*delta>0?'positivo':'negativo')+'.');
+  }
+  ['oD','oB','oN'].forEach(function(id){document.getElementById(id).addEventListener('input',run);});
+  document.getElementById('oNew').addEventListener('click',function(){seed++;run();});
+  document.addEventListener('themechange',run);
+  document.addEventListener('DOMContentLoaded',run);
+})();
+</script>
+</body>
+</html>

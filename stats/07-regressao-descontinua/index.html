@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regressão Descontínua</title>
+<meta name="description" content="Conteúdo 7: regressão descontínua (RDD) sharp e fuzzy, polinômios locais, largura de banda, testes de validade e exemplo de programa de crédito, com simulador, código em Python, R e Stata e exercícios.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/comum.js"></script>
+</head>
+<body>
+
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="crumbs ui"><a href="../index.html">← Todos os conteúdos</a></p>
+    <p class="eyebrow">Estatística e Econometria · Mestrado PROFINIT · Conteúdo 7</p>
+    <h1>Regressão descontínua</h1>
+    <p class="lede">Quando uma regra trata de forma diferente quem está logo acima e logo abaixo de um limite, as unidades próximas ao corte formam um quase-experimento.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sumário">
+  <ul>
+    <li><a href="#ideia">1. Ideia</a></li>
+    <li><a href="#sharp">2. RDD sharp</a></li>
+    <li><a href="#fuzzy">3. RDD fuzzy</a></li>
+    <li><a href="#estimacao">4. Estimação</a></li>
+    <li><a href="#validade">5. Validação</a></li>
+    <li><a href="#exemplo">6. Exemplo</a></li>
+    <li><a href="#codigo">7. Código</a></li>
+    <li><a href="#simulador">8. Simulador</a></li>
+    <li><a href="#exercicios">9. Exercícios</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<div class="objectives">
+  <h4>Ao final deste conteúdo você deve ser capaz de</h4>
+  <ul>
+    <li>reconhecer desenhos de regressão descontínua sharp e fuzzy em regras administrativas e legais;</li>
+    <li>estimar o efeito no corte por polinômios locais, escolhendo kernel, ordem e largura de banda;</li>
+    <li>interpretar o RDD fuzzy como variável instrumental (LATE dos <em>compliers</em>);</li>
+    <li>aplicar os testes de validação: densidade, balanceamento, placebos e sensibilidade.</li>
+  </ul>
+</div>
+
+<!-- 1 -->
+<section id="ideia">
+<h2>1. A ideia</h2>
+<p>Muitas regras de política pública dependem de um limite numérico em uma <strong>variável de corte</strong> (<em>running variable</em>, \(X\)): população do município (faixas do FPM, número de vereadores), nota em um exame (bolsas, vagas), idade, receita da empresa (Simples Nacional), porte para auditoria obrigatória. Unidades logo acima e logo abaixo do corte \(c\) são muito parecidas em tudo, menos no tratamento. Comparar as duas, no limite, é como comparar grupos sorteados.</p>
+<p>Origem: Thistlethwaite &amp; Campbell (1960), sobre o efeito de certificados de mérito em estudantes. Consolidação na economia: Hahn, Todd &amp; Van der Klaauw (2001), Imbens &amp; Lemieux (2008), Lee &amp; Lemieux (2010).</p>
+</section>
+
+<!-- 2 -->
+<section id="sharp">
+<h2>2. RDD <em>sharp</em></h2>
+<p>O tratamento é função determinística do corte: \(D_i=\mathbf 1[X_i\ge c]\). Sob a hipótese de que \(E[Y(0)\mid X=x]\) e \(E[Y(1)\mid X=x]\) são <strong>contínuas em \(x=c\)</strong>:</p>
+<div class="formula">$$\tau_{SRD}=E[Y(1)-Y(0)\mid X=c]=\lim_{x\downarrow c}E[Y\mid X=x]-\lim_{x\uparrow c}E[Y\mid X=x]$$</div>
+<p>O efeito é <strong>local</strong>: vale para unidades no corte (validade externa limitada). A hipótese de continuidade falha se as unidades conseguem <strong>manipular</strong> \(X\) para ficar do lado desejado, ou se outra política muda no mesmo corte. No Brasil há muitos cortes populacionais (faixas do FPM, número de vereadores, obrigações de gestão fiscal), e é preciso verificar que nenhuma outra regra muda exatamente no limite estudado.</p>
+</section>
+
+<!-- 3 -->
+<section id="fuzzy">
+<h2>3. RDD <em>fuzzy</em></h2>
+<p>O corte muda a <em>probabilidade</em> de tratamento, mas não de 0 para 1: há municípios acima do corte que não cumprem a regra e municípios abaixo que adotam voluntariamente. O efeito é a razão entre dois saltos:</p>
+<div class="formula">$$\tau_{FRD}=\frac{\lim_{x\downarrow c}E[Y\mid X=x]-\lim_{x\uparrow c}E[Y\mid X=x]}{\lim_{x\downarrow c}E[D\mid X=x]-\lim_{x\uparrow c}E[D\mid X=x]}=\frac{\text{forma reduzida (salto em }Y)}{\text{primeiro estágio (salto em }D)}$$</div>
+<p>É um estimador de <strong>variáveis instrumentais</strong>, com \(Z=\mathbf 1[X\ge c]\) como instrumento para \(D\), e pode ser estimado por MQ2E:</p>
+<div class="formula">$$\begin{aligned}D_i&=\gamma_0+\gamma_1Z_i+f(X_i-c)+v_i &&\text{(1º estágio)}\\ Y_i&=\beta_0+\tau\,\hat D_i+f(X_i-c)+u_i &&\text{(2º estágio)}\end{aligned}$$</div>
+<p>Sob monotonicidade, \(\tau_{FRD}\) é o <strong>LATE</strong>: o efeito para os <em>compliers</em> no corte, unidades que adotam o tratamento <em>porque</em> cruzaram o limite. <em>Always-takers</em> e <em>never-takers</em> não contribuem para a identificação.</p>
+</section>
+
+<!-- 4 -->
+<section id="estimacao">
+<h2>4. Estimação por polinômios locais</h2>
+<p>Estima-se uma regressão de \(Y\) em \((X-c)\), separadamente de cada lado, usando apenas observações na janela \(|X-c|\le h\) e ponderando pela proximidade ao corte com um kernel \(K\):</p>
+<div class="formula">$$\min_{\alpha,\beta}\sum_{i:\,X_i\ge c}K\!\left(\frac{X_i-c}{h}\right)\Big(Y_i-\alpha-\sum_{p'=1}^{p}\beta_{p'}(X_i-c)^{p'}\Big)^2,\qquad \hat\tau=\hat\alpha_{+}-\hat\alpha_{-}$$</div>
+<ul>
+<li><strong>Ordem do polinômio \(p\):</strong> use local linear (\(p=1\)) ou quadrático (\(p=2\)). Polinômios globais de ordem alta produzem estimativas instáveis e inferência enganosa (Gelman &amp; Imbens, 2019).</li>
+<li><strong>Kernel:</strong> triangular (\(K(u)=1-|u|\)) é o padrão; Epanechnikov e uniforme servem como robustez.</li>
+<li><strong>Largura de banda \(h\):</strong> trade-off entre viés (janela larga) e variância (janela estreita). Os seletores ótimos de Calonico, Cattaneo &amp; Titiunik (CCT) minimizam o EQM: <code>mserd</code> (uma banda comum aos dois lados) e <code>msetwo</code>/<code>msesum</code> (bandas diferentes, ou baseadas na soma).</li>
+<li><strong>Inferência robusta com correção de viés:</strong> a banda ótima para o EQM deixa um viés que invalida o IC convencional. O <code>rdrobust</code> reporta o IC <em>robust bias-corrected</em>, que é o recomendado.</li>
+</ul>
+</section>
+
+<!-- 5 -->
+<section id="validade">
+<h2>5. Validação do desenho</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Teste</th><th>Pergunta</th><th>Esperado</th></tr></thead>
+<tbody>
+<tr><td>Densidade da variável de corte (McCrary, 2008; Cattaneo, Jansson &amp; Ma, 2020)</td><td>Há aglomeração de unidades logo acima ou abaixo do corte (manipulação)?</td><td>Não rejeitar a continuidade da densidade</td></tr>
+<tr><td>Balanceamento de covariáveis pré-tratamento</td><td>Características predeterminadas saltam no corte?</td><td>Sem descontinuidade</td></tr>
+<tr><td>Cortes placebo</td><td>Há “efeito” em cortes onde nada muda?</td><td>Sem descontinuidade</td></tr>
+<tr><td>Período pré-tratamento</td><td>O salto existia antes de a regra entrar em vigor?</td><td>Sem descontinuidade antes</td></tr>
+<tr><td>Sensibilidade</td><td>O resultado muda com \(h\), \(p\), kernel, ou ao excluir observações muito próximas ao corte (<em>donut hole</em>)?</td><td>Estimativas estáveis</td></tr>
+</tbody></table></div>
+</section>
+
+<!-- 6 -->
+<section id="exemplo">
+<h2>6. Exemplo: programa de crédito subsidiado</h2>
+<p>Dados <strong>simulados</strong> (<a href="dados/rdd_credito.csv"><code>dados/rdd_credito.csv</code></a>) de um programa fictício: 2.500 empresas recebem uma pontuação de 30 a 90 em um processo de seleção, e as que obtêm 60 pontos ou mais podem contratar uma linha de crédito subsidiado. O desenho é <em>fuzzy</em>: cerca de 80% das empresas acima do corte contratam o crédito, e 10% das que ficam abaixo conseguem o crédito por recurso administrativo. O <strong>efeito verdadeiro</strong> do crédito sobre o investimento é de <strong>R$ 35 mil</strong>. Nos scripts, a variável de corte é centrada e medida em dezenas de pontos: \(z=(	ext{pontuação}-60)/10\).</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Estimativa (rdrobust, local linear, triangular, mserd)</th><th>Coef.</th><th>IC 95% robusto</th></tr></thead>
+<tbody>
+<tr><td>1º estágio: salto na probabilidade de obter o crédito</td><td>0,662</td><td>[0,524; 0,772]</td></tr>
+<tr><td>Forma reduzida (ITT): salto no investimento (R$ mil)</td><td>23,27</td><td>[12,30; 32,96]</td></tr>
+<tr><td><strong>Fuzzy RDD (LATE)</strong></td><td><strong>34,89</strong></td><td>[20,38; 49,39]</td></tr>
+<tr><td>MQ2E, janela ±20 pontos, kernel uniforme</td><td>34,17 <small>(ep 4,09)</small></td><td></td></tr>
+<tr><td>Placebo em 50 pontos</td><td>11,16</td><td>p = 0,251</td></tr>
+<tr><td>Teste de densidade (rddensity)</td><td colspan="2">p robusto = 0,344</td></tr>
+</tbody></table></div>
+<div class="box">
+<h4>Interpretação</h4>
+<ul>
+<li>Cruzar os 60 pontos aumenta em 66 p.p. a probabilidade de obter o crédito (1º estágio forte) e o investimento médio em R$ 23 mil (forma reduzida). A razão entre os dois saltos é o LATE: \(\approx 23{,}3/0{,}66\approx\) R$ 35 mil, e o IC contém o valor verdadeiro.</li>
+<li>O LATE vale para os <em>compliers</em> com pontuação perto de 60: empresas que contratam o crédito <em>porque</em> passaram do corte. Não diz nada, sem hipóteses adicionais, sobre empresas com 35 ou 85 pontos.</li>
+<li>O teste de densidade não indica manipulação da pontuação, e o corte placebo não mostra salto significativo, ambos compatíveis com a validade do desenho.</li>
+<li>Se a pontuação fosse atribuída por avaliadores que conhecem o corte, poderia haver manipulação (notas “arredondadas” para 60). É exatamente o que o teste de densidade procura detectar.</li>
+</ul>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="codigo">
+<h2>7. Código</h2>
+<p>Os pacotes <code>rdrobust</code>, <code>rddensity</code> e <code>rdlocrand</code> (Cattaneo, Titiunik e coautores) têm a mesma sintaxe em Stata, R e Python.</p>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="stata">Stata</button>
+    <button role="tab" aria-selected="false" data-tab="r">R</button>
+    <button role="tab" aria-selected="false" data-tab="py">Python</button>
+  </div>
+<div class="tabpanel active" data-panel="stata"><pre><code>* ssc install rdrobust ; net install rddensity, from(https://raw.githubusercontent.com/rdpackages/rddensity/master/stata) replace
+import delimited "dados/rdd_credito.csv", clear
+generate z = (pontuacao - 60) / 10
+
+rdplot investimento z, c(0)                                  // gráfico
+rdrobust credito z, c(0)                            // 1º estágio
+rdrobust investimento z, c(0)                                // forma reduzida
+rdrobust investimento z, c(0) fuzzy(credito)           // LATE
+rdrobust investimento z, c(0) fuzzy(credito) p(2) bwselect(msesum)
+rdrobust investimento z, c(0) fuzzy(credito) kernel(epanechnikov)
+
+rddensity z, c(0) plot                                    // manipulação
+rdrobust investimento z if z &lt; 0, c(-1)                    // placebo em 50 pontos
+
+* MQ2E numa janela fixa
+ivregress 2sls investimento z c.z#i.acima_corte (credito = i.acima_corte) ///
+    if abs(z) &lt;= 2, robust</code></pre></div>
+<div class="tabpanel" data-panel="r"><pre><code>library(rdrobust); library(rddensity)   # install.packages(c("rdrobust","rddensity"))
+df &lt;- read.csv("dados/rdd_credito.csv")
+df$z &lt;- (df$pontuacao - 60) / 10
+
+rdplot(df$investimento, df$z, c = 0)
+summary(rdrobust(df$credito, df$z, c = 0))                  # 1º estágio
+summary(rdrobust(df$investimento, df$z, c = 0))                      # forma reduzida
+summary(rdrobust(df$investimento, df$z, c = 0, fuzzy = df$credito))
+summary(rdrobust(df$investimento, df$z, c = 0, fuzzy = df$credito,
+                 p = 2, kernel = "epanechnikov", bwselect = "msesum"))
+
+summary(rddensity(df$z, c = 0))                                   # manipulação
+with(subset(df, z &lt; 0), summary(rdrobust(investimento, z, c = -1)))  # placebo em 50 pontos
+
+# MQ2E numa janela fixa
+library(fixest)
+feols(investimento ~ z + z:acima_corte | credito ~ acima_corte,
+      data = subset(df, abs(z) &lt;= 2), vcov = "hetero")</code></pre></div>
+<div class="tabpanel" data-panel="py"><pre><code>import pandas as pd
+from rdrobust import rdrobust, rdplot          # pip install rdrobust rddensity
+from rddensity import rddensity
+
+df = pd.read_csv("dados/rdd_credito.csv")
+df["z"] = (df["pontuacao"] - 60) / 10
+
+rdplot(df["investimento"], df["z"], c=0)
+print(rdrobust(df["credito"], df["z"], c=0))                   # 1º estágio
+print(rdrobust(df["investimento"], df["z"], c=0))                       # forma reduzida
+print(rdrobust(df["investimento"], df["z"], c=0, fuzzy=df["credito"]))
+print(rdrobust(df["investimento"], df["z"], c=0, fuzzy=df["credito"],
+               p=2, kernel="epanechnikov", bwselect="msesum"))
+
+print(rddensity(X=df["z"], c=0).test)                                # manipulação
+abaixo = df[df["z"] &lt; 0]
+print(rdrobust(abaixo["investimento"], abaixo["z"], c=-1))            # placebo em 50 pontos</code></pre></div>
+</div>
+</section>
+
+<!-- 8 -->
+<section id="simulador">
+<h2>8. Simulador: largura de banda, polinômio e kernel</h2>
+<p>RDD <em>sharp</em> com 600 observações. A relação entre \(X\) e \(Y\) pode ser curva. Veja como a largura de banda e a ordem do polinômio afetam o viés e a variância da estimativa do salto.</p>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="rT">Salto verdadeiro τ <output for="rT"></output></label><input type="range" id="rT" min="-3" max="3" step="0.1" value="1" data-dec="1"></div>
+    <div><label for="rC">Curvatura de E[Y|X] <output for="rC"></output></label><input type="range" id="rC" min="0" max="6" step="0.5" value="3" data-dec="1"></div>
+    <div><label for="rH">Largura de banda h <output for="rH"></output></label><input type="range" id="rH" min="0.1" max="1" step="0.05" value="0.25" data-dec="2"></div>
+    <div><label for="rP">Polinômio e kernel</label>
+      <select id="rP"><option value="1t">Linear, triangular</option><option value="2t">Quadrático, triangular</option><option value="1u">Linear, uniforme</option><option value="0u">Diferença de médias (p = 0)</option></select></div>
+  </div>
+  <div class="row"><button class="btn ghost" type="button" id="rNew">Nova amostra</button></div>
+  <div class="chart wide"><svg id="rPlot" viewBox="0 0 560 340" role="img" aria-label="Gráfico de RDD simulado"></svg>
+    <div class="legend"><span class="dot" style="--c:var(--muted)">observações</span><span style="--c:var(--bar)">ajuste local à esquerda</span><span style="--c:var(--accent-2)">ajuste local à direita</span></div></div>
+  <div class="stats-grid" id="rOut"></div>
+  <p class="interp" id="rInterp"></p>
+</div>
+</section>
+
+<!-- 9 -->
+<section id="exercicios">
+<h2>9. Exercícios</h2>
+<ol class="exercises">
+<li>
+<p>Em um RDD fuzzy, o salto na probabilidade de tratamento no corte é 0,40 e o salto no resultado é 12. Qual o LATE? Para quem ele vale?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>\(\tau=12/0{,}40=\mathbf{30}\). Vale para os <em>compliers</em> no corte: unidades que recebem o tratamento por estarem acima do limite e não o receberiam abaixo.</p></div></details>
+</li>
+<li>
+<p>O histograma da população municipal mostra muitos municípios com 10.050–10.200 habitantes e poucos com 9.800–9.950. O que isso sugere e qual teste aplicar?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Sugere <strong>manipulação</strong> da variável de corte (municípios “empurrando” a população para cima do limite, por exemplo para receber mais FPM). Os municípios logo acima deixam de ser comparáveis aos logo abaixo. Aplique o teste de densidade de McCrary ou de Cattaneo-Jansson-Ma (<code>rddensity</code>). Se houver manipulação, considere um <em>donut hole</em> (excluir a vizinhança imediata) e discuta a direção do viés.</p></div></details>
+</li>
+<li>
+<p>Um colega estima o efeito com um polinômio de ordem 5 em toda a amostra e encontra um salto grande e significativo. Que recomendações você faria?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Polinômios globais de ordem alta dão peso excessivo a observações distantes do corte e geram estimativas instáveis e ICs com cobertura ruim (Gelman &amp; Imbens, 2019). Recomende polinômio local linear ou quadrático, banda ótima (CCT), kernel triangular, IC robusto com correção de viés, e verificar a sensibilidade a \(h\) e \(p\).</p></div></details>
+</li>
+<li>
+<p>Uma lei passou a exigir auditoria independente de empresas com receita acima de R$ 300 milhões a partir de 2015. Um pesquisador usa RDD no corte de receita, com dados de 2010 a 2020. Por que estimar também o “efeito” nos anos de 2010 a 2014? O que significaria encontrar um salto significativo nesses anos?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>É um teste de falsificação: antes da lei, cruzar o limite de receita não deveria afetar o resultado. Um salto em 2010–2014 indicaria que algo além da lei muda no corte (outra regra com o mesmo limite, diferenças estruturais entre empresas), e a descontinuidade depois de 2015 não poderia ser atribuída à lei. A ausência de salto antes reforça a identificação.</p></div></details>
+</li>
+<li>
+<p>No simulador, com curvatura 4, compare “Diferença de médias” e “Linear, triangular” para h = 0,8 e h = 0,2. Explique.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>A diferença de médias com janela larga é muito viesada: atribui ao tratamento a inclinação de \(E[Y\mid X]\) dentro da janela. O local linear corrige a inclinação e erra menos, mas com h = 0,8 ainda sofre com a curvatura. Com h = 0,2 o viés cai nos dois casos, mas a estimativa fica mais ruidosa (poucas observações). É o trade-off viés-variância que os seletores de banda ótima resolvem.</p></div></details>
+</li>
+</ol>
+</section>
+
+<nav class="pager" aria-label="Navegação entre conteúdos"><a href="../06-diferencas-em-diferencas/index.html">← Conteúdo 6: Diferenças em diferenças</a><a href="../08-controle-sintetico/index.html">Conteúdo 8: Controle sintético →</a></nav>
+</main>
+
+<footer class="wrap">
+<p>Estatística e Econometria — Mestrado PROFINIT · Conteúdo 7. Dados simulados com finalidade didática.</p>
+<p>Leituras: Cattaneo, Idrobo &amp; Titiunik, <em>A Practical Introduction to Regression Discontinuity Designs: Foundations</em> (Cambridge Elements, 2020); Lee &amp; Lemieux (2010), <em>Journal of Economic Literature</em> 48(2); Imbens &amp; Lemieux (2008), <em>Journal of Econometrics</em> 142(2); Calonico, Cattaneo &amp; Titiunik (2014), <em>Econometrica</em> 82(6); Gelman &amp; Imbens (2019), <em>JBES</em> 37(3); Cattaneo, Jansson &amp; Ma (2020), <em>JASA</em> 115(531).</p>
+</footer>
+
+<script>
+(function(){
+  // ---- Simulador ----
+  var seed=21;
+  function localFit(X,Y,side,h,p,kern){
+    var rows=[],ys=[],ws=[];
+    for(var i=0;i<X.length;i++){
+      var x=X[i]; if(side<0?(x>=0||x<-h):(x<0||x>h)) continue;
+      var u=Math.abs(x)/h, w=kern==='t'?Math.max(0,1-u):1, r=[1];
+      for(var k=1;k<=p;k++) r.push(Math.pow(x,k));
+      rows.push(r); ys.push(Y[i]); ws.push(w);
+    }
+    if(rows.length<p+3) return null;
+    var m=ols(rows,ys,ws); if(!m) return null;
+    // variância robusta (sanduíche) do intercepto
+    var k=p+1, A=[],B=[];
+    for(var a=0;a<k;a++){A.push(new Array(k).fill(0));B.push(new Array(k).fill(0));}
+    rows.forEach(function(r,j){
+      var fit=r.reduce(function(s,v,q){return s+v*m.beta[q];},0), e=ys[j]-fit, w=ws[j];
+      for(var a=0;a<k;a++) for(var b=0;b<k;b++){A[a][b]+=w*r[a]*r[b]; B[a][b]+=w*w*e*e*r[a]*r[b];}
+    });
+    var Ai=invert(A), V=0;
+    for(a=0;a<k;a++) for(b=0;b<k;b++) V+=Ai[0][a]*B[a][b]*Ai[b][0];
+    return {beta:m.beta,var:V,n:rows.length};
+  }
+  function run(){
+    var tau=+rT.value, curv=+rC.value, h=+rH.value, opt=rP.value, p=+opt[0], kern=opt[1], R=rng(seed);
+    var X=[],Y=[], f0=function(x){return 0.8*x+curv*x*x*(x<0?1:-0.6)+0.5*Math.sin(3*x);};
+    for(var i=0;i<600;i++){var x=R.unif()*2-1; X.push(x); Y.push(f0(x)+(x>=0?tau:0)+0.5*R.norm());}
+    var L=localFit(X,Y,-1,h,p,kern), Rt=localFit(X,Y,1,h,p,kern);
+    var ylo=Math.min.apply(null,Y), yhi=Math.max.apply(null,Y);
+    var f=plotFrame(document.getElementById('rPlot'),{xlim:[-1,1],ylim:[ylo,yhi],xlabel:'X − c',ylabel:'Y'});
+    f.svg.appendChild(svgEl('rect',{x:f.sx(-h),y:f.m.t,width:f.sx(h)-f.sx(-h),height:f.H-f.m.b-f.m.t,fill:css('--accent-soft'),'fill-opacity':0.6}));
+    plotPoints(f,X,Y,css('--muted'),2,0.35);
+    plotVLine(f,0,css('--text'),'4 4');
+    function curve(fit,lo,hi,col){
+      if(!fit) return; var xs=[],ys=[];
+      for(var s=0;s<=40;s++){var x=lo+(hi-lo)*s/40; xs.push(x); ys.push(f.clip(fit.beta.reduce(function(acc,b,k){return acc+b*Math.pow(x,k);},0)));}
+      plotLine(f,xs,ys,col,3);
+    }
+    curve(L,-h,0,css('--bar')); curve(Rt,0,h,css('--accent-2'));
+    var est=(L&&Rt)?Rt.beta[0]-L.beta[0]:NaN, se=(L&&Rt)?Math.sqrt(L.var+Rt.var):NaN;
+    var items=[['Salto verdadeiro τ',fmt(tau,1)],['Estimativa τ̂',fmt(est)],['Erro-padrão (robusto)',fmt(se)],
+      ['IC 95%',isFinite(est)?'['+fmt(est-1.96*se,2)+'; '+fmt(est+1.96*se,2)+']':'—'],['Obs. na janela',(L&&Rt)?fmt(L.n+Rt.n,0):'—']];
+    document.getElementById('rOut').innerHTML=items.map(function(it){return '<div class="stat"><div class="k">'+it[0]+'</div><div class="v">'+it[1]+'</div></div>';}).join('');
+    var cover=isFinite(est)&&Math.abs(est-tau)<=1.96*se;
+    document.getElementById('rInterp').textContent=!isFinite(est)?'Poucas observações na janela: aumente h.':
+      'A área sombreada é a janela usada. Erro da estimativa: '+fmt(est-tau,2)+'. '+(cover?'O IC 95% contém o valor verdadeiro.':'O IC 95% NÃO contém o valor verdadeiro: o viés da janela/forma funcional domina.')+
+      (p===0?' Com p = 0 a inclinação de E[Y|X] dentro da janela é atribuída ao tratamento.':'');
+  }
+  ['rT','rC','rH','rP'].forEach(function(id){document.getElementById(id).addEventListener('input',run);});
+  document.getElementById('rNew').addEventListener('click',function(){seed++;run();});
+  document.addEventListener('themechange',run);
+  document.addEventListener('DOMContentLoaded',run);
+})();
+</script>
+</body>
+</html>

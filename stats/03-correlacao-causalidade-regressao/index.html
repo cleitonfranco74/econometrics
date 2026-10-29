@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Correlação, Causalidade e Regressão</title>
+<meta name="description" content="Conteúdo 3: correlação, causalidade (resultados potenciais, viés de seleção, confundidores) e regressão linear simples por MQO, com simulador interativo, código em Python, R e Stata e exercícios.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/comum.js"></script>
+</head>
+<body>
+
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="crumbs ui"><a href="../index.html">← Todos os conteúdos</a></p>
+    <p class="eyebrow">Estatística e Econometria · Mestrado PROFINIT · Conteúdo 3</p>
+    <h1>Correlação, causalidade e regressão linear simples</h1>
+    <p class="lede">Quando duas variáveis andam juntas, o que podemos concluir? Da correlação ao modelo de resultados potenciais e ao primeiro estimador da econometria: Mínimos Quadrados Ordinários.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sumário">
+  <ul>
+    <li><a href="#correlacao">1. Correlação</a></li>
+    <li><a href="#causalidade">2. Causalidade</a></li>
+    <li><a href="#rls">3. Regressão simples</a></li>
+    <li><a href="#inferencia">4. Inferência</a></li>
+    <li><a href="#exemplo">5. Exemplo e código</a></li>
+    <li><a href="#simulador">6. Simulador</a></li>
+    <li><a href="#exercicios">7. Exercícios</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<div class="objectives">
+  <h4>Ao final deste conteúdo você deve ser capaz de</h4>
+  <ul>
+    <li>calcular e interpretar correlações de Pearson e de Spearman e reconhecer suas armadilhas;</li>
+    <li>explicar por que correlação não implica causalidade usando resultados potenciais e viés de seleção;</li>
+    <li>estimar, interpretar e testar uma regressão linear simples por MQO;</li>
+    <li>identificar quando o coeficiente de uma regressão tem interpretação causal.</li>
+  </ul>
+</div>
+
+<!-- 1 -->
+<section id="correlacao">
+<h2>1. Correlação</h2>
+<p>O <strong>coeficiente de correlação de Pearson</strong> mede a intensidade da relação <em>linear</em> entre duas variáveis (ver Conteúdo 2):</p>
+<div class="formula">$$r_{xy}=\frac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}{\sqrt{\sum_{i=1}^{n}(x_i-\bar x)^2}\,\sqrt{\sum_{i=1}^{n}(y_i-\bar y)^2}}=\frac{s_{xy}}{s_x s_y},\qquad -1\le r_{xy}\le 1$$</div>
+<p>Propriedades: é simétrico (\(r_{xy}=r_{yx}\)), adimensional e não muda com transformações lineares positivas (medir em reais ou em milhares de reais dá o mesmo \(r\)).</p>
+<p>A <strong>correlação de Spearman</strong> \(r_s\) é a correlação de Pearson calculada sobre os <em>postos</em> (rankings) das observações. Ela capta relações monotônicas não lineares e é menos sensível a <em>outliers</em>.</p>
+<p>Teste de \(H_0:\rho=0\): \(t = r\sqrt{n-2}/\sqrt{1-r^2}\sim t_{n-2}\).</p>
+
+<h3>Armadilhas</h3>
+<ul>
+<li><strong>Relação não linear:</strong> \(y=x^2\) com \(x\) simétrico em torno de zero dá \(r\approx 0\), embora a dependência seja perfeita.</li>
+<li><strong><em>Outliers</em>:</strong> um único ponto pode criar ou destruir uma correlação. O quarteto de Anscombe (1973) tem quatro conjuntos de dados com o mesmo \(r = 0{,}82\) e gráficos completamente diferentes. <strong>Sempre faça o gráfico de dispersão.</strong></li>
+<li><strong>Correlação espúria:</strong> duas séries com tendência no tempo (PIB e número de celulares, por exemplo) são correlacionadas sem que uma cause a outra.</li>
+<li><strong>Agregação:</strong> a correlação entre médias de grupos (municípios, setores) costuma ser bem maior que a correlação entre indivíduos (falácia ecológica).</li>
+</ul>
+</section>
+
+<!-- 2 -->
+<section id="causalidade">
+<h2>2. Correlação não é causalidade</h2>
+<p>Três mecanismos geram correlação sem que \(X\) cause \(Y\):</p>
+<svg class="dag" viewBox="0 0 420 150" role="img" aria-label="Diagrama: Z afeta X e Y; X afeta Y">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+  <g stroke="currentColor" stroke-width="2" fill="none" style="color:var(--muted)">
+    <line x1="190" y1="38" x2="88" y2="108" marker-end="url(#arr)"/>
+    <line x1="230" y1="38" x2="332" y2="108" marker-end="url(#arr)"/>
+    <line x1="92" y1="125" x2="322" y2="125" marker-end="url(#arr)" stroke-dasharray="6 4"/>
+  </g>
+  <circle cx="210" cy="26" r="20" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="210" y="31" text-anchor="middle">Z</text>
+  <circle cx="70" cy="125" r="20" fill="var(--surface-2)" stroke="var(--border)"/><text x="70" y="130" text-anchor="middle">X</text>
+  <circle cx="350" cy="125" r="20" fill="var(--surface-2)" stroke="var(--border)"/><text x="350" y="130" text-anchor="middle">Y</text>
+  <text x="270" y="22" style="font-weight:400;fill:var(--muted)">confundidor</text>
+  <text x="210" y="145" text-anchor="middle" style="font-weight:400;fill:var(--muted)">efeito causal?</text>
+</svg>
+<ol>
+<li><strong>Confundidor (variável omitida):</strong> \(Z\) afeta \(X\) e \(Y\). Empresas grandes gastam mais com publicidade <em>e</em> vendem mais, ainda que a publicidade tenha pouco efeito.</li>
+<li><strong>Causalidade reversa (simultaneidade):</strong> \(Y\) afeta \(X\). Municípios com mais criminalidade contratam mais policiais; a correlação entre policiais e crimes é positiva.</li>
+<li><strong>Seleção da amostra:</strong> analisar só as empresas que sobreviveram, ou só os fundos que continuam abertos (viés de sobrevivência).</li>
+</ol>
+
+<h3>2.1 Modelo de resultados potenciais (Rubin)</h3>
+<p>Seja \(D_i\in\{0,1\}\) o tratamento (receber um programa, adotar uma lei, ter auditoria Big Four). Cada unidade tem dois resultados <em>potenciais</em>: \(Y_i(1)\) se tratada e \(Y_i(0)\) se não tratada. O efeito causal individual é \(Y_i(1)-Y_i(0)\).</p>
+<div class="box">
+<h4>Problema fundamental da inferência causal</h4>
+<p>Para cada unidade observamos <strong>apenas um</strong> dos dois resultados: \(Y_i = D_iY_i(1)+(1-D_i)Y_i(0)\). O outro é o <em>contrafactual</em>. Toda estratégia de identificação é uma forma de construir um contrafactual crível.</p>
+</div>
+<p>Parâmetros de interesse: o efeito médio do tratamento \(ATE=E[Y(1)-Y(0)]\) e o efeito médio sobre os tratados \(ATT=E[Y(1)-Y(0)\mid D=1]\).</p>
+<p>A comparação ingênua de médias se decompõe em:</p>
+<div class="formula">$$\underbrace{E[Y\mid D=1]-E[Y\mid D=0]}_{\text{diferença observada}}=\underbrace{E[Y(1)-Y(0)\mid D=1]}_{ATT}+\underbrace{E[Y(0)\mid D=1]-E[Y(0)\mid D=0]}_{\text{viés de seleção}}$$</div>
+<p>O viés de seleção aparece quando os tratados seriam diferentes dos não tratados <em>mesmo sem o tratamento</em>. Em um <strong>experimento aleatório</strong>, \(D\) é sorteado, e portanto independente de \((Y(0),Y(1))\): o viés de seleção é zero e a diferença de médias identifica o ATE. Sem sorteio, recorremos a <strong>quase-experimentos</strong>, tema dos próximos conteúdos:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Estratégia</th><th>Hipótese de identificação</th><th>Conteúdo</th></tr></thead>
+<tbody>
+<tr><td>Regressão com controles</td><td>Seleção nas observáveis: condicionado a \(X\), \(D\) é “como se fosse aleatório”</td><td>4</td></tr>
+<tr><td>Efeitos fixos (painel)</td><td>O confundidor não observado é constante no tempo</td><td>5</td></tr>
+<tr><td>Diferenças em diferenças</td><td>Tendências paralelas na ausência do tratamento</td><td>6</td></tr>
+<tr><td>Regressão descontínua</td><td>Continuidade dos resultados potenciais no corte</td><td>7</td></tr>
+<tr><td>Controle sintético</td><td>Uma combinação de unidades de controle reproduz o tratado antes da intervenção</td><td>8</td></tr>
+</tbody></table></div>
+</section>
+
+<!-- 3 -->
+<section id="rls">
+<h2>3. Regressão linear simples</h2>
+<div class="formula">$$y_i=\beta_0+\beta_1x_i+u_i$$</div>
+<p>\(y\): variável dependente (explicada); \(x\): variável independente (explicativa, regressor); \(u\): erro, que reúne todos os outros fatores que afetam \(y\). \(\beta_1\) mede quanto \(y\) varia quando \(x\) aumenta uma unidade, <em>mantidos constantes os fatores em \(u\)</em>.</p>
+
+<h3>3.1 Estimador de Mínimos Quadrados Ordinários (MQO)</h3>
+<p>MQO escolhe \(\hat\beta_0,\hat\beta_1\) que minimizam a soma dos quadrados dos resíduos \(\sum_i(y_i-\hat\beta_0-\hat\beta_1x_i)^2\). As condições de primeira ordem dão:</p>
+<div class="formula">$$\hat\beta_1=\frac{\sum_{i}(x_i-\bar x)(y_i-\bar y)}{\sum_{i}(x_i-\bar x)^2}=\frac{s_{xy}}{s_x^2}=r_{xy}\frac{s_y}{s_x},\qquad \hat\beta_0=\bar y-\hat\beta_1\bar x$$</div>
+<p>Consequências algébricas: a reta passa por \((\bar x,\bar y)\); os resíduos \(\hat u_i=y_i-\hat y_i\) somam zero e são não correlacionados com \(x\).</p>
+
+<h3>3.2 Qualidade do ajuste</h3>
+<div class="formula">$$SQT=\sum(y_i-\bar y)^2,\quad SQE=\sum(\hat y_i-\bar y)^2,\quad SQR=\sum\hat u_i^2,\qquad R^2=\frac{SQE}{SQT}=1-\frac{SQR}{SQT}$$</div>
+<p>Na regressão simples, \(R^2=r_{xy}^2\). Um \(R^2\) baixo <strong>não</strong> invalida a estimativa causal, e um \(R^2\) alto <strong>não</strong> a garante: \(R^2\) mede ajuste, não identificação.</p>
+
+<h3>3.3 Hipóteses (Wooldridge, RLS.1–RLS.5)</h3>
+<ol>
+<li><strong>Linearidade nos parâmetros.</strong></li>
+<li><strong>Amostragem aleatória.</strong></li>
+<li><strong>Variação amostral em \(x\)</strong> (os \(x_i\) não são todos iguais).</li>
+<li><strong>Média condicional zero:</strong> \(E[u\mid x]=0\). É a hipótese <em>crucial</em>: garante que \(\hat\beta_1\) é não viesado e que \(\beta_1\) é causal. Ela falha se houver confundidor em \(u\) correlacionado com \(x\).</li>
+<li><strong>Homocedasticidade:</strong> \(Var(u\mid x)=\sigma^2\). Necessária apenas para a fórmula usual do erro-padrão.</li>
+</ol>
+
+<h3>3.4 Formas funcionais</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Modelo</th><th>Equação</th><th>Interpretação de \(\beta_1\)</th></tr></thead>
+<tbody>
+<tr><td>Nível-nível</td><td>\(y=\beta_0+\beta_1x\)</td><td>\(\Delta y=\beta_1\Delta x\)</td></tr>
+<tr><td>Log-nível</td><td>\(\ln y=\beta_0+\beta_1x\)</td><td>\(\%\Delta y\approx 100\beta_1\Delta x\) (semielasticidade)</td></tr>
+<tr><td>Nível-log</td><td>\(y=\beta_0+\beta_1\ln x\)</td><td>\(\Delta y\approx(\beta_1/100)\,\%\Delta x\)</td></tr>
+<tr><td>Log-log</td><td>\(\ln y=\beta_0+\beta_1\ln x\)</td><td>\(\%\Delta y\approx\beta_1\,\%\Delta x\) (elasticidade)</td></tr>
+</tbody></table></div>
+</section>
+
+<!-- 4 -->
+<section id="inferencia">
+<h2>4. Inferência</h2>
+<p>Sob RLS.1–RLS.5:</p>
+<div class="formula">$$\widehat{Var}(\hat\beta_1)=\frac{\hat\sigma^2}{\sum_i(x_i-\bar x)^2},\qquad \hat\sigma^2=\frac{SQR}{n-2},\qquad t=\frac{\hat\beta_1-\beta_1^{0}}{ep(\hat\beta_1)}\sim t_{n-2}$$</div>
+<p>Intervalo de confiança de 95%: \(\hat\beta_1\pm t_{0{,}975;\,n-2}\,ep(\hat\beta_1)\). Mais variação em \(x\) e mais observações reduzem o erro-padrão.</p>
+<div class="box warn">
+<h4>Erros-padrão robustos</h4>
+<p>Se a variância do erro depende de \(x\) (heterocedasticidade, muito comum em dados contábeis e financeiros), use erros-padrão robustos de White (HC1): <code>, robust</code> no Stata, <code>cov_type="HC1"</code> no Python, <code>vcov = "hetero"</code> no <code>fixest</code> do R. Os coeficientes não mudam; só a inferência.</p>
+</div>
+</section>
+
+<!-- 5 -->
+<section id="exemplo">
+<h2>5. Exemplo: publicidade e vendas</h2>
+<p>Dados <strong>simulados</strong> de 120 empresas (<a href="dados/publicidade_vendas.csv"><code>dados/publicidade_vendas.csv</code></a>): gasto com publicidade e vendas, ambos em R$ mil, e tamanho da empresa. A simulação foi construída com <strong>efeito causal verdadeiro de 2,5</strong>: cada R$ 1 mil em publicidade gera R$ 2,5 mil em vendas. Empresas maiores gastam mais com publicidade e também vendem mais.</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Variável dependente: vendas</th><th>(1) Simples</th><th>(2) Com controle</th></tr></thead>
+<tbody>
+<tr><td>Publicidade</td><td>10,059***<br><small>(0,801)</small></td><td>3,407***<br><small>(0,716)</small></td></tr>
+<tr><td>Tamanho</td><td></td><td>2,823***<br><small>(0,213)</small></td></tr>
+<tr><td>Constante</td><td>98,314***<br><small>(10,625)</small></td><td>37,909***<br><small>(8,151)</small></td></tr>
+<tr><td>\(n\)</td><td>120</td><td>120</td></tr>
+<tr><td>\(R^2\)</td><td>0,572</td><td>0,828</td></tr>
+</tbody></table></div>
+<p class="hint">Erros-padrão convencionais entre parênteses. *** p&lt;0,01. Com erros-padrão robustos (HC1), o da coluna (1) é 0,705.</p>
+<div class="box">
+<h4>Interpretação</h4>
+<p>A correlação entre publicidade e vendas é 0,756 e, na regressão simples, \(\hat\beta_1=10{,}06\): cada R$ 1 mil a mais de publicidade está <em>associado</em> a R$ 10 mil a mais de vendas, com \(R^2 = 0{,}572 = 0{,}756^2\). Pela regressão, uma empresa que gasta R$ 15 mil venderia, em média, \(98{,}31 + 10{,}06\times15 \approx\) R$ 249 mil.</p>
+<p>Mas \(\hat\beta_1\) é <strong>quatro vezes</strong> o efeito causal (2,5). O tamanho da empresa está no erro e é correlacionado com a publicidade, o que viola \(E[u\mid x]=0\). Controlando pelo tamanho (coluna 2, prévia do Conteúdo 4), a estimativa cai para 3,41, e o IC 95% [2,0; 4,8] contém o valor verdadeiro. A correlação era real; a interpretação causal da regressão simples, não.</p>
+</div>
+
+<h3>Código</h3>
+<p>Os scripts completos estão em <a href="codigo/"><code>codigo/</code></a>.</p>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="py">Python</button>
+    <button role="tab" aria-selected="false" data-tab="r">R</button>
+    <button role="tab" aria-selected="false" data-tab="stata">Stata</button>
+  </div>
+<div class="tabpanel active" data-panel="py"><pre><code>import pandas as pd
+import statsmodels.formula.api as smf
+
+df = pd.read_csv("dados/publicidade_vendas.csv")
+df[["vendas", "publicidade", "tamanho"]].corr()          # Pearson
+df[["vendas", "publicidade"]].corr(method="spearman")    # Spearman
+
+m1 = smf.ols("vendas ~ publicidade", data=df).fit()
+print(m1.summary())
+
+# Coeficiente "à mão": cov(x, y) / var(x)
+b1 = df["publicidade"].cov(df["vendas"]) / df["publicidade"].var()
+
+# Erros-padrão robustos (HC1)
+smf.ols("vendas ~ publicidade", data=df).fit(cov_type="HC1").summary()
+
+# Previsão
+m1.predict(pd.DataFrame({"publicidade": [15]}))
+
+# Controlando pelo confundidor
+smf.ols("vendas ~ publicidade + tamanho", data=df).fit().params</code></pre></div>
+<div class="tabpanel" data-panel="r"><pre><code>df &lt;- read.csv("dados/publicidade_vendas.csv")
+cor(df[, c("vendas", "publicidade", "tamanho")])
+cor(df$vendas, df$publicidade, method = "spearman")
+cor.test(df$vendas, df$publicidade)
+
+m1 &lt;- lm(vendas ~ publicidade, data = df)
+summary(m1)
+cov(df$publicidade, df$vendas) / var(df$publicidade)   # b1 à mão
+
+# Erros-padrão robustos
+library(fixest)
+feols(vendas ~ publicidade, data = df, vcov = "hetero")
+
+predict(m1, newdata = data.frame(publicidade = 15))
+plot(df$publicidade, df$vendas); abline(m1, col = "red")
+
+summary(lm(vendas ~ publicidade + tamanho, data = df))</code></pre></div>
+<div class="tabpanel" data-panel="stata"><pre><code>import delimited "dados/publicidade_vendas.csv", clear
+
+pwcorr vendas publicidade tamanho, sig
+spearman vendas publicidade
+
+regress vendas publicidade
+regress vendas publicidade, robust
+
+* Previsão para publicidade = 15
+margins, at(publicidade = 15)
+
+twoway (scatter vendas publicidade) (lfit vendas publicidade)
+
+regress vendas publicidade tamanho</code></pre></div>
+</div>
+</section>
+
+<!-- 6 -->
+<section id="simulador">
+<h2>6. Simulador: o confundidor em ação</h2>
+<p>Os dados são gerados por \(Z\sim N(0,1)\), \(X = a\,Z + v\) e \(Y = \beta X + c\,Z + u\). Você controla o efeito causal \(\beta\) e a força do confundidor (\(a\) e \(c\)). Compare a reta da regressão simples com o efeito verdadeiro.</p>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="sBeta">Efeito causal verdadeiro β <output for="sBeta"></output></label><input type="range" id="sBeta" min="-2" max="2" step="0.1" value="0.5" data-dec="1"></div>
+    <div><label for="sA">Efeito de Z sobre X (a) <output for="sA"></output></label><input type="range" id="sA" min="-2" max="2" step="0.1" value="1" data-dec="1"></div>
+    <div><label for="sC">Efeito de Z sobre Y (c) <output for="sC"></output></label><input type="range" id="sC" min="-3" max="3" step="0.1" value="1.5" data-dec="1"></div>
+    <div><label for="sN">Tamanho da amostra n <output for="sN"></output></label><input type="range" id="sN" min="20" max="1000" step="10" value="200"></div>
+  </div>
+  <div class="row"><button class="btn ghost" type="button" id="sNew">Nova amostra</button></div>
+  <div class="charts">
+    <div class="chart"><h4>Dispersão de Y contra X</h4><svg id="sPlot" viewBox="0 0 560 340" role="img" aria-label="Gráfico de dispersão com retas"></svg>
+      <div class="legend"><span style="--c:var(--bar)">reta MQO simples</span><span class="dash" style="--c:var(--accent-2)">efeito causal verdadeiro</span></div></div>
+    <div class="stats-grid" id="sOut" style="align-content:start"></div>
+  </div>
+  <p class="interp" id="sInterp"></p>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="exercicios">
+<h2>7. Exercícios</h2>
+<ol class="exercises">
+<li>
+<p>Em uma amostra de 50 municípios, a correlação entre o número de bibliotecas e a taxa de homicídios é 0,62. Um vereador conclui que “bibliotecas aumentam a violência”. Aponte o erro e proponha uma variável que explique a correlação.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>A correlação positiva provavelmente se deve a um <strong>confundidor</strong>: a população (ou grau de urbanização) do município, que aumenta tanto o número de bibliotecas quanto o número de homicídios. Com variáveis em nível, municípios grandes têm “mais de tudo”. Usar taxas per capita e controlar pela urbanização reduziria ou eliminaria a associação.</p></div></details>
+</li>
+<li>
+<p>Com \(n = 30\): \(\bar x = 4\), \(\bar y = 20\), \(\sum(x_i-\bar x)(y_i-\bar y) = 180\), \(\sum(x_i-\bar x)^2 = 60\), \(\sum(y_i-\bar y)^2 = 900\). Calcule \(\hat\beta_1\), \(\hat\beta_0\), \(r_{xy}\) e \(R^2\).</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>\(\hat\beta_1 = 180/60 = \mathbf{3}\); \(\hat\beta_0 = 20 - 3\times4 = \mathbf{8}\); \(r = 180/\sqrt{60\times900} = 180/232{,}38 \approx \mathbf{0{,}775}\); \(R^2 = r^2 \approx \mathbf{0{,}600}\). Conferindo: \(SQE = \hat\beta_1^2\sum(x_i-\bar x)^2 = 9\times60 = 540\) e \(540/900 = 0{,}6\).</p></div></details>
+</li>
+<li>
+<p>Usando o exercício anterior, calcule o erro-padrão de \(\hat\beta_1\) e teste \(H_0:\beta_1=0\) a 5%.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>\(SQR = SQT - SQE = 900 - 540 = 360\); \(\hat\sigma^2 = 360/28 = 12{,}857\); \(ep(\hat\beta_1)=\sqrt{12{,}857/60}=\sqrt{0{,}2143}\approx \mathbf{0{,}463}\). \(t = 3/0{,}463 \approx \mathbf{6{,}48}\) &gt; \(t_{0{,}975;28}\approx 2{,}048\): rejeita-se \(H_0\).</p></div></details>
+</li>
+<li>
+<p>Estimou-se \(\widehat{\ln(\text{honorários})} = 2{,}1 + 0{,}45\ln(\text{ativo})\) para honorários de auditoria. Interprete 0,45. Uma empresa com ativo 20% maior paga, em média, quanto a mais de honorários?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Modelo log-log: 0,45 é a <strong>elasticidade</strong> dos honorários em relação ao ativo; 1% a mais de ativo está associado a 0,45% a mais de honorários. Para 20%: aproximação \(0{,}45\times20\% = 9\%\); valor exato \(1{,}2^{0{,}45}-1\approx \mathbf{8{,}5\%}\).</p></div></details>
+</li>
+<li>
+<p>Um estudo compara o ROA de empresas que aderiram ao Novo Mercado com o das que não aderiram e encontra diferença de 2 p.p. Use a decomposição em ATT + viés de seleção para explicar por que essa diferença pode não ser o efeito da governança.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Diferença observada = ATT + \(\{E[Y(0)\mid D=1]-E[Y(0)\mid D=0]\}\). As empresas que aderem tendem a ser maiores, mais lucrativas e mais bem geridas <em>independentemente</em> da adesão, ou seja, \(E[Y(0)\mid D=1] > E[Y(0)\mid D=0]\). O viés de seleção é provavelmente positivo, e os 2 p.p. superestimam o efeito da governança. Seria preciso uma estratégia de identificação: controles, painel com efeitos fixos ou DiD em torno da data de adesão.</p></div></details>
+</li>
+<li>
+<p>No simulador, coloque \(\beta = 0\), \(a = 1\), \(c = 2\). O que acontece com a reta de MQO? Agora faça \(a = 0\). Explique.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Com \(\beta=0\), \(a=1\), \(c=2\), a regressão simples mostra inclinação positiva e significativa (em torno de 1), embora \(X\) não tenha efeito nenhum: é correlação pura via confundidor. O viés é \(c\cdot Cov(X,Z)/Var(X) = 2\times1/2 = 1\). Com \(a = 0\), \(Z\) deixa de afetar \(X\): ele continua em \(u\), mas não é correlacionado com \(X\), então \(E[u\mid X]=0\) volta a valer e a estimativa fica em torno de zero (com mais ruído).</p></div></details>
+</li>
+</ol>
+</section>
+
+<nav class="pager" aria-label="Navegação entre conteúdos"><a href="../02-medidas-descritivas/index.html">← Conteúdo 2: Medidas descritivas</a><a href="../04-regressao-multipla/index.html">Conteúdo 4: Regressão múltipla →</a></nav>
+</main>
+
+<footer class="wrap">
+<p>Estatística e Econometria — Mestrado PROFINIT · Conteúdo 3. Dados simulados com finalidade didática.</p>
+<p>Leituras: Wooldridge, <em>Introdução à Econometria</em>, caps. 1–2; Angrist &amp; Pischke, <em>Mostly Harmless Econometrics</em>, cap. 2; Cunningham, <em>Causal Inference: The Mixtape</em>, caps. 3–4 (gratuito em mixtape.scunning.com); Anscombe (1973), <em>The American Statistician</em>, 27(1).</p>
+</footer>
+
+<script>
+(function(){
+  var seed=7;
+  function run(){
+    var beta=+sBeta.value, a=+sA.value, c=+sC.value, n=+sN.value, R=rng(seed);
+    var X=[],Y=[],Z=[];
+    for(var i=0;i<n;i++){var z=R.norm(), x=a*z+R.norm(), y=beta*x+c*z+R.norm(); X.push(x);Y.push(y);Z.push(z);}
+    var simple=ols(X.map(function(x){return [1,x];}),Y);
+    var full=ols(X.map(function(x,i){return [1,x,Z[i]];}),Y);
+    var mx=mean(X),my=mean(Y),sxy=0,sx=0,sy=0;
+    for(i=0;i<n;i++){sxy+=(X[i]-mx)*(Y[i]-my);sx+=(X[i]-mx)*(X[i]-mx);sy+=(Y[i]-my)*(Y[i]-my);}
+    var r=sxy/Math.sqrt(sx*sy);
+    var xr=[Math.min.apply(null,X),Math.max.apply(null,X)], yr=[Math.min.apply(null,Y),Math.max.apply(null,Y)];
+    var f=plotFrame(document.getElementById('sPlot'),{xlim:xr,ylim:yr,xlabel:'X',ylabel:'Y'});
+    plotPoints(f,X,Y,css('--muted'),2.6,0.45);
+    plotLine(f,xr,xr.map(function(x){return f.clip(simple.beta[0]+simple.beta[1]*x);}),css('--bar'),3);
+    plotLine(f,xr,xr.map(function(x){return f.clip(my+beta*(x-mx));}),css('--accent-2'),2.5,'7 5');
+    var vies=a*c/(a*a+1);
+    var items=[['Correlação r',fmt(r)],['β̂ regressão simples',fmt(simple.beta[1])+' <small>(ep '+fmt(simple.se[1])+')</small>'],
+      ['β verdadeiro',fmt(beta,1)],['Viés teórico c·a/(a²+1)',fmt(vies)],
+      ['β̂ controlando por Z',fmt(full.beta[1])+' <small>(ep '+fmt(full.se[1])+')</small>'],['R² simples',fmt(simple.r2)]];
+    document.getElementById('sOut').innerHTML=items.map(function(it){return '<div class="stat"><div class="k">'+it[0]+'</div><div class="v">'+it[1]+'</div></div>';}).join('');
+    var t=simple.beta[1]/simple.se[1];
+    document.getElementById('sInterp').textContent=
+      (Math.abs(vies)<0.05?'Sem confundidor relevante (a·c ≈ 0): a regressão simples estima o efeito causal sem viés. ':
+      'O confundidor gera viés de '+fmt(vies,2)+': a regressão simples estima '+fmt(simple.beta[1],2)+' quando o efeito verdadeiro é '+fmt(beta,1)+'. ')+
+      (beta===0&&Math.abs(t)>2?'Repare: o efeito causal é zero, mas o coeficiente é estatisticamente significativo (t = '+fmt(t,1)+'). ':'')+
+      'Incluir Z na regressão recupera ≈ '+fmt(full.beta[1],2)+'.';
+  }
+  ['sBeta','sA','sC','sN'].forEach(function(id){document.getElementById(id).addEventListener('input',run);});
+  document.getElementById('sNew').addEventListener('click',function(){seed++;run();});
+  document.addEventListener('themechange',run);
+  document.addEventListener('DOMContentLoaded',run);
+})();
+</script>
+</body>
+</html>

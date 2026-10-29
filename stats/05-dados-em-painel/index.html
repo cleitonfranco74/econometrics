@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dados em Painel</title>
+<meta name="description" content="Conteúdo 5: dados em painel — MQO empilhado, efeitos fixos (within), primeiras diferenças, efeitos aleatórios, teste de Hausman e erros-padrão agrupados, com simulador, código em Python, R e Stata e exercícios.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/comum.js"></script>
+</head>
+<body>
+
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="crumbs ui"><a href="../index.html">← Todos os conteúdos</a></p>
+    <p class="eyebrow">Estatística e Econometria · Mestrado PROFINIT · Conteúdo 5</p>
+    <h1>Dados em painel</h1>
+    <p class="lede">Observar as mesmas empresas, municípios ou pessoas ao longo do tempo permite eliminar tudo o que é fixo e não observado sobre elas. Efeitos fixos, primeiras diferenças, efeitos aleatórios e como escolher entre eles.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sumário">
+  <ul>
+    <li><a href="#estrutura">1. Estrutura</a></li>
+    <li><a href="#modelo">2. Modelo</a></li>
+    <li><a href="#ef">3. Efeitos fixos</a></li>
+    <li><a href="#ea">4. Efeitos aleatórios</a></li>
+    <li><a href="#inferencia">5. Erros-padrão</a></li>
+    <li><a href="#exemplo">6. Exemplo e código</a></li>
+    <li><a href="#simulador">7. Simulador</a></li>
+    <li><a href="#exercicios">8. Exercícios</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<div class="objectives">
+  <h4>Ao final deste conteúdo você deve ser capaz de</h4>
+  <ul>
+    <li>organizar dados em formato longo e distinguir variação <em>entre</em> e <em>dentro</em> das unidades;</li>
+    <li>estimar modelos <em>pooled</em>, de efeitos fixos, de primeiras diferenças e de efeitos aleatórios;</li>
+    <li>usar o teste de Hausman e entender seus limites;</li>
+    <li>usar erros-padrão agrupados (<em>clustered</em>) por unidade.</li>
+  </ul>
+</div>
+
+<!-- 1 -->
+<section id="estrutura">
+<h2>1. Estrutura dos dados</h2>
+<p>Um painel acompanha \(N\) unidades \(i\) em \(T\) períodos \(t\). O formato usado pelos softwares é o <strong>longo</strong>: uma linha por par unidade-período.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>empresa</th><th>ano</th><th class="num">roa</th><th class="num">alavancagem</th><th class="num">tamanho</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>2018</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>
+<tr><td>1</td><td>2019</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>
+<tr><td>2</td><td>2018</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>Painel balanceado:</strong> todas as unidades em todos os períodos; <strong>desbalanceado:</strong> há lacunas (empresas que abrem capital ou deixam a bolsa).</li>
+<li><strong>Painel curto</strong> (N grande, T pequeno, típico de empresas e municípios) × <strong>painel longo</strong> (T grande, típico de países e séries macro).</li>
+<li>A variação total de \(x_{it}\) se divide em variação <strong><em>between</em></strong> (entre médias das unidades, \(\bar x_i\)) e <strong><em>within</em></strong> (ao redor da média de cada unidade, \(x_{it}-\bar x_i\)).</li>
+</ul>
+</section>
+
+<!-- 2 -->
+<section id="modelo">
+<h2>2. Modelo de efeitos não observados</h2>
+<div class="formula">$$y_{it}=\beta\,x_{it}+a_i+\lambda_t+u_{it}$$</div>
+<p>\(a_i\) é a <strong>heterogeneidade não observada</strong> constante no tempo (qualidade da gestão, cultura organizacional, localização, vocação econômica do município); \(\lambda_t\) são choques comuns a todas as unidades em cada período (crise, juros, pandemia); \(u_{it}\) é o erro idiossincrático.</p>
+<p>Se estimarmos por MQO empilhado (<em>pooled</em>), o erro composto é \(v_{it}=a_i+u_{it}\). Se \(Cov(x_{it},a_i)\neq0\), temos o mesmo viés de variável omitida do Conteúdo 4, agora causado por uma variável que <em>não podemos medir</em>. A grande vantagem do painel é poder eliminar \(a_i\) sem observá-la.</p>
+</section>
+
+<!-- 3 -->
+<section id="ef">
+<h2>3. Efeitos fixos e primeiras diferenças</h2>
+<h3>3.1 Estimador <em>within</em> (efeitos fixos, EF)</h3>
+<p>Tirando a média de cada unidade ao longo do tempo e subtraindo:</p>
+<div class="formula">$$y_{it}-\bar y_i=\beta\,(x_{it}-\bar x_i)+(\lambda_t-\bar\lambda)+(u_{it}-\bar u_i)$$</div>
+<p>O termo \(a_i\) desaparece. MQO nos dados centrados é o estimador de efeitos fixos, numericamente igual a incluir uma dummy para cada unidade (LSDV). Com dummies de ano, temos <strong>efeitos fixos bidirecionais</strong> (<em>two-way fixed effects</em>, TWFE).</p>
+<div class="box warn">
+<h4>O que o EF não consegue fazer</h4>
+<ul>
+<li>Estimar o efeito de variáveis constantes no tempo (setor, região, sexo): elas são eliminadas junto com \(a_i\).</li>
+<li>Corrigir confundidores que <strong>variam no tempo</strong>, ou causalidade reversa.</li>
+<li>É estimado só com a variação <em>within</em>: se \(x\) muda pouco dentro das unidades, o estimador fica impreciso, e erros de medida pesam mais.</li>
+</ul>
+</div>
+<h3>3.2 Primeiras diferenças (PD)</h3>
+<div class="formula">$$\Delta y_{it}=\beta\,\Delta x_{it}+\Delta\lambda_t+\Delta u_{it}$$</div>
+<p>Também elimina \(a_i\). Com \(T=2\), PD e EF são idênticos. Com \(T>2\), EF é mais eficiente se \(u_{it}\) não for autocorrelacionado; PD é preferível se \(u_{it}\) for um passeio aleatório.</p>
+</section>
+
+<!-- 4 -->
+<section id="ea">
+<h2>4. Efeitos aleatórios e teste de Hausman</h2>
+<p>O estimador de <strong>efeitos aleatórios (EA)</strong> supõe que \(a_i\) <em>não</em> é correlacionado com os regressores, \(Cov(x_{it},a_i)=0\), e usa MQG com a transformação de quase-média:</p>
+<div class="formula">$$y_{it}-\theta\bar y_i=\beta(x_{it}-\theta\bar x_i)+(v_{it}-\theta\bar v_i),\qquad \theta=1-\sqrt{\frac{\sigma_u^2}{\sigma_u^2+T\sigma_a^2}}$$</div>
+<p>EA é uma média ponderada entre <em>pooled</em> (\(\theta=0\)) e EF (\(\theta=1\)). Ele permite estimar efeitos de variáveis fixas no tempo, mas, se a hipótese \(Cov(x,a)=0\) falha, é viesado.</p>
+<h3>Teste de Hausman</h3>
+<div class="formula">$$H=(\hat\beta_{EF}-\hat\beta_{EA})'\big[\widehat{Var}(\hat\beta_{EF})-\widehat{Var}(\hat\beta_{EA})\big]^{-1}(\hat\beta_{EF}-\hat\beta_{EA})\sim\chi^2_k$$</div>
+<p>\(H_0\): EA é consistente (e eficiente). Rejeitar \(H_0\) indica que \(a_i\) está correlacionado com \(x\) e favorece EF. Na prática da pesquisa aplicada em finanças e contabilidade, EF é o padrão: a hipótese do EA raramente é crível. A versão clássica do teste supõe erros homocedásticos; com erros agrupados, use o teste de Mundlak (inclua \(\bar x_i\) como regressor e teste seu coeficiente).</p>
+</section>
+
+<!-- 5 -->
+<section id="inferencia">
+<h2>5. Erros-padrão agrupados (<em>clustered</em>)</h2>
+<p>Observações da mesma unidade ao longo do tempo são correlacionadas (o lucro de uma empresa em 2019 se parece com o de 2018). Os erros-padrão convencionais, e mesmo os robustos de White, tratam as \(NT\) observações como independentes e <strong>subestimam a incerteza</strong>.</p>
+<p>A solução padrão é agrupar os erros-padrão por unidade, o que permite qualquer correlação dentro de cada \(i\). Regras práticas: agrupe no nível em que o tratamento varia; são necessários muitos grupos (dezenas, idealmente mais de 40–50); com poucos grupos, use <em>wild cluster bootstrap</em>. Em finanças, com choques comuns entre empresas no mesmo ano, considere agrupar por empresa e ano (Petersen, 2009).</p>
+</section>
+
+<!-- 6 -->
+<section id="exemplo">
+<h2>6. Exemplo: alavancagem e rentabilidade</h2>
+<p>Painel <strong>simulado</strong> de 150 empresas de 2018 a 2023 (<a href="dados/painel_empresas.csv"><code>dados/painel_empresas.csv</code></a>). O efeito verdadeiro da alavancagem (%) sobre o ROA (%) é <strong>−0,10</strong>. A qualidade da gestão (\(a_i\), não observada) aumenta o ROA e <em>reduz</em> a alavancagem: empresas bem geridas se financiam mais com lucros retidos.</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: ROA (%)</th><th>(1) Pooled</th><th>(2) Efeitos fixos</th><th>(3) Primeiras dif.</th><th>(4) Efeitos aleatórios</th></tr></thead>
+<tbody>
+<tr><td>Alavancagem</td><td>−0,2647***<br><small>(0,0088)</small></td><td>−0,0996***<br><small>(0,0101)</small></td><td>−0,0960***<br><small>(0,0106)</small></td><td>−0,1896***<br><small>(0,0092)</small></td></tr>
+<tr><td>Tamanho (ln ativo)</td><td>0,4577***<br><small>(0,0947)</small></td><td>0,4437**<br><small>(0,1994)</small></td><td>0,2916<br><small>(0,1952)</small></td><td>0,5551***<br><small>(0,1080)</small></td></tr>
+<tr><td>Dummies de ano</td><td>Sim</td><td>Sim</td><td>Sim</td><td>Sim</td></tr>
+<tr><td>Efeitos fixos de empresa</td><td>Não</td><td>Sim</td><td>(diferenciados)</td><td>Não</td></tr>
+<tr><td>Observações</td><td>900</td><td>900</td><td>750</td><td>900</td></tr>
+</tbody></table></div>
+<p class="hint">Erros-padrão agrupados por empresa entre parênteses. *** p&lt;0,01; ** p&lt;0,05. Hausman (EF × EA): χ²(2) = 309,98, p &lt; 0,001.</p>
+<div class="box">
+<h4>Interpretação</h4>
+<ul>
+<li>O <em>pooled</em> sugere que 1 p.p. a mais de alavancagem reduz o ROA em 0,26 p.p., <strong>2,6 vezes</strong> o efeito verdadeiro. Ele mistura o efeito da alavancagem com o fato de que empresas mal geridas são, ao mesmo tempo, mais alavancadas e menos rentáveis.</li>
+<li>EF e PD usam apenas variações <em>dentro</em> de cada empresa e recuperam ≈ −0,10.</li>
+<li>EA fica entre os dois, como esperado quando \(Cov(x,a_i)\neq0\). O teste de Hausman rejeita fortemente a hipótese do EA.</li>
+<li>O tamanho varia pouco dentro das empresas (desvio-padrão <em>within</em> pequeno): seu erro-padrão dobra no EF e o coeficiente fica impreciso em PD. É o custo de usar apenas a variação <em>within</em>.</li>
+<li>Na alavancagem, o desvio-padrão total é 13,9, o <em>between</em> 12,8 e o <em>within</em> 5,7: a maior parte da variação é entre empresas, justamente a que o EF descarta.</li>
+</ul>
+</div>
+
+<h3>Código</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="py">Python</button>
+    <button role="tab" aria-selected="false" data-tab="r">R</button>
+    <button role="tab" aria-selected="false" data-tab="stata">Stata</button>
+  </div>
+<div class="tabpanel active" data-panel="py"><pre><code>import pandas as pd
+from linearmodels.panel import PanelOLS, PooledOLS, RandomEffects, FirstDifferenceOLS
+
+df = pd.read_csv("dados/painel_empresas.csv").set_index(["empresa", "ano"])
+X = df[["alavancagem", "tamanho"]].assign(const=1.0)
+
+# Efeitos fixos de empresa e ano, erros agrupados por empresa
+fe = PanelOLS(df["roa"], X, entity_effects=True, time_effects=True).fit(
+    cov_type="clustered", cluster_entity=True)
+print(fe)
+
+# Pooled e efeitos aleatórios (acrescente dummies de ano, ver codigo/analise.py)
+pooled = PooledOLS(df["roa"], X).fit(cov_type="clustered", cluster_entity=True)
+re = RandomEffects(df["roa"], X).fit(cov_type="clustered", cluster_entity=True)
+
+# Primeiras diferenças (sem constante)
+fd = FirstDifferenceOLS(df["roa"], df[["alavancagem", "tamanho"]]).fit(
+    cov_type="clustered", cluster_entity=True)
+
+# Alternativa com sintaxe de fórmula, parecida com fixest/reghdfe:
+# pip install pyfixest
+# import pyfixest as pf
+# pf.feols("roa ~ alavancagem + tamanho | empresa + ano", data=df.reset_index(),
+#          vcov={"CRV1": "empresa"}).summary()</code></pre></div>
+<div class="tabpanel" data-panel="r"><pre><code>library(fixest)   # install.packages(c("fixest", "plm"))
+library(plm)
+df &lt;- read.csv("dados/painel_empresas.csv")
+
+pooled &lt;- feols(roa ~ alavancagem + tamanho | ano, data = df, cluster = ~empresa)
+fe     &lt;- feols(roa ~ alavancagem + tamanho | empresa + ano, data = df, cluster = ~empresa)
+etable(pooled, fe)
+
+# Efeitos aleatórios, primeiras diferenças e Hausman com plm
+pdf &lt;- pdata.frame(df, index = c("empresa", "ano"))
+fe_plm &lt;- plm(roa ~ alavancagem + tamanho + factor(ano), data = pdf, model = "within")
+re_plm &lt;- plm(roa ~ alavancagem + tamanho + factor(ano), data = pdf, model = "random")
+fd_plm &lt;- plm(roa ~ alavancagem + tamanho + factor(ano), data = pdf, model = "fd")
+phtest(fe_plm, re_plm)   # Hausman</code></pre></div>
+<div class="tabpanel" data-panel="stata"><pre><code>import delimited "dados/painel_empresas.csv", clear
+xtset empresa ano
+xtdescribe
+xtsum roa alavancagem tamanho          // variação overall, between e within
+
+regress roa alavancagem tamanho i.ano, vce(cluster empresa)       // pooled
+xtreg roa alavancagem tamanho i.ano, fe vce(cluster empresa)      // efeitos fixos
+estimates store fe
+xtreg roa alavancagem tamanho i.ano, re vce(cluster empresa)      // efeitos aleatórios
+regress D.roa D.alavancagem D.tamanho i.ano, vce(cluster empresa) // primeiras diferenças
+
+* Hausman (exige erros convencionais)
+quietly xtreg roa alavancagem tamanho i.ano, fe
+estimates store fe_c
+quietly xtreg roa alavancagem tamanho i.ano, re
+hausman fe_c .
+
+* Com muitos efeitos fixos: ssc install reghdfe
+reghdfe roa alavancagem tamanho, absorb(empresa ano) vce(cluster empresa)</code></pre></div>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="simulador">
+<h2>7. Simulador: <em>pooled</em> × efeitos fixos</h2>
+<p>Cada cor é uma empresa. O efeito fixo \(a_i\) desloca a nuvem de cada empresa e é correlacionado com o nível médio de \(x\). Dentro de cada empresa a inclinação é o efeito verdadeiro; a reta <em>pooled</em> atravessa as nuvens e capta a relação <em>entre</em> empresas.</p>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="pB">Efeito verdadeiro β <output for="pB"></output></label><input type="range" id="pB" min="-1.5" max="1.5" step="0.1" value="-0.5" data-dec="1"></div>
+    <div><label for="pC">Correlação entre aᵢ e x̄ᵢ <output for="pC"></output></label><input type="range" id="pC" min="-1" max="1" step="0.1" value="0.8" data-dec="1"></div>
+    <div><label for="pN">Empresas N <output for="pN"></output></label><input type="range" id="pN" min="3" max="12" step="1" value="6"></div>
+    <div><label for="pT">Períodos T <output for="pT"></output></label><input type="range" id="pT" min="2" max="15" step="1" value="8"></div>
+  </div>
+  <div class="row"><button class="btn ghost" type="button" id="pNew">Nova amostra</button></div>
+  <div class="chart wide"><svg id="pPlot" viewBox="0 0 560 340" role="img" aria-label="Dispersão por empresa"></svg>
+    <div class="legend"><span style="--c:var(--text)">reta pooled</span><span class="dash" style="--c:var(--muted)">inclinação EF dentro de cada empresa</span></div></div>
+  <div class="stats-grid" id="pOut"></div>
+  <p class="interp" id="pInterp"></p>
+</div>
+</section>
+
+<!-- 8 -->
+<section id="exercicios">
+<h2>8. Exercícios</h2>
+<ol class="exercises">
+<li>
+<p>Uma pesquisa estima o efeito da adesão ao Novo Mercado sobre o custo de capital com um painel de empresas e efeitos fixos de empresa. Por que o efeito do setor não aparece na saída? Isso é um problema?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>O setor é constante no tempo para cada empresa e é eliminado pela transformação <em>within</em> (é colinear com os efeitos fixos). Não é um problema para estimar o efeito da adesão: o efeito do setor, e de tudo que é fixo na empresa, está sendo controlado. Apenas não é possível estimá-lo separadamente.</p></div></details>
+</li>
+<li>
+<p>Um painel de municípios tem \(T=2\) (2015 e 2019). Mostre que o estimador de primeiras diferenças é igual ao de efeitos fixos.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Com \(T=2\): \(x_{i1}-\bar x_i=(x_{i1}-x_{i2})/2=-\Delta x_i/2\) e \(x_{i2}-\bar x_i=\Delta x_i/2\), e o mesmo para \(y\). A regressão <em>within</em> usa pares \((\pm\Delta x_i/2,\pm\Delta y_i/2)\), e a inclinação de MQO é \(\sum\Delta x_i\Delta y_i/\sum\Delta x_i^2\), exatamente o estimador PD.</p></div></details>
+</li>
+<li>
+<p>EF deu \(\hat\beta=-0{,}10\) (ep 0,010) e EA deu \(-0{,}19\) (ep 0,009). Calcule a estatística de Hausman para um único coeficiente (use os erros-padrão como se fossem convencionais) e conclua.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>\(H=\dfrac{(-0{,}10+0{,}19)^2}{0{,}010^2-0{,}009^2}=\dfrac{0{,}0081}{0{,}000019}\approx\mathbf{426}\) ≫ \(\chi^2_{1;0{,}95}=3{,}84\). Rejeita-se \(H_0\): o EA é inconsistente e o EF é preferível.</p></div></details>
+</li>
+<li>
+<p>Um estudo com 27 estados e 20 anos agrupa os erros-padrão por ano. Comente a escolha.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Se a principal correlação é dentro de cada estado ao longo do tempo (o usual) e o tratamento varia por estado, deve-se agrupar por <strong>estado</strong>. Com apenas 27 grupos, os erros-padrão agrupados convencionais podem ser imprecisos; recomenda-se o <em>wild cluster bootstrap</em> (<code>boottest</code> no Stata, <code>fwildclusterboot</code> no R).</p></div></details>
+</li>
+<li>
+<p>No simulador, coloque a correlação entre \(a_i\) e \(\bar x_i\) em 0. O que acontece com as estimativas <em>pooled</em> e EF? Qual delas tem menor erro-padrão?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Com correlação zero, \(a_i\) está no erro mas não é correlacionado com \(x\): ambos os estimadores ficam em torno do valor verdadeiro. O <em>pooled</em> (e o EA, que é eficiente nesse caso) usa também a variação entre empresas e tende a ter erro-padrão diferente. Os efeitos fixos “gastam” graus de liberdade e descartam a variação <em>between</em>. É a situação em que o teste de Hausman não rejeita.</p></div></details>
+</li>
+</ol>
+</section>
+
+<nav class="pager" aria-label="Navegação entre conteúdos"><a href="../04-regressao-multipla/index.html">← Conteúdo 4: Regressão múltipla</a><a href="../06-diferencas-em-diferencas/index.html">Conteúdo 6: Diferenças em diferenças →</a></nav>
+</main>
+
+<footer class="wrap">
+<p>Estatística e Econometria — Mestrado PROFINIT · Conteúdo 5. Dados simulados com finalidade didática.</p>
+<p>Leituras: Wooldridge, <em>Introdução à Econometria</em>, caps. 13–14; Wooldridge, <em>Econometric Analysis of Cross Section and Panel Data</em>, cap. 10; Petersen (2009), “Estimating standard errors in finance panel data sets”, <em>Review of Financial Studies</em>, 22(1); Cameron &amp; Miller (2015), “A practitioner’s guide to cluster-robust inference”, <em>Journal of Human Resources</em>, 50(2).</p>
+</footer>
+
+<script>
+(function(){
+  var seed=5;
+  var palette=['#1f5f8b','#b5562a','#2e7d4f','#7a4fa3','#c49a00','#00838f','#ad1457','#5d6b2f','#6d4c41','#3949ab','#e65100','#00695c'];
+  function run(){
+    var beta=+pB.value, rho=+pC.value, N=+pN.value, T=+pT.value, R=rng(seed);
+    var X=[],Y=[],G=[];
+    for(var i=0;i<N;i++){
+      var xbar=R.norm()*3, a=rho*xbar*1.2+Math.sqrt(Math.max(0,1-rho*rho))*R.norm()*3.6;
+      for(var t=0;t<T;t++){var x=xbar+R.norm(); X.push(x); Y.push(beta*x+a+0.6*R.norm()); G.push(i);}
+    }
+    var pooled=ols(X.map(function(x){return [1,x];}),Y);
+    var xm={},ym={},cnt={};
+    G.forEach(function(g,k){xm[g]=(xm[g]||0)+X[k];ym[g]=(ym[g]||0)+Y[k];cnt[g]=(cnt[g]||0)+1;});
+    var Xd=X.map(function(x,k){return x-xm[G[k]]/cnt[G[k]];}), Yd=Y.map(function(y,k){return y-ym[G[k]]/cnt[G[k]];});
+    var fe=ols(Xd.map(function(x){return [x];}),Yd);
+    var feSe=fe.se[0]*Math.sqrt((N*T-1)/(N*T-1-N));   // corrige graus de liberdade das N médias
+    var between=N>2?ols(Object.keys(xm).map(function(g){return [1,xm[g]/cnt[g]];}),Object.keys(ym).map(function(g){return ym[g]/cnt[g];})):null;
+    var xr=[Math.min.apply(null,X),Math.max.apply(null,X)], yr=[Math.min.apply(null,Y),Math.max.apply(null,Y)];
+    var f=plotFrame(document.getElementById('pPlot'),{xlim:xr,ylim:yr,xlabel:'alavancagem (x)',ylabel:'ROA (y)'});
+    for(i=0;i<N;i++){
+      var xs=[],ys=[]; G.forEach(function(g,k){if(g===i){xs.push(X[k]);ys.push(Y[k]);}});
+      var c=palette[i%palette.length], mx=xm[i]/cnt[i], my=ym[i]/cnt[i];
+      var lo=Math.min.apply(null,xs), hi=Math.max.apply(null,xs);
+      plotLine(f,[lo,hi],[f.clip(my+fe.beta[0]*(lo-mx)),f.clip(my+fe.beta[0]*(hi-mx))],c,1.8,'5 4');
+      plotPoints(f,xs,ys,c,3.2,0.8);
+    }
+    plotLine(f,xr,xr.map(function(x){return f.clip(pooled.beta[0]+pooled.beta[1]*x);}),css('--text'),3);
+    var items=[['β verdadeiro',fmt(beta,1)],['β̂ pooled',fmt(pooled.beta[1])],['β̂ efeitos fixos',fmt(fe.beta[0])+' <small>(ep '+fmt(feSe)+')</small>'],
+      ['β̂ between (médias)',between?fmt(between.beta[1]):'—'],['Observações',fmt(N*T,0)]];
+    document.getElementById('pOut').innerHTML=items.map(function(it){return '<div class="stat"><div class="k">'+it[0]+'</div><div class="v">'+it[1]+'</div></div>';}).join('');
+    document.getElementById('pInterp').textContent=Math.abs(rho)<0.15?
+      'Sem correlação entre o efeito fixo e x, pooled e EF estimam o mesmo parâmetro.':
+      'Como aᵢ é '+(rho>0?'positivamente':'negativamente')+' correlacionado com x, o pooled mistura o efeito causal com diferenças entre empresas ('+fmt(pooled.beta[1],2)+'), enquanto o EF, usando só a variação dentro de cada empresa, fica perto de '+fmt(beta,1)+'.';
+  }
+  ['pB','pC','pN','pT'].forEach(function(id){document.getElementById(id).addEventListener('input',run);});
+  document.getElementById('pNew').addEventListener('click',function(){seed++;run();});
+  document.addEventListener('themechange',run);
+  document.addEventListener('DOMContentLoaded',run);
+})();
+</script>
+</body>
+</html>
