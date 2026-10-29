@@ -244,7 +244,7 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <!-- 8 -->
 <section id="casos">
 <h2>8. Estudos de caso</h2>
-<p>Bases em <a href="../dados_caso/"><code>dados_caso/</code></a>. Exceto o primeiro, todos os casos têm <strong>adoção escalonada</strong>: cada unidade entra no tratamento em um ano. Por isso, cada caso é estimado de duas formas: pelo TWFE e pelo estimador de Callaway &amp; Sant’Anna (CS), que usa como controle apenas as unidades nunca tratadas. O script <a href="codigo/casos_did.py"><code>codigo/casos_did.py</code></a> reproduz todos os números.</p>
+<p>Bases em <a href="../dados_caso/index.html"><code>dados_caso/</code></a>. Exceto o primeiro, todos os casos têm <strong>adoção escalonada</strong>: cada unidade entra no tratamento em um ano. Por isso, cada caso é estimado de duas formas: pelo TWFE e pelo estimador de Callaway &amp; Sant’Anna (CS), que usa como controle apenas as unidades nunca tratadas. O script <a href="codigo/casos_did.py"><code>codigo/casos_did.py</code></a> reproduz todos os números.</p>
 
 <h3>8.1 O perigo do antes e depois</h3>
 <p>Um programa de qualificação profissional para mulheres: o salário das participantes foi de US$ 103 para US$ 131 (+28). Parece um grande sucesso, mas o salário das não participantes também subiu, de US$ 97 para US$ 112 (+15), por causa do crescimento do mercado. O impacto do programa é \(28-15=\mathbf{13}\) dólares: comparar só antes e depois nos tratados mais que dobra o efeito.</p>
@@ -259,7 +259,7 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <div class="table-wrap"><table>
 <thead><tr><th></th><th>(a) Base sintética 2×2</th><th>(b) Base de SP com adoção escalonada</th></tr></thead>
 <tbody>
-<tr><td>Arquivo</td><td><code>did_ifood_sintetica.csv</code></td><td><code>ifood_crime_sp.dta</code></td></tr>
+<tr><td>Arquivo</td><td><a href="../dados_caso/did_ifood_sintetica.csv" download><code>did_ifood_sintetica.csv</code></a></td><td><a href="../dados_caso/ifood_crime_sp.dta" download><code>ifood_crime_sp.dta</code></a></td></tr>
 <tr><td>Unidades e período</td><td>50 áreas, 2018–2025</td><td>644 municípios de SP, 2010–2019</td></tr>
 <tr><td>Tratamento</td><td>25 áreas, todas a partir de 2022</td><td>227 municípios, entrada entre 2012 e 2019</td></tr>
 <tr><td>Resultado</td><td>Taxa de criminalidade (nível)</td><td>ln(crimes contra a propriedade)</td></tr>
@@ -268,7 +268,7 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 </tbody></table></div>
 <p>As duas bases exageram o efeito em relação ao artigo: −10 pontos sobre uma média inicial de 54 (≈ −19%) na sintética, e −26% a −32% na de SP, contra −10,4% no artigo. São bases para aprender o método, não para reproduzir o número publicado.</p>
 <h4>(a) Base sintética 2×2</h4>
-<p>Base sintética da disciplina (<code>did_ifood_sintetica.csv</code>, com documentação em <a href="../dados_caso/documentacao_did_ifood_sintetica.docx"><code>documentacao_did_ifood_sintetica.docx</code></a>). São 50 áreas, 25 delas com expansão do iFood a partir de 2022, observadas de 2018 a 2025. A simulação tem efeito verdadeiro de −10 na taxa de criminalidade, tendência geral de queda (−3) e tratados com criminalidade inicial maior (+5).</p>
+<p>Base sintética da disciplina (<a href="../dados_caso/did_ifood_sintetica.csv" download><code>did_ifood_sintetica.csv</code></a>, com documentação em <a href="../dados_caso/documentacao_did_ifood_sintetica.docx"><code>documentacao_did_ifood_sintetica.docx</code></a>). São 50 áreas, 25 delas com expansão do iFood a partir de 2022, observadas de 2018 a 2025. A simulação tem efeito verdadeiro de −10 na taxa de criminalidade, tendência geral de queda (−3) e tratados com criminalidade inicial maior (+5).</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Criminalidade média</th><th class="num">Antes (2018–2021)</th><th class="num">Depois (2022–2025)</th><th class="num">Diferença</th></tr></thead>
 <tbody>
@@ -297,7 +297,7 @@ testparm 2010.ano#1.tratado 2011.ano#1.tratado 2012.ano#1.tratado 2013.ano#1.tra
 <p>Os coeficientes pré-tratamento são praticamente zero, compatíveis com tendências paralelas. O TWFE subestima o efeito médio (−0,30 contra −0,39 no CS): com efeitos que crescem no tempo, ele usa municípios <em>já tratados</em> como controle dos que entram depois, as comparações “proibidas” de Goodman-Bacon (Seção 5). O estudo de eventos com ano de referência, que separa cada período relativo, quase não sofre com isso neste caso: os coeficientes do TWFE e do CS ano a ano praticamente coincidem.</p>
 
 <h3>8.3 Delegacias da Mulher (DEAMs) e homicídios femininos em Mato Grosso</h3>
-<p>Base sintética da disciplina (<code>did_deams_sintetica_2000_2018.csv</code>) para a pergunta: <em>qual o impacto da Lei Maria da Penha sobre o feminicídio em Mato Grosso?</em> São 100 municípios observados de 2000 a 2018. O grupo tratado são os 40 municípios com Delegacia Especializada de Atendimento à Mulher (DEAM); o controle, os 60 sem DEAM. O período pós começa em 2007, após a Lei nº 11.340/2006 entrar em vigor. Como a lei vale para todo o país, o desenho mede o efeito da lei <em>onde há estrutura para aplicá-la</em>, isto é, a diferença que a DEAM faz depois da lei. A planilha menciona pós-tratamento até 2020, mas a base vai até 2018.</p>
+<p>Base sintética da disciplina (<a href="../dados_caso/did_deams_sintetica_2000_2018.csv" download><code>did_deams_sintetica_2000_2018.csv</code></a>) para a pergunta: <em>qual o impacto da Lei Maria da Penha sobre o feminicídio em Mato Grosso?</em> São 100 municípios observados de 2000 a 2018. O grupo tratado são os 40 municípios com Delegacia Especializada de Atendimento à Mulher (DEAM); o controle, os 60 sem DEAM. O período pós começa em 2007, após a Lei nº 11.340/2006 entrar em vigor. Como a lei vale para todo o país, o desenho mede o efeito da lei <em>onde há estrutura para aplicá-la</em>, isto é, a diferença que a DEAM faz depois da lei. A planilha menciona pós-tratamento até 2020, mas a base vai até 2018.</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Homicídios femininos por 100 mil mulheres (média)</th><th class="num">2000–2006</th><th class="num">2007–2018</th><th class="num">Diferença</th></tr></thead>
 <tbody>

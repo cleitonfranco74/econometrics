@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Cleiton Franco">
+<title>Bases e Scripts</title>
+<meta name="description" content="Bases de dados dos estudos de caso e scripts em Python, R e Stata dos conteúdos de Estatística e Econometria.">
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/comum.js"></script>
+</head>
+<body>
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="crumbs ui"><a href="../index.html">← Todos os conteúdos</a></p>
+    <p class="eyebrow">Estatística e Econometria · Mestrado PROFINIT</p>
+    <h1>Bases de dados e scripts</h1>
+    <p class="lede">Clique no nome do arquivo para baixar. Os scripts leem as bases pelo caminho relativo; mantenha a mesma estrutura de pastas do repositório ou ajuste o caminho no início de cada script.</p>
+    <p class="autor-topo">Prof. Cleiton Franco · Universidade do Estado de Mato Grosso (UNEMAT)</p>
+  </div>
+</header>
+<main class="wrap">
+<section id="bases">
+<h2>Bases dos estudos de caso</h2>
+<p>Os arquivos <code>.dta</code> abrem no Stata, no R (<code>haven::read_dta</code>) e no Python (<code>pandas.read_stata</code>); <code>.csv</code> e <code>.xlsx</code> abrem também no Excel.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Arquivo</th><th>Unidade e período</th><th>Uso</th><th>Observação</th></tr></thead>
+<tbody>
+<tr><td><a href="sorvete_afogamentos_aula.csv" download><code>sorvete_afogamentos_aula.csv</code></a> <small>(1 KB)</small></td><td>12 meses</td><td>Conteúdo 3</td><td>Vendas de sorvete e afogamentos (planilha da disciplina)</td></tr>
+<tr><td><a href="sorvete_afogamentos.csv" download><code>sorvete_afogamentos.csv</code></a> <small>(1 KB)</small></td><td>36 meses (ilustrativo)</td><td>Conteúdo 3</td><td>Mesma ideia com temperatura, para a correlação parcial (simulado por <code>exemplos_slides.py</code>)</td></tr>
+<tr><td><a href="margarina_divorcio_maine.csv" download><code>margarina_divorcio_maine.csv</code></a> <small>(1 KB)</small></td><td>EUA, 2000–2009</td><td>Conteúdo 3</td><td>Série original de Tyler Vigen (<a href="https://www.tylervigen.com/spurious-correlations">tylervigen.com/spurious-correlations</a>); r = 0,993, como no slide</td></tr>
+<tr><td><a href="nicolas_cage_afogamentos.csv" download><code>nicolas_cage_afogamentos.csv</code></a> <small>(1 KB)</small></td><td>EUA, 1999–2009</td><td>Conteúdo 3</td><td>Correlação espúria de Tyler Vigen</td></tr>
+<tr><td><a href="carga_tributaria_gini.csv" download><code>carga_tributaria_gini.csv</code></a> <small>(1 KB)</small></td><td>17 países</td><td>Conteúdo 3</td><td>Planilha da disciplina (valores aproximados) + coluna <code>gini_bm_2019</code> com o Gini do Banco Mundial (de <code>gini_pib_mundo.dta</code>)</td></tr>
+<tr><td><a href="salario_minimo_cesta_basica.csv" download><code>salario_minimo_cesta_basica.csv</code></a> <small>(1 KB)</small></td><td>Mensal, jan/2018–out/2021</td><td>Conteúdo 3</td><td>Planilha da disciplina</td></tr>
+<tr><td><a href="vacinacao_obitos.csv" download><code>vacinacao_obitos.csv</code></a> <small>(1 KB)</small></td><td>10 meses</td><td>Conteúdo 3</td><td>Planilha da disciplina</td></tr>
+<tr><td><a href="gasto_saude_suicidio_ocde.csv" download><code>gasto_saude_suicidio_ocde.csv</code></a> <small>(1 KB)</small></td><td>12 países da OCDE</td><td>Conteúdo 3</td><td>Valores aproximados do gráfico dos slides (Peterson-KFF; OECD Health Statistics)</td></tr>
+<tr><td><a href="correlacoes_empresariais.xlsx" download><code>correlacoes_empresariais.xlsx</code></a> <small>(23 KB)</small></td><td>Abas Apple, Netflix, CocaCola, Tesla, Tarifaço, Tesla_BYD</td><td>Conteúdo 3</td><td>Séries ilustrativas da disciplina</td></tr>
+<tr><td><a href="google_reglinear.xlsx" download><code>google_reglinear.xlsx</code></a> <small>(12 KB)</small></td><td>Google, mensal, 2019–2023</td><td>Conteúdo 3</td><td>Série ilustrativa</td></tr>
+<tr><td><a href="gini_pib_mundo.dta" download><code>gini_pib_mundo.dta</code></a> <small>(80 KB)</small></td><td>164 países, 2010–2019</td><td>Conteúdos 3 e 5</td><td>Gini, PIB per capita (PPC) e população (Our World in Data / Banco Mundial)</td></tr>
+<tr><td><a href="gini_pib_america_sul.dta" download><code>gini_pib_america_sul.dta</code></a> <small>(9 KB)</small></td><td>6 países sul-americanos, 2010–2019</td><td>Conteúdo 3</td><td>Recorte da base anterior</td></tr>
+<tr><td><a href="coca_cola_regioes.csv" download><code>coca_cola_regioes.csv</code></a> <small>(17 KB)</small></td><td>80 regiões × 2022–2025</td><td>Conteúdos 3 e 4</td><td>Obesidade, consumo de refrigerante e controles (ilustrativa)</td></tr>
+<tr><td><a href="estudos_caso_regressao_multipla.xlsx" download><code>estudos_caso_regressao_multipla.xlsx</code></a> <small>(57 KB)</small></td><td>Abas Amazon, Google, Microsoft, Petrobras, MercadoLivre (mensal, 2019–2023) + Dicionário</td><td>Conteúdo 4</td><td>Séries ilustrativas; o dicionário indica a variável dependente e as variáveis “originais” e “novas”</td></tr>
+<tr><td><a href="wage1.dta" download><code>wage1.dta</code></a> <small>(27 KB)</small></td><td>526 trabalhadores (EUA, 1976)</td><td>Conteúdo 4</td><td>Base clássica de Wooldridge, <em>Introdução à Econometria</em></td></tr>
+<tr><td><a href="pnad_2009_2011_internet_renda.dta" download><code>pnad_2009_2011_internet_renda.dta</code></a> <small>(12.0 MB)</small></td><td>600.266 pessoas, PNAD/IBGE (2009, 2011 e 2012)</td><td>Conteúdo 4</td><td>Microdados da PNAD; variáveis com o código original (V…) no rótulo</td></tr>
+<tr><td><a href="samu_mt_2000_2020.dta" download><code>samu_mt_2000_2020.dta</code></a> <small>(394 KB)</small></td><td>141 municípios de MT, 2000–2020</td><td>Conteúdos 4, 5 e 6</td><td>SAMU e mortes no trânsito (base didática)</td></tr>
+<tr><td><a href="farmacia_popular_mt.dta" download><code>farmacia_popular_mt.dta</code></a> <small>(196 KB)</small></td><td>141 municípios de MT, 2003–2011</td><td>Conteúdo 6</td><td>Base didática que reproduz o desenho de Mesquita &amp; Nishimura (Farmácia Popular e hipertensão)</td></tr>
+<tr><td><a href="ifood_crime_sp.dta" download><code>ifood_crime_sp.dta</code></a> <small>(564 KB)</small></td><td>644 municípios de SP, 2010–2019</td><td>Conteúdo 6</td><td>Base didática inspirada em Frankenthal (2025), <em>The Gig Economy and Crime</em></td></tr>
+<tr><td><a href="did_ifood_sintetica.csv" download><code>did_ifood_sintetica.csv</code></a> <small>(22 KB)</small></td><td>50 áreas, 2018–2025</td><td>Conteúdo 6</td><td>Base sintética 2×2 (efeito simulado −10); documentação em <a href="documentacao_did_ifood_sintetica.docx" download><code>documentacao_did_ifood_sintetica.docx</code></a></td></tr>
+<tr><td><a href="did_deams_sintetica_2000_2018.csv" download><code>did_deams_sintetica_2000_2018.csv</code></a> <small>(148 KB)</small></td><td>100 municípios de MT, 2000–2018</td><td>Conteúdo 6</td><td>Base sintética 2×2: DEAMs, Lei Maria da Penha e homicídios femininos</td></tr>
+<tr><td><a href="co2_pd_2000_2020.dta" download><code>co2_pd_2000_2020.dta</code></a> <small>(532 KB)</small></td><td>193 países, 2000–2020</td><td>Conteúdos 5 e 6</td><td>Política de P&amp;D e emissões de CO2 (base didática)</td></tr>
+</tbody></table></div>
+<p>Repositório completo, com todas as pastas: <a href="https://github.com/cleitonfranco74/econometrics">github.com/cleitonfranco74/econometrics</a> (botão <em>Code → Download ZIP</em>).</p>
+</section>
+<section id="versoes">
+<h2>Diferenças entre versões</h2>
+<ul><li><strong>Margarina × divórcio:</strong> a planilha da disciplina tinha valores arredondados (8,0 lb em 2000; r = 0,983). A base usa a série original de Tyler Vigen, a mesma mostrada no slide (8,2 lb; r = 0,993).</li><li><strong>Carga tributária × Gini:</strong> o gráfico do slide e a planilha diferem (por exemplo, Suécia: Gini 0,31 e carga 54% no gráfico; 0,23 e 50% na planilha). Comparados com o Gini do Banco Mundial de 2019, os dois têm o mesmo erro médio (0,03). A página usa a planilha. Para uso formal, substitua por séries oficiais do mesmo ano (OCDE <em>Revenue Statistics</em> e Banco Mundial).</li></ul>
+</section>
+<section id="pnad">
+<h2>Observações sobre a PNAD</h2>
+<ul><li><code>genero</code>: variável binária (0/1). O coeficiente positivo na regressão de renda sugere 1 = homem; confira na documentação da sua extração.</li><li><code>raça</code>, <code>estcivil</code>, <code>horas_trabalhadas</code> (faixas de horas) e <code>tipo_de_familia</code> são <strong>códigos de categorias</strong> do IBGE. Em regressões, o correto é tratá-los como variáveis categóricas (<code>i.raca</code> no Stata, <code>C(raca)</code> no Python, <code>factor(raca)</code> no R).</li><li>A renda (<code>Renda</code>, V4720) inclui zeros. Para usar <code>ln(Renda)</code>, restrinja a renda positiva.</li></ul>
+</section>
+<section id="artigos">
+<h2>Artigos dos estudos de caso</h2>
+<ul>
+<li>Mesquita, A.; Nishimura, F. <em>Programa “Aqui Tem Farmácia Popular” e hipertensão arterial: uma estratégia de identificação através de um modelo de Diferenças em Diferenças</em>. <a href="../artigos/mesquita_nishimura_farmacia_popular_hipertensao.pdf">PDF</a>.</li>
+<li>Frankenthal, I. (2025). <em>The Gig Economy and Crime</em>. Working paper, MIT. <a href="https://economics.mit.edu/sites/default/files/inline-files/Gig_Economy_and_Crime_Oct25.pdf">PDF no site do MIT</a>.</li>
+</ul>
+</section>
+<section id="scripts">
+<h2>Scripts e dados dos exemplos</h2>
+<p>Scripts de cada conteúdo (<code>analise.*</code> para o exemplo principal, <code>casos.*</code> e <code>casos_did.py</code> para os estudos de caso) e as bases simuladas dos exemplos.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Conteúdo</th><th>Scripts</th><th>Dados do exemplo</th></tr></thead>
+<tbody>
+<tr><td><a href="../02-medidas-descritivas/index.html">Conteúdo 2</a><br><small>Medidas descritivas</small></td><td><a href="../02-medidas-descritivas/codigo/medidas.R" download><code>medidas.R</code></a> · <a href="../02-medidas-descritivas/codigo/medidas.do" download><code>medidas.do</code></a> · <a href="../02-medidas-descritivas/codigo/medidas.py" download><code>medidas.py</code></a></td><td><a href="../02-medidas-descritivas/dados/retornos_mensais.csv" download><code>retornos_mensais.csv</code></a></td></tr>
+<tr><td><a href="../03-correlacao-causalidade-regressao/index.html">Conteúdo 3</a><br><small>Correlação, causalidade e regressão simples</small></td><td><a href="../03-correlacao-causalidade-regressao/codigo/analise.R" download><code>analise.R</code></a> · <a href="../03-correlacao-causalidade-regressao/codigo/analise.do" download><code>analise.do</code></a> · <a href="../03-correlacao-causalidade-regressao/codigo/analise.py" download><code>analise.py</code></a> · <a href="../03-correlacao-causalidade-regressao/codigo/casos.R" download><code>casos.R</code></a> · <a href="../03-correlacao-causalidade-regressao/codigo/casos.do" download><code>casos.do</code></a> · <a href="../03-correlacao-causalidade-regressao/codigo/casos.py" download><code>casos.py</code></a></td><td><a href="../03-correlacao-causalidade-regressao/dados/publicidade_vendas.csv" download><code>publicidade_vendas.csv</code></a></td></tr>
+<tr><td><a href="../04-regressao-multipla/index.html">Conteúdo 4</a><br><small>Regressão múltipla</small></td><td><a href="../04-regressao-multipla/codigo/analise.R" download><code>analise.R</code></a> · <a href="../04-regressao-multipla/codigo/analise.do" download><code>analise.do</code></a> · <a href="../04-regressao-multipla/codigo/analise.py" download><code>analise.py</code></a> · <a href="../04-regressao-multipla/codigo/casos.R" download><code>casos.R</code></a> · <a href="../04-regressao-multipla/codigo/casos.do" download><code>casos.do</code></a> · <a href="../04-regressao-multipla/codigo/casos.py" download><code>casos.py</code></a></td><td><a href="../04-regressao-multipla/dados/salarios.csv" download><code>salarios.csv</code></a></td></tr>
+<tr><td><a href="../05-dados-em-painel/index.html">Conteúdo 5</a><br><small>Dados em painel</small></td><td><a href="../05-dados-em-painel/codigo/analise.R" download><code>analise.R</code></a> · <a href="../05-dados-em-painel/codigo/analise.do" download><code>analise.do</code></a> · <a href="../05-dados-em-painel/codigo/analise.py" download><code>analise.py</code></a> · <a href="../05-dados-em-painel/codigo/casos.R" download><code>casos.R</code></a> · <a href="../05-dados-em-painel/codigo/casos.do" download><code>casos.do</code></a> · <a href="../05-dados-em-painel/codigo/casos.py" download><code>casos.py</code></a></td><td><a href="../05-dados-em-painel/dados/painel_empresas.csv" download><code>painel_empresas.csv</code></a></td></tr>
+<tr><td><a href="../06-diferencas-em-diferencas/index.html">Conteúdo 6</a><br><small>Diferenças em diferenças</small></td><td><a href="../06-diferencas-em-diferencas/codigo/analise.R" download><code>analise.R</code></a> · <a href="../06-diferencas-em-diferencas/codigo/analise.do" download><code>analise.do</code></a> · <a href="../06-diferencas-em-diferencas/codigo/analise.py" download><code>analise.py</code></a> · <a href="../06-diferencas-em-diferencas/codigo/casos.R" download><code>casos.R</code></a> · <a href="../06-diferencas-em-diferencas/codigo/casos.do" download><code>casos.do</code></a> · <a href="../06-diferencas-em-diferencas/codigo/casos_did.py" download><code>casos_did.py</code></a></td><td><a href="../06-diferencas-em-diferencas/dados/programa_saude.csv" download><code>programa_saude.csv</code></a></td></tr>
+<tr><td><a href="../07-regressao-descontinua/index.html">Conteúdo 7</a><br><small>Regressão descontínua</small></td><td><a href="../07-regressao-descontinua/codigo/analise.R" download><code>analise.R</code></a> · <a href="../07-regressao-descontinua/codigo/analise.do" download><code>analise.do</code></a> · <a href="../07-regressao-descontinua/codigo/analise.py" download><code>analise.py</code></a></td><td><a href="../07-regressao-descontinua/dados/rdd_credito.csv" download><code>rdd_credito.csv</code></a></td></tr>
+<tr><td><a href="../08-controle-sintetico/index.html">Conteúdo 8</a><br><small>Controle sintético</small></td><td><a href="../08-controle-sintetico/codigo/analise.R" download><code>analise.R</code></a> · <a href="../08-controle-sintetico/codigo/analise.do" download><code>analise.do</code></a> · <a href="../08-controle-sintetico/codigo/analise.py" download><code>analise.py</code></a></td><td><a href="../08-controle-sintetico/dados/painel_sintetico.csv" download><code>painel_sintetico.csv</code></a></td></tr>
+</tbody></table></div>
+<p>Geradores: <a href="../gerar_dados.py" download><code>gerar_dados.py</code></a> (dados simulados dos Conteúdos 3 a 8), <a href="exemplos_slides.py" download><code>exemplos_slides.py</code></a> (exemplos clássicos de correlação) e <a href="preparar_web.py" download><code>preparar_web.py</code></a> (dados dos exploradores interativos).</p>
+</section>
+</main>
+<footer class="wrap"><p class="autor"><strong>Prof. Cleiton Franco · Universidade do Estado de Mato Grosso (UNEMAT)</strong></p><p>Estatística e Econometria — Mestrado PROFINIT.</p></footer>
+</body>
+</html>
