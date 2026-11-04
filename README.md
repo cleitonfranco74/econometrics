@@ -43,17 +43,6 @@ exploradores interativos usam os arquivos `casos_dados.js`, gerados por
 `codigo/casos.*` de cada conteúdo; no Conteúdo 6, `codigo/casos_did.py`
 estima TWFE, estudos de eventos e Callaway & Sant'Anna.
 
-## TCC orientado: crédito rural com modelo logit
-
-[`tcc/credito-rural-logit/index.html`](tcc/credito-rural-logit/index.html):
-página interativa do TCC de Gabrieli Saltareli (Ciências Contábeis, UNEMAT
-Sinop, 2026), *Modelo logit para estimação da probabilidade de aprovação de
-crédito rural em cooperativas de Mato Grosso*. Reproduz a ferramenta de
-pré-análise da planilha (PD, ponto de corte de Youden ou econômico, regra
-eliminatória), a metodologia (base do CAR com classe de risco, endividamento e
-inadimplência simulados), os resultados do modelo, a validação na amostra de
-teste e um explorador do ponto de corte. Abre direto no navegador.
-
 ### Publicar como site
 
 Em *Settings → Pages*, escolha *Deploy from a branch*, o branch principal e a
