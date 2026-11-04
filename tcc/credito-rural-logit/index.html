@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="TCC de Gabrieli Saltareli (UNEMAT Sinop, 2026): ferramenta de pré-análise de crédito rural com modelo logit.">
+<title>Pré-análise de Crédito Rural</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* Layout: a planilha vira página — formulário de pré-análise no topo (amarelo = entrada, verde = cálculo, azul = estimativa), depois o percurso do TCC em seções de leitura com gráficos ligados ao mesmo produtor e ao mesmo ponto de corte. */
+:root{
+  --bg:#f5f6f2; --surface:#fdfdfb; --ink:#14201a; --ink-2:#4a554e; --muted:#7f8880;
+  --line:#dfe2da; --axis:#c3c7bd;
+  --accent:#173f6e; --accent-soft:#e3ebf5;
+  --input-bg:#fff6cf; --input-line:#e6cf6b;
+  --calc-bg:#e7f3e9; --calc-line:#b9dcc1;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --q1:#86b6ef; --q2:#2a78d6; --q3:#104281;
+  --good:#0a7d0a; --good-bg:#e1f3e1; --bad:#c23333; --bad-bg:#fbe5e3; --warn:#9a6a00; --warn-bg:#fff1cc;
+  --f-display:"Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --f-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1411; --surface:#171d19; --ink:#eef1ec; --ink-2:#bcc4bd; --muted:#8a938b;
+  --line:#2a322d; --axis:#3b443e; --accent:#9cc2ef; --accent-soft:#1c2a3b;
+  --input-bg:#2c2812; --input-line:#5c5120; --calc-bg:#14271a; --calc-line:#285236;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --q1:#184f95; --q2:#3987e5; --q3:#b7d3f6;
+  --good:#4cc44c; --good-bg:#15301a; --bad:#f07a7a; --bad-bg:#3a1a1a; --warn:#f0bf4c; --warn-bg:#33290f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1411; --surface:#171d19; --ink:#eef1ec; --ink-2:#bcc4bd; --muted:#8a938b;
+  --line:#2a322d; --axis:#3b443e; --accent:#9cc2ef; --accent-soft:#1c2a3b;
+  --input-bg:#2c2812; --input-line:#5c5120; --calc-bg:#14271a; --calc-line:#285236;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --q1:#184f95; --q2:#3987e5; --q3:#b7d3f6;
+  --good:#4cc44c; --good-bg:#15301a; --bad:#f07a7a; --bad-bg:#3a1a1a; --warn:#f0bf4c; --warn-bg:#33290f;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1120px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.12;margin:0}
+h1{font-size:clamp(2rem,4.6vw,3.25rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header.top{padding-block:40px 28px;display:grid;gap:18px}
+.byline{display:flex;flex-wrap:wrap;gap:6px 22px;color:var(--ink-2);font-size:.95rem}
+.byline b{color:var(--ink);font-weight:600}
+.lede{font-size:1.1rem;color:var(--ink-2)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:8px}
+.facts div{padding:14px 14px 14px 0;display:grid;gap:2px}
+.facts div+div{padding-left:14px;border-left:1px solid var(--line)}
+.facts .v{font-family:var(--f-display);font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums}
+.facts .k{font-size:.82rem;color:var(--ink-2);line-height:1.35}
+
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);
+  margin-inline:calc(-1*max(16px, env(safe-area-inset-left, 0px)));padding:10px max(16px, env(safe-area-inset-left, 0px));overflow-x:auto}
+nav.toc .in{max-width:1120px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+nav.toc a{text-decoration:none;color:var(--ink-2);font-size:.88rem;padding:5px 11px;border-radius:999px;border:1px solid transparent}
+nav.toc a:hover{border-color:var(--line);color:var(--ink)}
+
+section{padding-block:48px 8px;display:grid;gap:20px;scroll-margin-top:60px}
+section > .head{display:grid;gap:8px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+.prose{display:grid;gap:14px;color:var(--ink)}
+.prose p{color:var(--ink-2)}
+.prose strong{color:var(--ink)}
+
+/* ---------- ferramenta ---------- */
+.tool{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.sheet .bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg)}
+.sheet .bar .eyebrow{color:var(--ink-2)}
+.presets{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.presets button{font:inherit;font-size:.82rem;padding:4px 10px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.presets button:hover{border-color:var(--accent)}
+.presets button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.rows{display:grid}
+.row{display:grid;grid-template-columns:7.5rem minmax(0,1fr) 10.5rem;gap:10px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .code{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.row label,.row .lbl{font-size:.9rem;line-height:1.3}
+.row small{display:block;color:var(--muted);font-size:.76rem}
+.row input,.row select{width:100%;font-family:var(--f-mono);font-size:.92rem;text-align:right;padding:6px 8px;border-radius:3px;
+  border:1px solid var(--input-line);background:var(--input-bg);color:var(--ink)}
+.row select{text-align:left}
+.row .calc{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.92rem;text-align:right;padding:6px 8px;border-radius:3px;background:var(--calc-bg);border:1px solid var(--calc-line)}
+.seg{display:flex;border:1px solid var(--input-line);border-radius:3px;overflow:hidden}
+.seg button{flex:1;font:inherit;font-size:.82rem;padding:6px 4px;border:0;background:var(--input-bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--surface);font-weight:600}
+.subhead{padding:8px 14px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);background:var(--bg);border-bottom:1px solid var(--line)}
+
+.result{display:grid;gap:16px;position:sticky;top:64px}
+.verdict{border-radius:6px;padding:18px 20px;display:grid;gap:6px;border:1px solid}
+.verdict.ok{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.verdict.no{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.verdict.warn{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.verdict .lab{font-family:var(--f-display);font-weight:800;font-size:1.55rem;letter-spacing:.01em;display:flex;gap:10px;align-items:center}
+.verdict .lab svg{flex:none}
+.verdict p{color:var(--ink);font-size:.92rem}
+.pdbox{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px;display:grid;gap:14px}
+.pdtop{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.pdval{font-family:var(--f-display);font-size:3.2rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.scale{position:relative;height:38px;margin-top:4px}
+.scale .track{position:absolute;left:0;right:0;top:12px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--good-bg),var(--warn-bg) 30%,var(--bad-bg));border:1px solid var(--line)}
+.scale .cut{position:absolute;top:4px;width:2px;height:24px;background:var(--ink)}
+.scale .cut span{position:absolute;top:24px;left:50%;transform:translateX(-50%);font-family:var(--f-mono);font-size:.7rem;color:var(--ink-2);white-space:nowrap}
+.scale .mark{position:absolute;top:6px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);box-shadow:0 0 0 1px var(--accent)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;font-size:.9rem}
+.kv dt{color:var(--ink-2)}
+.kv dd{margin:0;font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+.eq{font-family:var(--f-mono);font-size:.8rem;color:var(--ink-2);background:var(--bg);border-radius:4px;padding:10px 12px;overflow-x:auto;white-space:nowrap}
+.eq b{color:var(--accent);font-weight:600}
+.note{font-size:.82rem;color:var(--muted);max-width:none}
+.legendkey{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--ink-2)}
+.legendkey span{display:inline-flex;align-items:center;gap:6px}
+.legendkey i{width:14px;height:12px;border-radius:2px;display:inline-block;border:1px solid}
+
+/* ---------- tabelas & gráficos ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px 18px;display:grid;gap:10px;min-width:0}
+.card .cap{display:grid;gap:2px}
+.card .cap .eyebrow{color:var(--accent)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+thead th{font-weight:600;color:var(--ink-2);font-size:.78rem;border-bottom:1px solid var(--axis);vertical-align:bottom}
+td.num{font-family:var(--f-mono);font-size:.84rem}
+tr.hl td{background:var(--accent-soft)}
+.pill{display:inline-block;font-size:.72rem;font-weight:600;padding:1px 8px;border-radius:999px}
+.pill.y{background:var(--good-bg);color:var(--good)}
+.pill.n{background:var(--bad-bg);color:var(--bad)}
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+svg.chart text{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+svg.chart .lbl{fill:var(--ink-2)}
+svg.chart .strong{fill:var(--ink);font-weight:600}
+svg.chart .grid{stroke:var(--line);stroke-width:1}
+svg.chart .base{stroke:var(--axis);stroke-width:1}
+svg.chart .ref{stroke:var(--ink-2);stroke-width:1;stroke-dasharray:4 4}
+svg.chart .cutl{stroke:var(--ink);stroke-width:1.5}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+#tip{position:fixed;pointer-events:none;z-index:20;background:var(--ink);color:var(--bg);font-size:.78rem;line-height:1.4;padding:6px 9px;border-radius:4px;max-width:240px;font-family:var(--f-body)}
+#tip b{font-family:var(--f-mono);font-weight:600}
+.cm{display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;font-size:.84rem}
+.cm div{padding:10px;border-radius:3px;text-align:center}
+.cm .h{background:none;color:var(--ink-2);font-size:.74rem;padding:4px}
+.cm .c{font-family:var(--f-mono);font-size:1.15rem;font-weight:600;background:var(--bg)}
+.cm .c small{display:block;font-family:var(--f-body);font-size:.7rem;font-weight:400;color:var(--ink-2)}
+.cm .tp{background:var(--good-bg)} .cm .tn{background:var(--good-bg)}
+.cm .fn{background:var(--bad-bg)} .cm .fp{background:var(--warn-bg)}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;counter-reset:s}
+.steps li{list-style:none;padding:14px 14px 14px 0;border-top:2px solid var(--accent);display:grid;gap:6px;align-content:start}
+.steps li+li{padding-left:14px}
+.steps li::before{counter-increment:s;content:"Etapa " counter(s);font-family:var(--f-mono);font-size:.72rem;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.steps li b{font-size:.95rem}
+.steps li span{font-size:.85rem;color:var(--ink-2);line-height:1.45}
+.lessons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.lessons div{border-left:3px solid var(--accent);padding:4px 0 4px 14px;display:grid;gap:4px}
+.lessons div p{font-size:.92rem;color:var(--ink-2)}
+.warnbox{border:1px dashed var(--axis);border-radius:6px;padding:14px 16px;font-size:.9rem;color:var(--ink-2);display:grid;gap:6px}
+footer{padding-block:48px 40px;color:var(--muted);font-size:.82rem;display:grid;gap:10px;border-top:1px solid var(--line);margin-top:48px}
+footer p{max-width:none}
+.refs{columns:2;column-gap:28px;font-size:.8rem;color:var(--ink-2)}
+.refs p{break-inside:avoid;margin-bottom:6px}
+
+@media (max-width:900px){
+  .tool,.cols,.grid2{grid-template-columns:minmax(0,1fr)}
+  .grid3{grid-template-columns:minmax(0,1fr)}
+  .result{position:static}
+  .steps{grid-template-columns:minmax(0,1fr)}
+  .steps li{padding-left:0!important}
+  .refs{columns:1}
+}
+@media (max-width:620px){
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .facts div:nth-child(3){padding-left:0;border-left:0}
+  .facts div:nth-child(n+3){border-top:1px solid var(--line)}
+  .row{grid-template-columns:minmax(0,1fr) 8.5rem}
+  .row .code{display:none}
+  .lessons{grid-template-columns:minmax(0,1fr)}
+  .pdval{font-size:2.6rem}
+}
+@media (prefers-reduced-motion:no-preference){.scale .mark{transition:left .25s ease}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">UNEMAT · Campus de Sinop · Ciências Contábeis · TCC 2026</div>
+  <h1>Pré-análise de crédito rural com modelo logit</h1>
+  <p class="lede">Uma ferramenta em planilha que estima a probabilidade de inadimplência (PD) de um produtor rural a partir da classe de risco, da alavancagem e da área do imóvel, e transforma essa probabilidade em recomendação preliminar para cooperativas de crédito de Mato Grosso.</p>
+  <div class="byline"><span>Autora: <b>Gabrieli Saltareli</b></span><span>Orientador: <b>Prof. Dr. Cleiton Franco</b></span><span>Base: CAR / Geoportal SEMA-MT + simulação</span></div>
+  <div class="facts">
+    <div><span class="v">2.867</span><span class="k">imóveis rurais em 20 municípios do norte de MT</span></div>
+    <div><span class="v">15,2%</span><span class="k">inadimplência da base (437 produtores)</span></div>
+    <div><span class="v">0,709</span><span class="k">AUC do modelo principal na amostra de teste</span></div>
+    <div><span class="v">15,2% → 6,1%</span><span class="k">inadimplência entre aprovados com o corte econômico</span></div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Seções"><div class="in">
+  <a href="#ferramenta">Ferramenta</a><a href="#problema">Problema</a><a href="#dados">Dados</a><a href="#modelo">Modelo</a><a href="#efeitos">Efeitos</a><a href="#validacao">Validação</a><a href="#decisao">Ponto de corte</a><a href="#conclusoes">Conclusões</a>
+</div></nav>
+
+<!-- ================= FERRAMENTA ================= -->
+<section id="ferramenta">
+  <div class="head">
+    <div class="eyebrow">Aba FERRAMENTA_PRE_ANALISE</div>
+    <h2>Simule a pré-análise de um produtor</h2>
+    <p style="color:var(--ink-2)">Mesma lógica e mesmos coeficientes da planilha <span class="mono">Ferramenta_CreditoRural_TCC.xlsx</span>. Campos em amarelo são entradas; em verde, valores calculados. Escolha um dos exemplos do TCC ou digite os dados.</p>
+  </div>
+  <div class="tool">
+    <div class="sheet">
+      <div class="bar"><span class="eyebrow">Exemplos do TCC</span><span class="legendkey"><span><i style="background:var(--input-bg);border-color:var(--input-line)"></i>entrada</span><span><i style="background:var(--calc-bg);border-color:var(--calc-line)"></i>calculado</span></span></div>
+      <div class="presets" id="presets"></div>
+      <div class="subhead">Seção 2 · Entradas</div>
+      <div class="rows">
+        <div class="row"><span class="code">AREA · D12</span><label for="area">Área consolidada (CAR)<small>hectares</small></label><input id="area" type="number" min="0" step="0.1" inputmode="decimal"></div>
+        <div class="row"><span class="code">ENDV_SFN · D13</span><label for="endv">Endividamento total no SFN<small>R$</small></label><input id="endv" type="number" min="0" step="1000" inputmode="decimal"></div>
+        <div class="row"><span class="code">CLASSE · D14</span><label for="classe">Classe de risco interna<small>R1 = menor · R10 = maior</small></label><select id="classe"></select></div>
+        <div class="row"><span class="code">RECEITA · D15</span><label for="receita">Receita bruta anual<small>R$ · 0 = imputar pela área</small></label><input id="receita" type="number" min="0" step="1000" inputmode="decimal"></div>
+        <div class="row"><span class="code">VALOR_SOLICIT · D16</span><label for="valor">Valor solicitado<small>R$ · informativo</small></label><input id="valor" type="number" min="0" step="1000" inputmode="decimal"></div>
+        <div class="row"><span class="code">PTR_TERRAS · D17</span><label for="ptr">Patrimônio em terras<small>R$ · 0 = estimar pela área</small></label><input id="ptr" type="number" min="0" step="1000" inputmode="decimal"></div>
+        <div class="row"><span class="code">RESTRICAO_SFN · D18</span><span class="lbl">Restrição ativa no SFN<small>regra eliminatória</small></span><div class="seg" id="restr" role="group" aria-label="Restrição ativa no SFN"><button type="button" data-v="0">Não</button><button type="button" data-v="1">Sim</button></div></div>
+      </div>
+      <div class="subhead">Aba MODELO_LOGIT · Ponto de corte</div>
+      <div class="rows">
+        <div class="row"><span class="code">B31</span><span class="lbl">Critério do corte<small>recusa se PD ≥ corte</small></span><div class="seg" id="crit" role="group" aria-label="Critério do ponto de corte"><button type="button" data-v="Y">Youden</button><button type="button" data-v="E">Econômico</button></div></div>
+        <div class="row" id="rowM"><span class="code">C28</span><label for="marg">Margem líquida esperada<small>% do valor emprestado</small></label><input id="marg" type="number" min="0.5" max="30" step="0.5"></div>
+        <div class="row" id="rowL"><span class="code">C29</span><label for="lgd">LGD (perda dado o default)<small>% do valor emprestado</small></label><input id="lgd" type="number" min="1" max="100" step="1"></div>
+      </div>
+      <div class="subhead">Seção 3 · Variáveis calculadas</div>
+      <div class="rows" id="calcRows"></div>
+    </div>
+
+    <div class="result" aria-live="polite">
+      <div class="verdict" id="verdict"><div class="lab" id="vLab"></div><p id="vTxt"></p></div>
+      <div class="pdbox">
+        <div class="pdtop"><div><div class="eyebrow">Probabilidade de inadimplência (PD)</div><div class="pdval" id="pdVal">–</div></div>
+          <div style="text-align:right"><div class="eyebrow">Corte adotado</div><div class="mono" style="font-size:1.3rem;font-weight:600" id="cutVal">–</div></div></div>
+        <div class="scale" aria-hidden="true"><div class="track"></div><div class="cut" id="cutMark"><span id="cutLbl"></span></div><div class="mark" id="pdMark"></div></div>
+        <div class="note" style="display:flex;justify-content:space-between"><span>0%</span><span>escala até 50%</span></div>
+        <dl class="kv">
+          <dt>Escore logístico (XB)</dt><dd id="xb">–</dd>
+          <dt>Taxa observada na classe (base)</dt><dd id="txClasse">–</dd>
+          <dt>Leitura</dt><dd id="leit" style="font-family:var(--f-body);text-align:right;white-space:normal">–</dd>
+        </dl>
+        <div class="eq" id="eq"></div>
+        <p class="note">Coeficientes estimados na amostra de treino (2.007 produtores) com inadimplência simulada. Uso didático: não representa o risco de produtores reais nem a política de nenhuma instituição.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROBLEMA ================= -->
+<section id="problema">
+  <div class="head"><div class="eyebrow">1 · Introdução</div><h2>Por que padronizar a pré-análise</h2></div>
+  <div class="cols">
+    <div class="prose">
+      <p>O crédito rural contratado em Mato Grosso passou de <strong>R$ 60 bilhões</strong> em 2023. A <strong>Resolução CMN nº 5.216/2025</strong> incluiu as cooperativas de crédito no direcionamento obrigatório dos depósitos à vista para o crédito rural, em escala crescente: 6% em julho de 2025, 13% em 2026, 22% em 2027 e 31,5% a partir de julho de 2028.</p>
+      <p>Cooperativas que hoje analisam a carteira rural de forma predominantemente manual terão de processar um fluxo cada vez maior de operações sem perder qualidade na avaliação de risco. A proximidade com o associado reduz a assimetria de informação, mas também pode gerar pressão social contra critérios técnicos.</p>
+      <p><strong>Pergunta do trabalho:</strong> como um modelo de regressão logística pode estimar a probabilidade de aprovação de operações de crédito rural, tendo como critério o risco de inadimplência associado à classe de risco e aos indicadores financeiros, para subsidiar uma ferramenta padronizada de pré-análise?</p>
+    </div>
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Objetivo geral</span><h3>Estimar a PD e convertê-la em recomendação</h3></div>
+      <p style="color:var(--ink-2);font-size:.93rem">Desenvolver um modelo logit para estimar a probabilidade de inadimplência de produtores rurais, a partir da classificação de risco e de indicadores financeiros, como critério para recomendações preliminares de aprovação.</p>
+      <ol class="steps" style="grid-template-columns:minmax(0,1fr);padding:0;margin:4px 0 0">
+        <li style="padding-left:0"><b>Relacionar risco e inadimplência</b><span>Literatura e regulação sobre classe de risco, indicadores financeiros e inadimplência.</span></li>
+        <li style="padding-left:0"><b>Construir a base</b><span>Área consolidada do CAR e parâmetros do IMEA; classe, endividamento e inadimplência simulados.</span></li>
+        <li style="padding-left:0"><b>Estimar o logit</b><span>Classe de risco, alavancagem e área como explicativas.</span></li>
+        <li style="padding-left:0"><b>Demonstrar o funcionamento</b><span>Recupera os efeitos? Ordena o risco? Produz probabilidades coerentes?</span></li>
+        <li style="padding-left:0"><b>Definir cortes e implementar</b><span>Ponto de corte e planilha eletrônica de pré-análise.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DADOS ================= -->
+<section id="dados">
+  <div class="head"><div class="eyebrow">3.1–3.3 · Metodologia</div><h2>Uma base meio pública, meio simulada</h2>
+    <p style="color:var(--ink-2)">Dados individuais de crédito são protegidos por sigilo bancário e pela LGPD. Por isso a pesquisa é um <strong style="color:var(--ink)">estudo de simulação</strong>: como a regra que gera a inadimplência é conhecida, dá para medir com exatidão se o modelo acerta. É como testar uma balança com um peso de valor conhecido.</p></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Quadro 3 · Variáveis do modelo</span></div>
+      <div class="tw"><table>
+        <thead><tr><th>Variável</th><th style="text-align:left">Construção</th><th style="text-align:left">Origem</th><th>Sinal</th></tr></thead>
+        <tbody>
+          <tr><td>Inadimplente</td><td style="text-align:left">1 = sim; 0 = não</td><td style="text-align:left">Simulada</td><td>Dependente</td></tr>
+          <tr><td>Classe de risco</td><td style="text-align:left">1 (menor) a 10 (maior)</td><td style="text-align:left">Simulada</td><td class="num">(+)</td></tr>
+          <tr><td>ln(alavancagem)</td><td style="text-align:left">ln(dívida SFN / receita)</td><td style="text-align:left">Dívida simulada; receita pela área</td><td class="num">(+)</td></tr>
+          <tr><td>ln(área)</td><td style="text-align:left">ln(área consolidada, ha)</td><td style="text-align:left">CAR, anonimizada</td><td class="num">(−)</td></tr>
+        </tbody></table></div>
+      <p class="note">Receita e custo são proporcionais à área, então a margem é igual para todos e não entra no modelo. Alavancagem e solvência diferem só por uma constante; entra apenas a alavancagem.</p>
+    </div>
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Tabela 1 · Parâmetros</span></div>
+      <div class="tw"><table>
+        <thead><tr><th>Parâmetro</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Soja: produtividade · preço · custo</td><td class="num">55,76 sc/ha · R$ 134,38 · R$ 4.181,26</td></tr>
+          <tr><td>Milho safrinha: produtividade · preço · custo</td><td class="num">106,26 sc/ha · R$ 48,01 · R$ 3.126,19</td></tr>
+          <tr><td>Receita bruta por hectare</td><td class="num">R$ 12.594,57</td></tr>
+          <tr><td>Custo de produção por hectare</td><td class="num">R$ 7.307,45</td></tr>
+          <tr><td>Preço da terra</td><td class="num">R$ 91.462,36/ha</td></tr>
+          <tr><td>γ₁ classe · γ₂ ln(alav) · γ₃ ln(área) · γ₄ u</td><td class="num">0,25 · 0,80 · −0,15 · 0,80</td></tr>
+          <tr><td>γ₀ intercepto (calibrado para 15%)</td><td class="num">−2,412</td></tr>
+          <tr><td>Semente da simulação</td><td class="num">20260924</td></tr>
+        </tbody></table></div>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="prose">
+      <h3>Como a inadimplência foi gerada</h3>
+      <div class="eq">Risco<sub>i</sub> = γ₀ + γ₁·Classe<sub>i</sub> + γ₂·ln(Alav<sub>i</sub>) + γ₃·ln(Área<sub>i</sub>) + γ₄·u<sub>i</sub> &nbsp;&nbsp; p<sub>i</sub> = 1/(1 + e<sup>−Risco</sup>)</div>
+      <p><span class="mono">u ~ N(0,1)</span> representa o que o analista não observa: capacidade de gestão, evento climático localizado. Cada produtor foi sorteado inadimplente com probabilidade <span class="mono">p<sub>i</sub></span>. Os γ são a “resposta certa” com que as estimativas serão comparadas.</p>
+      <h3>Anonimização (LGPD)</h3>
+      <p>Nomes, CPF e CNPJ foram excluídos e a ordem dos registros, embaralhada. Como município + área com quatro casas decimais localizaria o imóvel no Geoportal, a área foi multiplicada por um fator aleatório entre 0,97 e 1,03 e arredondada a 0,1 ha.</p>
+      <p>Área: de 53,8 ha a 33.186,3 ha, mediana de 358,8 ha. Correlação de Spearman entre classe e alavancagem: 0,48.</p>
+    </div>
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Tabela 3 · Medianas por situação</span><h3>Inadimplentes devem mais por hectare</h3></div>
+      <div class="tw"><table>
+        <thead><tr><th>Variável</th><th>Adimplentes<br>n = 2.430</th><th>Inadimplentes<br>n = 437</th><th>p-valor</th></tr></thead>
+        <tbody>
+          <tr><td>Área consolidada (ha)</td><td class="num">373</td><td class="num">272</td><td class="num">0,002</td></tr>
+          <tr><td>Endividamento no SFN (R$ mil)</td><td class="num">2.995</td><td class="num">3.666</td><td class="num">0,006</td></tr>
+          <tr><td>Endividamento por ha (R$)</td><td class="num">7.398</td><td class="num">11.987</td><td class="num">&lt; 0,001</td></tr>
+          <tr><td>Alavancagem (dívida / receita)</td><td class="num">0,59</td><td class="num">0,95</td><td class="num">&lt; 0,001</td></tr>
+          <tr><td>Classe de risco</td><td class="num">6</td><td class="num">7</td><td class="num">&lt; 0,001</td></tr>
+        </tbody></table></div>
+      <p class="note">Teste de Mann-Whitney. Divisão estratificada: treino 2.007 (306 inadimplentes) e teste 860 (131), ambos com 15,2%.</p>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Tabela 4 · Classe de risco · χ²(9) = 140,09; p &lt; 0,001</span><h3>Inadimplência por classe</h3></div>
+      <div id="chClasse"></div>
+      <p class="note">Linha tracejada: média da base (15,2%). Barra destacada: classe do produtor simulado na ferramenta.</p>
+    </div>
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Tabela 4 · Faixa de área · χ²(3) = 10,30; p = 0,016</span><h3>Inadimplência por tamanho do imóvel</h3></div>
+      <div id="chArea"></div>
+      <p class="note">A inadimplência cai de 19,3% (até 100 ha) para 12,1% (acima de 2.000 ha).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MODELO ================= -->
+<section id="modelo">
+  <div class="head"><div class="eyebrow">3.4 e 4.2 · Modelo logit</div><h2>O modelo encontra os efeitos verdadeiros?</h2>
+    <p style="color:var(--ink-2)">Estimação por máxima verossimilhança na amostra de treino, com erros-padrão robustos (White, 1980). O modelo não contém o termo <span class="mono">u</span>, porque o analista também não o observa.</p></div>
+  <div class="eq" style="font-size:.9rem">P(Inad = 1) = 1 / (1 + e<sup>−Z</sup>) &nbsp;&nbsp; Z = <b>−1,387</b> + <b>0,147</b>·Classe + <b>1,083</b>·ln(Alav) <b>− 0,159</b>·ln(Área)</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Tabela 5 · Uma amostra (treino, n = 2.007)</span><h3>Verdadeiro × estimado</h3></div>
+      <div id="chCoef"></div>
+      <div class="tw"><table>
+        <thead><tr><th>Variável</th><th>γ</th><th>β</th><th>IC 95%</th><th>Contém γ?</th></tr></thead>
+        <tbody>
+          <tr><td>Classe de risco</td><td class="num">0,250</td><td class="num">0,147</td><td class="num">[0,077; 0,217]</td><td><span class="pill n">Não</span></td></tr>
+          <tr><td>ln(alavancagem)</td><td class="num">0,800</td><td class="num">1,083</td><td class="num">[0,821; 1,345]</td><td><span class="pill n">Não</span></td></tr>
+          <tr><td>ln(área)</td><td class="num">−0,150</td><td class="num">−0,159</td><td class="num">[−0,260; −0,059]</td><td><span class="pill y">Sim</span></td></tr>
+        </tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Tabela 6 · Monte Carlo, 300 repetições</span><h3>Na média, o método acerta</h3></div>
+      <div class="tw"><table>
+        <thead><tr><th>Variável</th><th>γ</th><th>Com u</th><th>Sem u</th><th>Desvio</th><th>Cobert.</th></tr></thead>
+        <tbody>
+          <tr><td>Classe de risco</td><td class="num">0,250</td><td class="num">0,250</td><td class="num">0,230</td><td class="num">−8%</td><td class="num">94%</td></tr>
+          <tr><td>ln(alavancagem)</td><td class="num">0,800</td><td class="num">0,800</td><td class="num">0,735</td><td class="num">−8%</td><td class="num">96%</td></tr>
+          <tr><td>ln(área)</td><td class="num">−0,150</td><td class="num">−0,149</td><td class="num">−0,138</td><td class="num">−8%</td><td class="num">95%</td></tr>
+        </tbody></table></div>
+      <div class="prose" style="gap:10px">
+        <p style="font-size:.93rem">Na amostra única, o modelo atribuiu à alavancagem parte do efeito da classe, porque as duas andam juntas (correlação 0,48). Repetindo o sorteio 300 vezes, a média com <span class="mono">u</span> observado cai sobre o valor verdadeiro e o IC cobre cerca de 95% das vezes: <strong>o estimador está correto</strong>.</p>
+        <p style="font-size:.93rem">Sem <span class="mono">u</span>, as estimativas ficam cerca de 8% mais próximas de zero. É o efeito conhecido da heterogeneidade omitida no logit (Mood, 2010): a ferramenta acerta a direção e a ordenação do risco, mas é levemente conservadora no tamanho dos efeitos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EFEITOS ================= -->
+<section id="efeitos">
+  <div class="head"><div class="eyebrow">4.3 · Contribuição de cada informação</div><h2>Classe de risco e indicadores se complementam</h2></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Tabela 7 · Modelos logit (treino)</span></div>
+      <div class="tw"><table>
+        <thead><tr><th>Variável</th><th>(1) Só classe</th><th>(2) Só indicadores</th><th>(3) Principal</th></tr></thead>
+        <tbody>
+          <tr><td>Classe de risco</td><td class="num">0,270***</td><td></td><td class="num">0,147***</td></tr>
+          <tr><td>ln(alavancagem)</td><td></td><td class="num">1,337***</td><td class="num">1,083***</td></tr>
+          <tr><td>ln(área)</td><td></td><td class="num">−0,148***</td><td class="num">−0,159***</td></tr>
+          <tr><td>Constante</td><td class="num">−3,440***</td><td class="num">−0,437</td><td class="num">−1,387***</td></tr>
+          <tr><td>Pseudo-R² McFadden</td><td class="num">0,051</td><td class="num">0,090</td><td class="num">0,101</td></tr>
+          <tr><td>AIC</td><td class="num">1.630,2</td><td class="num">1.565,2</td><td class="num">1.549,3</td></tr>
+        </tbody></table></div>
+      <p class="note">*** p &lt; 0,01. Razão de verossimilhança: a classe acrescenta informação aos indicadores (χ²(1) = 17,91) e os indicadores à classe (χ²(2) = 84,90), ambos p &lt; 0,001.</p>
+    </div>
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Tabela 8 · Efeito marginal médio (modelo principal)</span></div>
+      <div class="tw"><table>
+        <thead><tr><th>Mudança</th><th>Razão de chances</th><th>Efeito na PD</th><th>IC 95% (bootstrap)</th></tr></thead>
+        <tbody>
+          <tr><td>Uma classe de risco acima</td><td class="num">1,16</td><td class="num">+1,8 p.p.</td><td class="num">[0,9; 2,7]</td></tr>
+          <tr><td>Classe R10 em vez de R1</td><td class="num">3,75</td><td class="num">+14,7 p.p.</td><td class="num">[7,7; 21,1]</td></tr>
+          <tr><td>Alavancagem duas vezes maior</td><td class="num">2,12</td><td class="num">+10,8 p.p.</td><td class="num">[8,2; 13,8]</td></tr>
+          <tr><td>Área duas vezes maior</td><td class="num">0,90</td><td class="num">−1,3 p.p.</td><td class="num">[−2,0; −0,5]</td></tr>
+        </tbody></table></div>
+      <p class="note">Intervalos por reamostragem com 500 repetições. Dobrar a alavancagem é o maior efeito entre os fatores.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="cap"><span class="eyebrow">Figura 4 · Área fixada na mediana (359 ha)</span><h3>A mesma dívida pesa mais para quem já está em classe pior</h3></div>
+    <div class="legendkey" id="lgPD"></div>
+    <div id="chPD"></div>
+    <p class="note">R1 com alavancagem 0,3 tem PD de 3,0%; com 1,5 sobe para 14,9%. Em R10, os valores são 10,3% e 39,7%. O ponto marca o produtor simulado (com a área dele, por isso pode não cair sobre a curva).</p>
+  </div>
+</section>
+
+<!-- ================= VALIDAÇÃO ================= -->
+<section id="validacao">
+  <div class="head"><div class="eyebrow">4.4 · Amostra de teste (860 produtores novos)</div><h2>O modelo acerta em quem não viu?</h2></div>
+  <div class="card">
+      <div class="cap"><span class="eyebrow">Tabela 9 · Painel A</span><h3>Ordenação e calibração</h3></div>
+      <div class="tw"><table>
+        <thead><tr><th>Modelo</th><th>AUC treino</th><th>AUC teste</th><th>Brier</th><th>Hosmer-Lemeshow χ²</th><th>p-valor</th></tr></thead>
+        <tbody>
+          <tr><td>(1) Só classe</td><td class="num">0,660</td><td class="num">0,686</td><td class="num">0,122</td><td class="num">2,09</td><td class="num">0,911</td></tr>
+          <tr><td>(2) Só indicadores</td><td class="num">0,716</td><td class="num">0,679</td><td class="num">0,123</td><td class="num">12,92</td><td class="num">0,115</td></tr>
+          <tr class="hl"><td>(3) Principal</td><td class="num">0,727</td><td class="num">0,709</td><td class="num">0,120</td><td class="num">13,45</td><td class="num">0,097</td></tr>
+        </tbody></table></div>
+      <p style="font-size:.9rem;color:var(--ink-2)">Sorteando um inadimplente e um adimplente, o modelo principal dá risco maior ao inadimplente em <strong style="color:var(--ink)">71 de cada 100</strong> sorteios. Uma moeda acertaria 50. A AUC fica longe de 1 porque parte do risco é, por construção, imprevisível.</p>
+    </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Figura 5 · Curva ROC, modelo principal</span><h3>AUC recalculada: <span id="aucv" class="mono"></span></h3></div>
+      <div id="chROC"></div>
+      <p class="note">Recalculada nesta página a partir da PD prevista na aba BASE_TCC. O ponto marca o corte adotado na ferramenta.</p>
+    </div>
+    <div class="card">
+      <div class="cap"><span class="eyebrow">Figura 6 · Calibração</span><h3>Previsto × observado</h3></div>
+      <div class="legendkey"><span><i style="background:var(--s1);border-color:var(--s1)"></i>PD média prevista</span><span><i style="background:var(--s2);border-color:var(--s2)"></i>Taxa observada</span></div>
+      <div id="chCal"></div>
+      <p class="note">Hosmer-Lemeshow p = 0,097: diferenças compatíveis com o acaso, mas o valor perto de 0,10 pede acompanhamento com dados reais.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DECISÃO ================= -->
+<section id="decisao">
+  <div class="head"><div class="eyebrow">3.6 e 4.4 · Da probabilidade à decisão</div><h2>O ponto de corte importa tanto quanto o modelo</h2>
+    <p style="color:var(--ink-2)">Arraste o corte e veja o que aconteceria com os 860 produtores da amostra de teste. Os botões aplicam os três cortes comparados no TCC; o corte escolhido também passa a valer na ferramenta acima.</p></div>
+  <div class="card">
+    <div class="row" style="grid-template-columns:minmax(0,1fr);padding:0;border:0;gap:8px">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">
+        <label for="cutSlider" class="lbl"><b>Ponto de corte:</b> <span class="mono" id="cutSlVal"></span></label>
+        <div class="presets" style="padding:0;border:0" id="cutBtns">
+          <button type="button" data-c="E">Econômico</button><button type="button" data-c="Y">Youden 14,4%</button><button type="button" data-c="0.5">Convenção 50%</button>
+        </div>
+      </div>
+      <input id="cutSlider" type="range" min="0.02" max="0.5" step="0.001" style="width:100%;accent-color:var(--accent)">
+    </div>
+    <div class="grid2" style="margin-top:6px">
+      <div style="display:grid;gap:14px;min-width:0">
+        <div><div class="eyebrow" style="color:var(--ink-2)">Taxa de aprovação</div><div id="chApr"></div></div>
+        <div><div class="eyebrow" style="color:var(--ink-2)">Inadimplência entre os aprovados</div><div id="chDef"></div></div>
+      </div>
+      <div style="display:grid;gap:14px;align-content:start;min-width:0">
+        <div class="cm" id="cm"></div>
+        <dl class="kv" id="cmKV"></dl>
+      </div>
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="card"><div class="cap"><span class="eyebrow">Corte 0,50</span><h3>Igual a não usar o modelo</h3></div><p style="font-size:.92rem;color:var(--ink-2)">Com inadimplência média de 15%, quase ninguém chega a 50%. Aprova 99,5% e identifica só 2 dos 131 inadimplentes.</p></div>
+    <div class="card"><div class="cap"><span class="eyebrow">Youden · J = Sens + Esp − 1</span><h3>Equilíbrio estatístico: 14,4%</h3></div><p style="font-size:.92rem;color:var(--ink-2)">Aprova 56 de cada 100, identifica 73% dos inadimplentes e a inadimplência entre aprovados cai de 15,2% para 7,2%.</p></div>
+    <div class="card"><div class="cap"><span class="eyebrow">p* = m / (m + LGD)</span><h3>Corte econômico: 12,5%</h3></div><p style="font-size:.92rem;color:var(--ink-2)">Com margem de 5% e perda de 35%, um inadimplente apaga o ganho de sete adimplentes. Aprova 49,4%; inadimplência entre aprovados de 6,1%.</p></div>
+  </div>
+</section>
+
+<!-- ================= CONCLUSÕES ================= -->
+<section id="conclusoes">
+  <div class="head"><div class="eyebrow">4.5 e 6 · Discussão e considerações finais</div><h2>O que o trabalho mostra e até onde vai</h2>
+    <p style="color:var(--ink-2)">Nos dados simulados, a hipótese foi atendida com ressalvas: o modelo recuperou a direção e, em média, a magnitude dos efeitos, e ordenou o risco melhor do que o acaso. O estudo deixa quatro lições para a análise de crédito.</p></div>
+  <div class="lessons">
+    <div><h3>Variáveis correlacionadas</h3><p>Classe de risco e endividamento andam juntos, o que torna as estimativas individuais menos precisas. Em carteiras reais isso também tende a ocorrer.</p></div>
+    <div><h3>Analista + indicadores</h3><p>A classificação interna e os indicadores financeiros se complementam: o modelo combinado tem menor AIC e maior AUC no teste.</p></div>
+    <div><h3>Risco não observado</h3><p>Omitir fatores que ninguém observa torna os efeitos estimados cerca de 8% menores que os reais.</p></div>
+    <div><h3>Corte de 0,50</h3><p>Com inadimplência baixa, o corte convencional torna o modelo inútil. O corte deve refletir a política de risco da instituição.</p></div>
+  </div>
+  <div class="cols">
+    <div class="warnbox">
+      <b style="color:var(--ink)">Limitações</b>
+      <p>Só município e área vêm de registro público; classe, endividamento e inadimplência foram simulados, e a equação estimada tem a mesma forma da que gerou os dados. Os resultados não dizem quais fatores explicam a inadimplência de produtores reais: demonstram que o método funciona e como interpretá-lo.</p>
+      <p>A receita supõe toda a área consolidada cultivada com soja e milho safrinha. Como a área consolidada pode incluir pastagens e benfeitorias, a receita tende a ser superestimada para quem tem outras atividades.</p>
+    </div>
+    <div class="warnbox">
+      <b style="color:var(--ink)">Próximos passos</b>
+      <p>Aplicar a ferramenta a dados reais de uma cooperativa, com autorização formal e anonimização dos cooperados, medindo as características dos produtores em uma safra e a inadimplência na safra seguinte.</p>
+      <p>A classificação é preliminar: subsidia o parecer do analista, mas não substitui a análise cadastral, da capacidade de pagamento, das garantias e do projeto técnico, nem a decisão da alçada competente.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><b style="color:var(--ink-2)">Saltareli, G.</b> Modelo logit para estimação da probabilidade de aprovação de crédito rural em cooperativas de Mato Grosso: desenvolvimento de ferramenta de pré-análise em planilha eletrônica. TCC (Bacharelado em Ciências Contábeis), UNEMAT, Sinop, 2026. Orientador: Prof. Dr. Cleiton Franco.</p>
+  <p>Recursos: Python 3 (pandas, numpy, statsmodels, scikit-learn) para anonimização, simulação e estimação; Microsoft Excel para a ferramenta. Fontes dos dados: CAR, Geoportal SEMA-MT; parâmetros agronômicos do IMEA; demais variáveis simuladas.</p>
+  <div class="refs">
+    <p>BRIER, G. W. Verification of forecasts expressed in terms of probability. Monthly Weather Review, 1950.</p>
+    <p>EFRON, B.; TIBSHIRANI, R. J. An introduction to the bootstrap. Chapman &amp; Hall, 1993.</p>
+    <p>HANLEY, J. A.; McNEIL, B. J. The meaning and use of the area under a ROC curve. Radiology, 1982.</p>
+    <p>HOSMER, D. W.; LEMESHOW, S.; STURDIVANT, R. X. Applied logistic regression. 3. ed. Wiley, 2013.</p>
+    <p>McFADDEN, D. Conditional logit analysis of qualitative choice behavior. Academic Press, 1974.</p>
+    <p>MOOD, C. Logistic regression: why we cannot do what we think we can do. European Sociological Review, 2010.</p>
+    <p>MORRIS, T. P.; WHITE, I. R.; CROWTHER, M. J. Using simulation studies to evaluate statistical methods. Statistics in Medicine, 2019.</p>
+    <p>WHITE, H. A heteroskedasticity-consistent covariance matrix estimator. Econometrica, 1980.</p>
+    <p>WOOLDRIDGE, J. M. Econometric analysis of cross section and panel data. 2. ed. MIT Press, 2010.</p>
+    <p>YOUDEN, W. J. Index for rating diagnostic tests. Cancer, 1950.</p>
+  </div>
+</footer>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+(function(){
+"use strict";
+const B0=-1.38701378563317,B1=0.14685501919196,B2=1.08324937655158,B3=-0.159404410418063;
+const REC_HA=12594.5714,CUS_HA=7307.45,TERRA_HA=91462.36,YOUDEN=0.144289043363147;
+const TX_CLASSE=[0,0.0652173913043478,0.0611353711790393,0.0919540229885058,0.113785557986871,0.126948775055679,0.170673076923077,0.224188790560472,0.265765765765766,0.333333333333333];
+const N_CLASSE=[68,138,229,348,457,449,416,339,222,201];
+const AREA_F=[["Até 100 ha",425,0.192941176470588],["100 a 500 ha",1230,0.158536585365854],["500 a 2.000 ha",782,0.138107416879795],["Acima de 2.000 ha",430,0.12093023255814]];
+const CAL=[["0–5%",145,0.034608312474311,0.0689655172413793],["5–10%",198,0.0743789656628037,0.0606060606060606],["10–20%",280,0.146337869433707,0.139285714285714],["20–35%",173,0.262008497261825,0.271676300578035],["35%+",64,0.413147187481294,0.359375]];
+const TEST="374,0;2524,0;1660,1;359,0;1554,0;557,0;1341,0;257,0;744,0;1768,0;2066,1;2990,1;980,0;3282,0;1704,0;1505,0;1676,0;337,0;1143,0;449,0;1298,0;713,0;2526,0;2058,0;2298,0;3617,0;1860,1;2134,1;1849,0;2257,0;965,0;1415,0;2312,1;1296,0;1104,0;1550,1;792,0;629,0;551,0;4118,0;900,0;817,0;3473,1;1361,1;364,0;1634,1;262,0;3595,1;2254,1;1474,0;1111,0;3880,1;1419,0;1839,0;1235,0;286,0;1078,0;301,0;3457,0;2689,0;1677,0;2364,1;2669,1;1334,0;282,0;972,0;2799,0;912,0;2938,0;473,0;594,0;1559,0;1879,0;510,0;848,0;2961,1;1660,0;1025,1;271,0;3405,0;2695,0;779,0;659,0;4824,1;572,0;581,0;1309,0;294,0;176,0;170,0;636,0;364,0;2223,0;477,0;452,0;502,0;2211,0;1211,0;220,0;906,0;3868,1;4427,0;779,0;351,0;1386,0;673,0;1971,0;647,0;498,0;3617,0;1478,0;721,0;1224,0;958,0;2917,0;1834,0;2845,0;191,0;995,0;4307,0;1196,0;443,0;966,0;1494,0;2041,0;728,0;235,1;264,0;2284,1;1208,0;1116,0;1526,0;855,0;1079,0;1185,0;2918,0;1232,0;310,0;3185,0;3978,1;226,0;1613,0;1634,0;3887,0;539,0;274,0;2904,0;840,0;826,0;1468,0;370,0;1069,0;486,0;2539,0;380,0;1449,0;4403,1;1195,0;510,0;3184,0;744,0;1333,1;2095,1;2445,0;779,0;585,1;4048,0;851,0;252,0;4524,0;1373,0;3169,0;3645,0;2912,1;3198,0;494,0;1164,0;1161,0;2710,0;3274,0;698,0;3334,0;252,0;3360,0;978,0;1125,0;3177,0;716,0;1597,1;1024,0;221,0;150,0;2117,0;1231,0;643,0;1246,0;1267,0;304,1;2272,0;446,0;3698,0;552,0;933,0;421,0;1796,0;1927,0;1763,0;2135,0;940,0;1658,0;1363,1;901,0;2778,0;4029,1;1208,0;1550,0;4248,0;2497,1;2281,0;375,0;551,0;420,0;442,0;389,0;4089,0;341,0;500,0;2867,0;972,0;2169,0;1771,0;1123,0;1213,0;1369,0;2836,0;483,0;3361,0;1981,0;4456,0;421,0;1438,0;478,0;2677,1;897,0;2370,0;1096,0;805,0;2677,0;580,0;1987,1;3040,0;563,0;278,0;2017,0;652,0;936,0;1639,0;543,0;2358,0;1665,0;2185,0;389,0;497,0;789,0;1871,0;1870,0;438,0;1357,0;3694,0;400,0;1107,0;4458,1;902,0;953,0;862,0;1277,0;688,0;349,0;2432,1;382,0;1900,0;776,0;530,0;2102,0;1296,0;654,0;1075,0;3034,0;717,1;1119,0;827,0;3307,0;982,0;4214,0;1096,0;1787,1;889,0;351,0;1373,1;2157,0;627,0;965,1;1282,0;1649,0;3959,0;1898,0;3965,0;733,0;1303,0;1366,0;1981,0;1161,0;1294,0;414,0;4146,0;443,0;3187,0;419,0;1561,0;954,0;884,1;2458,1;552,0;2677,1;2198,0;767,0;4141,0;1163,0;1007,0;883,0;1991,0;434,0;2325,1;2727,0;3319,0;2701,0;2113,0;1524,0;1898,1;375,0;3747,0;2310,1;834,0;853,0;973,0;1340,1;1839,1;2435,0;1482,0;1761,0;739,0;660,0;2910,0;1131,0;843,0;1507,0;334,0;332,0;4120,0;3584,0;492,1;369,1;1293,0;2673,0;471,0;1313,0;725,0;2565,0;3377,0;1899,1;1412,0;671,0;1267,1;1767,0;585,0;1646,1;1879,0;696,0;1925,0;1095,0;393,0;1220,1;3421,1;883,0;546,0;2998,1;537,0;3248,1;322,0;3469,1;4202,0;410,0;1438,0;1923,0;443,0;578,0;1484,1;3065,1;492,0;720,0;5050,0;1122,0;1060,0;1289,0;3063,0;457,0;1576,0;952,0;395,0;3166,1;727,0;1659,0;996,0;897,0;1068,0;1677,0;4202,0;3572,0;2073,0;266,0;1346,1;3511,0;1501,0;464,0;1031,0;484,0;789,0;2153,0;1735,0;1994,0;438,1;1229,0;2179,0;1414,0;1589,0;447,0;2059,0;607,0;815,0;1565,0;841,0;1767,0;270,0;437,0;1138,0;609,0;963,0;646,0;1485,0;731,0;2069,0;2339,0;2948,0;747,0;974,0;1477,0;2350,0;342,0;550,0;2152,0;318,0;3263,0;182,0;584,0;622,0;4550,0;1503,0;746,0;3222,0;487,0;1109,0;913,0;661,0;527,0;1038,0;4226,0;304,0;3453,0;861,0;4290,1;1786,1;551,0;1909,0;680,0;1250,0;729,0;1416,0;535,0;612,0;1700,1;2999,0;1201,0;1598,0;1937,0;2471,0;465,1;2802,1;1544,0;895,0;357,1;699,0;1591,0;336,0;412,1;1961,0;1468,0;1779,0;3215,0;2262,1;313,0;364,0;2485,0;1246,0;4206,0;959,0;1697,0;1991,0;2047,1;1845,0;1623,0;900,0;891,0;1002,0;2153,0;2952,0;1631,0;810,1;1375,0;497,0;596,0;1045,0;4895,0;1788,1;726,0;3050,1;2096,0;1224,0;549,0;2165,1;740,0;1155,0;848,0;2004,0;324,0;482,0;2875,1;180,0;3298,0;716,0;1074,0;1595,1;1308,0;1993,1;990,0;710,0;873,0;1264,0;632,0;1947,0;2743,0;1680,0;610,0;692,0;425,0;424,0;1391,0;2735,0;1791,1;1100,0;3358,0;792,0;1159,0;2176,0;2400,1;1712,0;1293,0;1467,0;360,0;2516,0;914,0;1175,1;1356,0;521,0;2389,0;3746,1;363,0;298,0;1644,0;423,0;1550,0;241,0;1812,0;2043,0;207,0;597,0;962,0;1497,0;170,0;712,0;714,0;1385,0;892,0;1355,0;1631,0;1557,0;3117,0;2026,0;760,0;1739,0;2260,0;3691,1;463,0;1103,0;4042,0;317,0;1047,0;1823,0;2871,1;1115,0;1914,0;558,0;1888,1;1603,1;1303,0;1432,0;2264,0;2853,0;2353,1;3793,1;2478,0;1220,0;166,0;1081,0;400,0;185,0;1525,0;352,0;3379,0;696,0;1942,0;2626,0;1646,0;779,0;1562,0;1331,0;1258,0;2741,0;1082,0;2200,0;510,0;402,0;719,0;2446,0;269,0;2118,0;1038,0;1897,0;567,0;1805,0;769,0;2060,0;202,0;1554,1;2052,1;152,0;919,0;1491,0;479,1;475,0;482,0;1490,0;2212,0;390,0;1879,0;1395,1;4139,1;2206,0;1549,0;1448,1;2136,0;2088,1;4025,1;3228,0;1871,0;1262,0;1060,0;4630,1;2593,0;4296,0;924,0;3561,1;2211,0;1072,0;582,0;711,1;1564,0;2577,1;1168,0;1120,0;256,0;1113,0;652,1;2163,0;241,0;2338,0;361,0;375,0;1331,0;579,1;1746,0;5100,1;1427,0;4205,1;2103,0;1522,0;778,0;876,0;912,0;1346,0;1799,0;627,0;1115,0;1386,0;4016,0;582,0;1113,0;642,0;2009,1;2884,0;849,1;714,0;383,0;407,0;1499,0;210,0;714,0;583,0;572,0;949,0;1087,0;2493,0;584,1;195,0;4778,0;2218,0;942,0;441,0;867,0;2480,0;1108,0;673,1;1304,0;2545,0;1351,0;3534,1;444,0;424,0;1523,0;347,0;1759,0;1627,1;1489,0;595,0;926,0;154,0;84,0;2897,1;1246,1;2619,1;1186,0;1878,0;1829,1;1684,0;1173,0;917,0;964,0;2500,1;581,0;213,0;1141,0;1579,1;503,0;626,0;347,0;219,0;2462,1;215,0;666,1;5120,1;4047,1;1743,1;210,0;1047,0;3332,0;976,0;1070,0;257,0;1704,0;2407,1;554,0;1321,0;573,0;1413,0;1010,0;2932,0;741,0;3226,1;4215,0;1974,0;4346,0;4338,0;1335,1;2378,0;1438,0;362,0;359,0;3231,0;3531,0;881,0;1908,0;516,0;223,0;2734,0;5020,0;2539,1;718,0;2428,0;848,0;202,0;1534,0;1304,0;702,0;147,0;2241,0;2042,0;1604,0;3121,0;340,0;650,0;365,0;1167,0;662,0;927,0;900,0;426,1;2334,0;2614,1;3539,1;4155,0;653,0;1726,0;1242,0;1974,0;4557,1;1885,0;2262,1;1213,0;1039,0;1805,0;543,0".split(";").map(s=>{const a=s.split(",");return [a[0]/10000,+a[1]];});
+const NPOS=TEST.filter(d=>d[1]===1).length, NNEG=TEST.length-NPOS;
+
+const PRESETS=[
+ {id:"ex1",n:"Exemplo 01 · aprovável",v:{area:400,endv:1800000,classe:5,receita:0,valor:600000,ptr:0,restr:0},crit:"Y"},
+ {id:"ex2",n:"Exemplo 02 · entre os cortes",v:{area:400,endv:3500000,classe:6,receita:0,valor:0,ptr:0,restr:0},crit:"E"},
+ {id:"ex3",n:"Exemplo 03 · restrição no SFN",v:{area:400,endv:1800000,classe:5,receita:0,valor:600000,ptr:0,restr:1},crit:"Y"},
+ {id:"p1",n:"Perfil 1",v:{area:150,endv:567000,classe:2,receita:0,valor:0,ptr:0,restr:0}},
+ {id:"p2",n:"Perfil 2",v:{area:400,endv:3023000,classe:5,receita:0,valor:0,ptr:0,restr:0}},
+ {id:"p3",n:"Perfil 3",v:{area:1200,endv:15113000,classe:8,receita:0,valor:0,ptr:0,restr:0}},
+ {id:"p4",n:"Perfil 4",v:{area:80,endv:1612000,classe:10,receita:0,valor:0,ptr:0,restr:0}}
+];
+
+const $=id=>document.getElementById(id);
+const nf=(d)=>new Intl.NumberFormat("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=(x,d=1)=>Number.isFinite(x)?nf(d).format(x*100)+"%":"–";
+const brl=x=>Number.isFinite(x)?"R$ "+nf(2).format(x):"–";
+const num=(x,d=4)=>Number.isFinite(x)?nf(d).format(x):"–";
+
+const S={area:400,endv:1800000,classe:5,receita:0,valor:600000,ptr:0,restr:0,crit:"Y",marg:5,lgd:35,cut:YOUDEN,preset:"ex1"};
+
+// build class select
+const sel=$("classe");
+for(let i=1;i<=10;i++){const o=document.createElement("option");o.value=i;o.textContent="R"+i;sel.appendChild(o);}
+// presets
+const pr=$("presets");
+PRESETS.forEach(p=>{const b=document.createElement("button");b.type="button";b.textContent=p.n;b.dataset.id=p.id;
+  b.addEventListener("click",()=>{Object.assign(S,p.v);if(p.crit)S.crit=p.crit;S.preset=p.id;syncCut();writeInputs();update();});pr.appendChild(b);});
+
+function econCut(){return (S.marg/100)/((S.marg/100)+(S.lgd/100));}
+function syncCut(){ if(S.crit==="Y")S.cut=YOUDEN; else if(S.crit==="E")S.cut=econCut(); }
+
+function writeInputs(){
+  ["area","endv","receita","valor","ptr"].forEach(k=>$(k).value=S[k]);
+  sel.value=S.classe; $("marg").value=S.marg; $("lgd").value=S.lgd;
+}
+["area","endv","receita","valor","ptr"].forEach(k=>$(k).addEventListener("input",e=>{S[k]=parseFloat(e.target.value);S.preset=null;update();}));
+sel.addEventListener("change",e=>{S.classe=+e.target.value;S.preset=null;update();});
+$("marg").addEventListener("input",e=>{S.marg=parseFloat(e.target.value);if(S.crit==="E")syncCut();update();});
+$("lgd").addEventListener("input",e=>{S.lgd=parseFloat(e.target.value);if(S.crit==="E")syncCut();update();});
+$("restr").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{S.restr=+b.dataset.v;S.preset=null;update();}));
+$("crit").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{S.crit=b.dataset.v;syncCut();update();}));
+$("cutSlider").addEventListener("input",e=>{S.cut=parseFloat(e.target.value);S.crit="M";update();});
+$("cutBtns").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const c=b.dataset.c;
+  if(c==="Y"||c==="E"){S.crit=c;syncCut();}else{S.crit="M";S.cut=parseFloat(c);} update();}));
+
+function compute(){
+  const a=S.area,e=S.endv,c=S.classe;
+  const recU=(S.receita>0)?S.receita:a*REC_HA;
+  const imput=!(S.receita>0);
+  const alav=e/recU;
+  const patr=(S.ptr>0)?S.ptr:a*TERRA_HA;
+  const valid=a>0&&e>0&&c>=1&&c<=10&&recU>0;
+  const lnA=valid?Math.log(alav):NaN, lnAr=valid?Math.log(a):NaN;
+  const xb=B0+B1*c+B2*lnA+B3*lnAr;
+  const pd=1/(1+Math.exp(-xb));
+  let cls;
+  if(S.restr===1) cls="R"; else if(!valid||!Number.isFinite(pd)) cls="V"; else cls=pd<S.cut?"A":"N";
+  return {recU,imput,alav,lnA,lnAr,solv:e/patr,prop:S.valor>0?S.valor/recU:NaN,res:a*(REC_HA-CUS_HA),xb,pd,cls,valid};
+}
+
+const ICON={A:'<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17.5 8" stroke="var(--surface)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ N:'<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M8 8l8 8M16 8l-8 8" stroke="var(--surface)" stroke-width="2.4" stroke-linecap="round"/></svg>',
+ V:'<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L23 21H1z" fill="currentColor"/><path d="M12 9v5M12 17.2v.3" stroke="var(--surface)" stroke-width="2.4" stroke-linecap="round"/></svg>'};
+
+function update(){
+  const r=compute();
+  // seg buttons
+  $("restr").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===S.restr)));
+  $("crit").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===S.crit)));
+  pr.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.id===S.preset)));
+  $("cutBtns").querySelectorAll("button").forEach(b=>{const c=b.dataset.c;b.setAttribute("aria-pressed",String(c===S.crit||(S.crit==="M"&&Math.abs(parseFloat(c)-S.cut)<1e-9)));});
+  $("cutBtns").querySelector('[data-c="E"]').textContent="Econômico "+pct(econCut(),1);
+  const econ=S.crit==="E"; $("rowM").style.opacity=$("rowL").style.opacity=econ?1:.55;
+  // calc rows
+  const rows=[
+    ["RECEITA_USADA · D21","Receita bruta utilizada",brl(r.recU),r.imput?"imputada pela área":"informada"],
+    ["ALAVANC · D22","Alavancagem (dívida / receita)",num(r.alav,3)+"×",""],
+    ["LN_ALAV · D23","ln(alavancagem)",num(r.lnA,4),""],
+    ["LN_AREA · D24","ln(área)",num(r.lnAr,4),""],
+    ["SOLVENCIA · D25","Dívida / patrimônio em terras",pct(r.solv,1),"informativo"],
+    ["PROP_FINAN · D26","Valor solicitado / receita",Number.isFinite(r.prop)?pct(r.prop,1):"–","informativo"],
+    ["RESULT_EST · D27","Resultado operacional estimado",brl(r.res),"área × margem por ha"]];
+  $("calcRows").innerHTML=rows.map(x=>`<div class="row"><span class="code">${x[0]}</span><span class="lbl">${x[1]}${x[3]?`<small>${x[3]}</small>`:""}</span><div class="calc">${x[2]}</div></div>`).join("");
+  // verdict
+  const v=$("verdict"); v.className="verdict "+({A:"ok",N:"no",R:"no",V:"warn"}[r.cls]);
+  const lab={A:"APROVÁVEL",N:"NÃO APROVÁVEL",R:"NÃO APROVÁVEL – restrição ativa no SFN",V:"VERIFIQUE AS ENTRADAS"}[r.cls];
+  $("vLab").innerHTML=(ICON[r.cls==="R"?"N":r.cls])+"<span>"+lab+"</span>";
+  $("vTxt").textContent={A:`PD de ${pct(r.pd)} abaixo do corte de ${pct(S.cut)}. A proposta segue para a análise completa; a classificação não equivale à aprovação do crédito.`,
+    N:`PD de ${pct(r.pd)} igual ou acima do corte de ${pct(S.cut)}. Recomenda-se não prosseguir nas condições propostas ou reavaliar valor, garantias ou reestruturação de dívidas.`,
+    R:`A regra eliminatória prevalece sobre a PD (${pct(r.pd)}), exibida só como informação. A operação depende da regularização da restrição.`,
+    V:"Há campo vazio, igual a zero ou inválido. Área e endividamento precisam ser maiores que zero para calcular os logaritmos."}[r.cls];
+  $("pdVal").textContent=r.valid?pct(r.pd):"–";
+  $("cutVal").textContent=pct(S.cut);
+  const pos=x=>Math.max(0,Math.min(1,x/0.5))*100;
+  $("pdMark").style.left=pos(r.valid?r.pd:0)+"%"; $("pdMark").hidden=!r.valid;
+  $("cutMark").style.left=pos(S.cut)+"%"; $("cutLbl").textContent="corte "+pct(S.cut);
+  $("xb").textContent=num(r.xb,4);
+  const tx=TX_CLASSE[S.classe-1]; $("txClasse").textContent=pct(tx)+" (R"+S.classe+")";
+  $("leit").textContent=!r.valid?"–":(r.pd>tx?"indicadores agravam o risco da classe":"indicadores atenuam o risco da classe");
+  $("eq").innerHTML=r.valid?`XB = −1,3870 + 0,1469×<b>${S.classe}</b> + 1,0832×(<b>${num(r.lnA,4)}</b>) − 0,1594×<b>${num(r.lnAr,4)}</b> = <b>${num(r.xb,4)}</b> &nbsp;→&nbsp; PD = 1/(1+e<sup>${num(-r.xb,4)}</sup>) = <b>${pct(r.pd)}</b>`:"Preencha área e endividamento maiores que zero.";
+  // slider
+  $("cutSlider").value=S.cut; $("cutSlVal").textContent=pct(S.cut);
+  drawClasse(); drawPD(r); drawROC(); drawCut(); drawCM();
+}
+
+/* ---------------- charts ---------------- */
+const tip=$("tip");
+function showTip(html,ev){tip.innerHTML=html;tip.hidden=false;const w=tip.offsetWidth,h=tip.offsetHeight;
+  let x=ev.clientX+14,y=ev.clientY-h-10;if(x+w>innerWidth-8)x=ev.clientX-w-14;if(y<8)y=ev.clientY+16;tip.style.left=x+"px";tip.style.top=y+"px";}
+function hideTip(){tip.hidden=true;}
+document.addEventListener("pointermove",ev=>{const t=ev.target.closest&&ev.target.closest("[data-tip]");if(t)showTip(t.getAttribute("data-tip"),ev);else if(!ev.target.closest||!ev.target.closest(".xh"))hideTip();});
+document.addEventListener("scroll",hideTip,{passive:true});
+const esc=s=>String(s).replace(/"/g,"&quot;");
+
+function barPath(x,y,w,h,r){ // rounded top only, anchored to baseline
+  r=Math.min(r,w/2,h); if(h<=0)return "";
+  return `M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z`;
+}
+function yAxis(W,m,H,max,step,fmt){let s="";for(let v=0;v<=max+1e-9;v+=step){const y=m.t+(1-v/max)*(H-m.t-m.b);
+  s+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}"/><text x="${m.l-6}" y="${y+4}" text-anchor="end">${fmt(v)}</text>`;}return s;}
+
+function drawClasse(){
+  const W=520,H=240,m={l:40,r:10,t:14,b:28},max=0.35,iw=W-m.l-m.r,ih=H-m.t-m.b,bw=iw/10;
+  let s=yAxis(W,m,H,max,0.1,v=>nf(0).format(v*100)+"%");
+  TX_CLASSE.forEach((v,i)=>{const h=v/max*ih,x=m.l+i*bw+2,y=m.t+ih-h,sel=(i+1)===S.classe;
+    s+=`<path d="${barPath(x,y,bw-4,h,4)}" fill="var(--s1)" opacity="${sel?1:.45}"/>`;
+    s+=`<rect x="${m.l+i*bw}" y="${m.t}" width="${bw}" height="${ih}" fill="transparent" data-tip="${esc(`<b>R${i+1}</b><br>${N_CLASSE[i]} produtores<br>inadimplência ${pct(v)}`)}"/>`;
+    s+=`<text x="${x+(bw-4)/2}" y="${H-10}" text-anchor="middle" class="${sel?"strong":""}">R${i+1}</text>`;
+    if(sel) s+=`<text x="${x+(bw-4)/2}" y="${y-5}" text-anchor="middle" class="strong">${pct(v)}</text>`;});
+  const ym=m.t+(1-0.1524/max)*ih;
+  s+=`<line class="ref" x1="${m.l}" x2="${W-m.r}" y1="${ym}" y2="${ym}"/><text x="${m.l+4}" y="${ym-5}" class="lbl">média 15,2%</text>`;
+  s+=`<line class="base" x1="${m.l}" x2="${W-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/>`;
+  $("chClasse").innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Taxa de inadimplência por classe de risco, de 0% em R1 a 33,3% em R10">${s}</svg>`;
+}
+function drawArea(){
+  const W=520,H=240,m={l:40,r:10,t:14,b:28},max=0.25,iw=W-m.l-m.r,ih=H-m.t-m.b,bw=iw/4;
+  let s=yAxis(W,m,H,max,0.05,v=>nf(0).format(v*100)+"%");
+  AREA_F.forEach((d,i)=>{const h=d[2]/max*ih,x=m.l+i*bw+bw*0.18,w=bw*0.64,y=m.t+ih-h;
+    s+=`<path d="${barPath(x,y,w,h,4)}" fill="var(--s1)"/>`;
+    s+=`<rect x="${m.l+i*bw}" y="${m.t}" width="${bw}" height="${ih}" fill="transparent" data-tip="${esc(`<b>${d[0]}</b><br>${d[1]} produtores<br>inadimplência ${pct(d[2])}`)}"/>`;
+    s+=`<text x="${x+w/2}" y="${y-5}" text-anchor="middle" class="lbl">${pct(d[2])}</text><text x="${x+w/2}" y="${H-10}" text-anchor="middle">${d[0]}</text>`;});
+  const ym=m.t+(1-0.1524/max)*ih;
+  s+=`<line class="ref" x1="${m.l}" x2="${W-m.r}" y1="${ym}" y2="${ym}"/>`;
+  s+=`<line class="base" x1="${m.l}" x2="${W-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/>`;
+  $("chArea").innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Taxa de inadimplência por faixa de área">${s}</svg>`;
+}
+function drawCoef(){
+  const rows=[["Classe de risco",0.25,0.147,0.077,0.217],["ln(alavancagem)",0.8,1.083,0.821,1.345],["ln(área)",-0.15,-0.159,-0.26,-0.059]];
+  const W=520,H=150,m={l:118,r:14,t:10,b:26},lo=-0.4,hi=1.5,iw=W-m.l-m.r,X=v=>m.l+(v-lo)/(hi-lo)*iw,rh=(H-m.t-m.b)/3;
+  let s="";[-0.25,0,0.25,0.5,0.75,1,1.25,1.5].forEach(v=>{s+=`<line class="grid" x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${H-m.b}"/><text x="${X(v)}" y="${H-8}" text-anchor="middle">${nf(2).format(v)}</text>`;});
+  s+=`<line class="base" x1="${X(0)}" x2="${X(0)}" y1="${m.t}" y2="${H-m.b}"/>`;
+  rows.forEach((d,i)=>{const y=m.t+rh*i+rh/2;
+    s+=`<text x="${m.l-10}" y="${y+4}" text-anchor="end" class="lbl">${d[0]}</text>`;
+    s+=`<line x1="${X(d[3])}" x2="${X(d[4])}" y1="${y}" y2="${y}" stroke="var(--s1)" stroke-width="2" stroke-linecap="round"/>`;
+    s+=`<circle cx="${X(d[2])}" cy="${y}" r="5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>`;
+    s+=`<path d="M${X(d[1])-6},${y-6}L${X(d[1])+6},${y+6}M${X(d[1])+6},${y-6}L${X(d[1])-6},${y+6}" stroke="var(--s2)" stroke-width="2.4" stroke-linecap="round"/>`;
+    s+=`<rect x="${m.l}" y="${y-rh/2}" width="${iw}" height="${rh}" fill="transparent" data-tip="${esc(`<b>${d[0]}</b><br>verdadeiro γ = ${nf(3).format(d[1])}<br>estimado β = ${nf(3).format(d[2])}<br>IC 95% [${nf(3).format(d[3])}; ${nf(3).format(d[4])}]`)}"/>`;});
+  $("chCoef").innerHTML=`<div class="legendkey"><span><i style="background:var(--s1);border-color:var(--s1);border-radius:50%;width:10px;height:10px"></i>estimado β e IC 95%</span><span><b style="color:var(--s2)">✕</b> valor verdadeiro γ</span></div><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Coeficientes verdadeiros e estimados com intervalos de confiança">${s}</svg>`;
+}
+function pdOf(c,alav,area){return 1/(1+Math.exp(-(B0+B1*c+B2*Math.log(alav)+B3*Math.log(area))));}
+function drawPD(r){
+  const W=1000,H=300,m={l:44,r:56,t:14,b:34},xmax=2,ymax=0.5,iw=W-m.l-m.r,ih=H-m.t-m.b;
+  const X=v=>m.l+v/xmax*iw,Y=v=>m.t+(1-v/ymax)*ih;
+  const ser=[[1,"var(--q1)"],[5,"var(--q2)"],[10,"var(--q3)"]];
+  $("lgPD").innerHTML=ser.map(d=>`<span><i style="background:${d[1]};border-color:${d[1]};height:3px"></i>Classe R${d[0]}</span>`).join("")+`<span><i style="background:var(--accent);border-color:var(--accent);border-radius:50%;width:10px;height:10px"></i>produtor simulado</span>`;
+  let s=yAxis(W,m,H,ymax,0.1,v=>nf(0).format(v*100)+"%");
+  [0,0.5,1,1.5,2].forEach(v=>s+=`<text x="${X(v)}" y="${H-12}" text-anchor="middle">${nf(1).format(v)}</text>`);
+  s+=`<text x="${W-m.r}" y="${H-0}" text-anchor="end" class="lbl">alavancagem (dívida ÷ receita)</text>`;
+  s+=`<line class="cutl" x1="${m.l}" x2="${W-m.r}" y1="${Y(S.cut)}" y2="${Y(S.cut)}" stroke-dasharray="2 4"/><text x="${m.l+6}" y="${Y(S.cut)-6}" class="lbl">corte ${pct(S.cut)}</text>`;
+  ser.forEach(d=>{let p="";for(let a=0.1;a<=2.0001;a+=0.02){p+=(p?"L":"M")+X(a).toFixed(1)+","+Y(pdOf(d[0],a,359)).toFixed(1);}
+    s+=`<path d="${p}" fill="none" stroke="${d[1]}" stroke-width="2"/>`;
+    s+=`<text x="${X(2)+6}" y="${Y(pdOf(d[0],2,359))+4}" class="lbl">R${d[0]}</text>`;});
+  if(r.valid&&r.alav<=xmax&&r.alav>0){const py=Y(Math.min(r.pd,ymax));
+    s+=`<circle cx="${X(r.alav)}" cy="${py}" r="7" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;}
+  s+=`<line class="base" x1="${m.l}" x2="${W-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/>`;
+  s+=`<line class="xh" id="pdX" y1="${m.t}" y2="${m.t+ih}" stroke="var(--axis)" stroke-width="1" visibility="hidden"/>`;
+  s+=`<rect class="xh" id="pdHit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/>`;
+  $("chPD").innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="PD prevista conforme alavancagem para as classes R1, R5 e R10">${s}</svg>`;
+  const svg=$("chPD").querySelector("svg"),hit=$("pdHit"),xl=$("pdX");
+  hit.addEventListener("pointermove",ev=>{const b=svg.getBoundingClientRect(),vx=(ev.clientX-b.left)/b.width*W;
+    let a=Math.max(0.1,Math.min(2,(vx-m.l)/iw*xmax));a=Math.round(a*20)/20;xl.setAttribute("x1",X(a));xl.setAttribute("x2",X(a));xl.setAttribute("visibility","visible");
+    showTip(`<b>alavancagem ${nf(2).format(a)}</b><br>`+ser.map(d=>`R${d[0]}: <b>${pct(pdOf(d[0],a,359))}</b>`).join("<br>"),ev);});
+  hit.addEventListener("pointerleave",()=>{xl.setAttribute("visibility","hidden");hideTip();});
+}
+function drawCal(){
+  const W=360,H=240,m={l:36,r:6,t:14,b:28},max=0.45,iw=W-m.l-m.r,ih=H-m.t-m.b,gw=iw/5;
+  let s=yAxis(W,m,H,max,0.1,v=>nf(0).format(v*100)+"%");
+  CAL.forEach((d,i)=>{const bw=(gw-10)/2;[[d[2],"var(--s1)"],[d[3],"var(--s2)"]].forEach((q,j)=>{const h=q[0]/max*ih,x=m.l+i*gw+5+j*(bw+2);
+      s+=`<path d="${barPath(x,m.t+ih-h,bw-1,h,3)}" fill="${q[1]}"/>`;});
+    s+=`<rect x="${m.l+i*gw}" y="${m.t}" width="${gw}" height="${ih}" fill="transparent" data-tip="${esc(`<b>PD ${d[0]}</b> · n = ${d[1]}<br>prevista ${pct(d[2])}<br>observada ${pct(d[3])}`)}"/>`;
+    s+=`<text x="${m.l+i*gw+gw/2}" y="${H-10}" text-anchor="middle">${d[0]}</text>`;});
+  s+=`<line class="base" x1="${m.l}" x2="${W-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/>`;
+  $("chCal").innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="PD média prevista e taxa observada por grupo de risco">${s}</svg>`;
+}
+// ROC precompute
+const sorted=TEST.slice().sort((a,b)=>b[0]-a[0]);
+const ROC=[[0,0]];{let tp=0,fp=0;for(let i=0;i<sorted.length;i++){if(sorted[i][1])tp++;else fp++;if(i===sorted.length-1||sorted[i+1][0]!==sorted[i][0])ROC.push([fp/NNEG,tp/NPOS]);}}
+let AUC=0;for(let i=1;i<ROC.length;i++)AUC+=(ROC[i][0]-ROC[i-1][0])*(ROC[i][1]+ROC[i-1][1])/2;
+$("aucv").textContent=nf(3).format(AUC);
+function confusion(c){let tp=0,fn=0,fp=0,tn=0;for(const d of TEST){const rec=d[0]>=c;if(d[1]){rec?tp++:fn++;}else{rec?fp++:tn++;}}return {tp,fn,fp,tn};}
+function drawROC(){
+  const W=360,H=300,m={l:36,r:10,t:10,b:34},iw=W-m.l-m.r,ih=H-m.t-m.b,X=v=>m.l+v*iw,Y=v=>m.t+(1-v)*ih;
+  let s="";[0,0.25,0.5,0.75,1].forEach(v=>{s+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${nf(0).format(v*100)}%</text><text x="${X(v)}" y="${H-18}" text-anchor="middle">${nf(0).format(v*100)}%</text>`;});
+  s+=`<text x="${W-m.r}" y="${H-2}" text-anchor="end" class="lbl">adimplentes recusados</text>`;
+  s+=`<line class="ref" x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(1)}"/><text x="${X(.62)}" y="${Y(.55)}" class="lbl">acaso</text>`;
+  s+=`<path d="${ROC.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join("")}" fill="none" stroke="var(--s1)" stroke-width="2"/>`;
+  const c=confusion(S.cut),fx=c.fp/NNEG,ty=c.tp/NPOS;
+  s+=`<circle cx="${X(fx)}" cy="${Y(ty)}" r="6" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;
+  s+=`<circle cx="${X(fx)}" cy="${Y(ty)}" r="14" fill="transparent" data-tip="${esc(`<b>corte ${pct(S.cut)}</b><br>inadimplentes identificados ${pct(ty)}<br>adimplentes recusados ${pct(fx)}`)}"/>`;
+  s+=`<line class="base" x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+  $("chROC").innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Curva ROC do modelo principal na amostra de teste">${s}<text x="${m.l+4}" y="${m.t+12}" class="lbl">inadimplentes identificados ↑</text></svg>`;
+}
+// cutoff curves
+const CUTS=[];for(let c=0.02;c<=0.5001;c+=0.0025){const k=confusion(c),apr=k.fn+k.tn;CUTS.push([c,apr/TEST.length,apr?k.fn/apr:NaN]);}
+function lineChart(el,key,ymax,step,color,label){
+  const W=620,H=170,m={l:40,r:12,t:12,b:26},iw=W-m.l-m.r,ih=H-m.t-m.b,X=v=>m.l+(v-0.02)/(0.48)*iw,Y=v=>m.t+(1-v/ymax)*ih;
+  let s=yAxis(W,m,H,ymax,step,v=>nf(0).format(v*100)+"%");
+  [0.1,0.2,0.3,0.4,0.5].forEach(v=>s+=`<text x="${X(v)}" y="${H-8}" text-anchor="middle">${nf(0).format(v*100)}%</text>`);
+  [[econCut(),"econ."],[YOUDEN,"Youden"]].forEach(q=>s+=`<line class="ref" x1="${X(q[0])}" x2="${X(q[0])}" y1="${m.t}" y2="${m.t+ih}"/>`);
+  const ar=key===1?CUTS:CUTS.filter(d=>Number.isFinite(d[2]));
+  s+=`<path d="${ar.map((d,i)=>(i?"L":"M")+X(d[0]).toFixed(1)+","+Y(d[key]).toFixed(1)).join("")}" fill="none" stroke="${color}" stroke-width="2"/>`;
+  const k=confusion(S.cut),apr=k.fn+k.tn,val=key===1?apr/TEST.length:(apr?k.fn/apr:NaN);
+  s+=`<line class="cutl" x1="${X(S.cut)}" x2="${X(S.cut)}" y1="${m.t}" y2="${m.t+ih}"/>`;
+  if(Number.isFinite(val)){s+=`<circle cx="${X(S.cut)}" cy="${Y(val)}" r="5" fill="${color}" stroke="var(--surface)" stroke-width="2"/>`;
+    const right=S.cut>0.38;s+=`<text x="${X(S.cut)+(right?-8:8)}" y="${Math.max(m.t+12,Y(val)-8)}" text-anchor="${right?"end":"start"}" class="strong">${pct(val)}</text>`;}
+  s+=`<line class="base" x1="${m.l}" x2="${W-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/>`;
+  s+=`<line class="xh" y1="${m.t}" y2="${m.t+ih}" stroke="var(--axis)" visibility="hidden" data-x/>`;
+  s+=`<rect class="xh" data-hit x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/>`;
+  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}">${s}</svg>`;
+  const svg=el.querySelector("svg"),hit=svg.querySelector("[data-hit]"),xl=svg.querySelector("[data-x]");
+  hit.addEventListener("pointermove",ev=>{const b=svg.getBoundingClientRect(),vx=(ev.clientX-b.left)/b.width*W;
+    const c=Math.max(0.02,Math.min(0.5,0.02+(vx-m.l)/iw*0.48));const d=CUTS.reduce((a,q)=>Math.abs(q[0]-c)<Math.abs(a[0]-c)?q:a);
+    xl.setAttribute("x1",X(d[0]));xl.setAttribute("x2",X(d[0]));xl.setAttribute("visibility","visible");
+    showTip(`<b>corte ${pct(d[0])}</b><br>aprovação ${pct(d[1])}<br>inadimplência entre aprovados ${pct(d[2])}`,ev);});
+  hit.addEventListener("pointerleave",()=>{xl.setAttribute("visibility","hidden");hideTip();});
+  hit.addEventListener("click",ev=>{const b=svg.getBoundingClientRect(),vx=(ev.clientX-b.left)/b.width*W;S.cut=Math.round(Math.max(0.02,Math.min(0.5,0.02+(vx-m.l)/iw*0.48))*1000)/1000;S.crit="M";update();});
+}
+function drawCut(){lineChart($("chApr"),1,1,0.25,"var(--s1)","Taxa de aprovação conforme o ponto de corte");lineChart($("chDef"),2,0.16,0.04,"var(--s2)","Inadimplência entre os aprovados conforme o ponto de corte");}
+function drawCM(){
+  const k=confusion(S.cut),apr=k.fn+k.tn;
+  $("cm").innerHTML=`<div class="h"></div><div class="h">Recusado (PD ≥ corte)</div><div class="h">Aprovado (PD &lt; corte)</div>
+   <div class="h" style="text-align:right">Inadimplente<br>(131)</div><div class="c tp">${k.tp}<small>identificados</small></div><div class="c fn">${k.fn}<small>não identificados</small></div>
+   <div class="h" style="text-align:right">Adimplente<br>(729)</div><div class="c fp">${k.fp}<small>recusados</small></div><div class="c tn">${k.tn}<small>aprovados</small></div>`;
+  $("cmKV").innerHTML=`<dt>Inadimplentes identificados (sensibilidade)</dt><dd>${pct(k.tp/NPOS)}</dd>
+   <dt>Adimplentes aprovados (especificidade)</dt><dd>${pct(k.tn/NNEG)}</dd>
+   <dt>Taxa de aprovação</dt><dd>${pct(apr/TEST.length)}</dd>
+   <dt>Inadimplência entre os aprovados</dt><dd>${apr?pct(k.fn/apr):"–"}</dd>
+   <dt>Sem modelo (aprovar todos)</dt><dd>${pct(NPOS/TEST.length)}</dd>`;
+}
+
+drawArea(); drawCoef(); drawCal();
+writeInputs(); update();
+})();
+</script>
+</body>
+</html>
