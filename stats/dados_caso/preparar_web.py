@@ -144,3 +144,10 @@ if res.exists():
     js("CASOS6", json.loads(res.read_text()), STATS / "06-diferencas-em-diferencas" / "casos_dados.js")
 else:
     print("Rode antes 06-diferencas-em-diferencas/codigo/casos_did.py")
+
+# ---------------- Conteúdo 8: SDID do teto de gastos ----------------
+res8 = STATS / "08-controle-sintetico" / "codigo" / "teto_gastos_sdid_resultados.json"
+if res8.exists():
+    js("CASOS8", json.loads(res8.read_text()), STATS / "08-controle-sintetico" / "casos_dados.js")
+else:
+    print("Rode antes 08-controle-sintetico/codigo/teto_gastos_sdid.py")

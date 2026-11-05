@@ -27,6 +27,7 @@ abrem no Stata, no R (`haven::read_dta`) e no Python (`pandas.read_stata`).
 | `ifood_crime_sp.dta` | 644 municípios de SP, 2010–2019 | Conteúdo 6 | Base didática inspirada em Frankenthal (2025), *The Gig Economy and Crime* |
 | `did_ifood_sintetica.csv` | 50 áreas, 2018–2025 | Conteúdo 6 | Base sintética 2×2 (efeito simulado −10); documentação em `documentacao_did_ifood_sintetica.docx` |
 | `did_deams_sintetica_2000_2018.csv` | 100 municípios de MT, 2000–2018 | Conteúdo 6 | Base sintética 2×2: DEAMs, Lei Maria da Penha e homicídios femininos |
+| `teto_gastos_sintetica.csv` | Brasil + 15 emergentes, 2000–2019 | Conteúdo 8 | Base **simulada** do estudo de SDID sobre o teto de gastos (EC 95/2016): juro real de 10 anos e resultado primário, com efeitos verdadeiros conhecidos (gerada por `base_teto_gastos.py`) |
 | `co2_pd_2000_2020.dta` | 193 países, 2000–2020 | Conteúdos 5 e 6 | Política de P&D e emissões de CO2 (base didática) |
 
 ## Diferenças entre versões

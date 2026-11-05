@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
 <link rel="stylesheet" href="../assets/estilo.css">
 <script src="../assets/comum.js"></script>
+<script src="casos_dados.js"></script>
 <style>
 .donors{display:flex;flex-wrap:wrap;gap:6px 14px;font:13px system-ui,sans-serif;margin:6px 0 10px}
 .donors label{display:flex;align-items:center;gap:4px;font-weight:500;margin:0}
@@ -46,7 +47,8 @@
     <li><a href="#extensoes">5. Extensões</a></li>
     <li><a href="#exemplo">6. Exemplo e código</a></li>
     <li><a href="#simulador">7. Laboratório</a></li>
-    <li><a href="#exercicios">8. Exercícios</a></li>
+    <li><a href="#sdid">8. SDID: teto de gastos</a></li>
+    <li><a href="#exercicios">9. Exercícios</a></li>
   </ul>
 </nav>
 
@@ -118,7 +120,7 @@
 <section id="extensoes">
 <h2>5. Extensões</h2>
 <ul>
-<li><strong><em>Synthetic Difference-in-Differences</em></strong> (Arkhangelsky et al., 2021): combina pesos de unidades e de períodos com efeitos fixos; funciona com várias unidades tratadas. Stata <code>sdid</code>; R <code>synthdid</code>.</li>
+<li><strong><em>Synthetic Difference-in-Differences</em></strong> (Arkhangelsky et al., 2021): combina pesos de unidades e de períodos com efeitos fixos; funciona com várias unidades tratadas. Stata <code>sdid</code>; R <code>synthdid</code>. Veja o estudo de caso do teto de gastos na <a href="#sdid">Seção 8</a>.</li>
 <li><strong><em>Augmented SC</em></strong> (Ben-Michael, Feller &amp; Rothstein, 2021): corrige o viés quando o ajuste pré-tratamento é imperfeito. R <code>augsynth</code>.</li>
 <li><strong>Várias unidades tratadas em datas diferentes:</strong> controle sintético para cada uma, com agregação posterior, ou SDID.</li>
 <li><strong>Inferência conformal</strong> (Chernozhukov, Wüthrich &amp; Zhu, 2021): intervalos de confiança para a trajetória do efeito.</li>
@@ -232,8 +234,116 @@ efeito = Y["Tratado"].values - sintetico
 </section>
 
 <!-- 8 -->
+<section id="sdid">
+<h2>8. SDID: o teto de gastos de 2016 (estudo de caso didático)</h2>
+<p><strong>Pergunta:</strong> qual foi o efeito do teto de gastos (Emenda Constitucional 95, aprovada em dezembro de 2016) sobre o juro real de 10 anos e o resultado primário do Brasil? O estudo usa o <strong>SDID</strong> (<em>Synthetic Difference-in-Differences</em>, Arkhangelsky, Athey, Hirshberg, Imbens &amp; Wager, 2021), que combina o controle sintético com o DiD, e compara os três métodos.</p>
+<div class="box warn">
+<h4>Dados simulados</h4>
+<p>A base <a href="../dados_caso/teto_gastos_sintetica.csv" download><code>teto_gastos_sintetica.csv</code></a> é <strong>simulada</strong> (gerada por <a href="../dados_caso/base_teto_gastos.py" download><code>base_teto_gastos.py</code></a>): o Brasil e 15 economias emergentes, de 2000 a 2019, com efeitos verdadeiros conhecidos de <strong>−0,6, −1,2 e −1,8 p.p.</strong> no juro real (média −1,2) e <strong>+0,4, +0,8 e +1,2 p.p. do PIB</strong> no resultado primário (média +0,8) em 2017–2019. Os nomes dos países são rótulos: os números não são dados reais e os resultados não dizem nada sobre o teto de gastos de verdade. Para a análise real, use juros do BIS ou da OCDE e o resultado primário do FMI (<em>Fiscal Monitor</em>).</p>
+</div>
+<p>A base reproduz duas dificuldades do caso real: (i) o juro real do Brasil fica <strong>acima de todos os doadores</strong>, o problema do fecho convexo da Seção 3; (ii) o Brasil sofre um <strong>choque fiscal próprio em 2014–2016</strong> (a recessão), logo antes do tratamento.</p>
+
+<h3>8.1 O estimador SDID</h3>
+<p>O SDID escolhe <strong>pesos de unidades</strong> \(\hat\omega\), como o controle sintético, e <strong>pesos de tempo</strong> \(\hat\lambda\), que escolhem os anos pré-tratamento mais parecidos com o período pós. Depois estima um DiD ponderado com efeitos fixos de unidade e de tempo:</p>
+<div class="formula">$$\hat\omega=\arg\min_{\omega_0,\;\omega\in\Delta}\;\sum_{t\le T_0}\Big(\omega_0+\sum_{i}\omega_iY_{it}-Y_{\text{BR},t}\Big)^2+\zeta^2T_0\,\lVert\omega\rVert^2\qquad
+\hat\lambda=\arg\min_{\lambda_0,\;\lambda\in\Delta}\;\sum_{i}\Big(\lambda_0+\sum_{t\le T_0}\lambda_tY_{it}-\bar Y_{i,\text{pós}}\Big)^2$$</div>
+<div class="formula">$$\hat\tau^{SDID}=\Big(\bar Y_{\text{BR},\text{pós}}-\sum_{t\le T_0}\hat\lambda_tY_{\text{BR},t}\Big)-\sum_i\hat\omega_i\Big(\bar Y_{i,\text{pós}}-\sum_{t\le T_0}\hat\lambda_tY_{it}\Big)$$</div>
+<div class="table-wrap"><table>
+<thead><tr><th></th><th>Pesos de unidades \(\omega\)</th><th>Pesos de tempo \(\lambda\)</th><th>Diferença de nível</th></tr></thead>
+<tbody>
+<tr><td><strong>DiD</strong></td><td>iguais para todos os controles</td><td>iguais para todos os anos pré</td><td>permitida (efeito fixo)</td></tr>
+<tr><td><strong>Controle sintético</strong></td><td>ajustados à trajetória pré, sem intercepto</td><td>não usa</td><td><strong>não</strong> permitida</td></tr>
+<tr><td><strong>SDID</strong></td><td>ajustados à trajetória pré, <strong>com intercepto</strong> \(\omega_0\) e regularização \(\zeta\)</td><td>concentrados nos anos pré mais parecidos com o pós</td><td>permitida</td></tr>
+</tbody></table></div>
+<p>O intercepto \(\omega_0\) é o que resolve o fecho convexo: o Brasil sintético precisa reproduzir a <em>dinâmica</em> do Brasil, não o nível. A regularização \(\zeta\) espalha os pesos por mais doadores, o que reduz a variância. A inferência usa <strong>placebos</strong>: cada doador faz o papel de tratado, e o desvio-padrão desses efeitos placebo é o erro-padrão (Arkhangelsky et al., 2021, algoritmo 4).</p>
+
+<h3>8.2 Resultados</h3>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Efeito médio 2017–2019</th><th>DiD</th><th>Controle sintético</th><th>SDID</th><th>Verdadeiro</th></tr></thead>
+<tbody>
+<tr><td><strong>Juro real de 10 anos</strong> (p.p.), pré 2000–2016</td><td>−1,52<br><small>(0,68)</small></td><td>+0,30<br><small>(0,56)</small></td><td><strong>−1,30</strong><br><small>(0,31)</small></td><td>−1,20</td></tr>
+<tr><td>Erro de ajuste pré-tratamento (RMSPE)</td><td>0,30</td><td>2,60</td><td>0,28</td><td></td></tr>
+<tr><td><strong>Resultado primário</strong> (p.p. do PIB), pré 2000–2016</td><td>+0,99<br><small>(0,41)</small></td><td>+1,16<br><small>(0,35)</small></td><td>+1,57<br><small>(0,29)</small></td><td>+0,80</td></tr>
+<tr><td><strong>Resultado primário</strong>, pré 2000–2013 (exclui a recessão)</td><td>+0,77<br><small>(0,47)</small></td><td>+0,76<br><small>(0,40)</small></td><td><strong>+0,73</strong><br><small>(0,33)</small></td><td>+0,80</td></tr>
+</tbody></table></div>
+<p class="hint">Erros-padrão por placebos entre parênteses. Com 15 doadores, o menor p-valor de permutação possível é 1/16 = 0,0625 (Seção 4).</p>
+
+<h3>8.3 Visualizador</h3>
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="sdV">Variável</label><select id="sdV"><option value="juro_real_10a">Juro real de 10 anos</option><option value="resultado_primario">Resultado primário</option></select></div>
+    <div><label for="sdM">Método</label><select id="sdM"><option value="SDID">SDID</option><option value="DiD">DiD</option><option value="SC">Controle sintético</option></select></div>
+    <div><label for="sdJ">Janela pré-tratamento</label><select id="sdJ"><option value="completa">2000–2016</option><option value="sem_2014_2016">2000–2013 (exclui 2014–2016)</option></select></div>
+  </div>
+  <div class="chart wide"><h4 id="sdT"></h4><svg id="sdPlot" viewBox="0 0 560 340" role="img" aria-label="Brasil e contrafactual estimado"></svg>
+    <div class="legend"><span style="--c:var(--accent-2)">Brasil (simulado)</span><span class="dash" style="--c:var(--bar)">contrafactual estimado</span><span style="--c:var(--ok)">pesos de tempo λ (barras)</span></div></div>
+  <div class="charts" style="margin-top:12px">
+    <div class="chart"><h4>Efeito estimado ano a ano e placebos (τ de cada doador)</h4><svg id="sdGap" viewBox="0 0 560 300" role="img" aria-label="Efeito por ano"></svg>
+      <div class="legend"><span style="--c:var(--accent-2)">Brasil: real − contrafactual</span><span class="dash" style="--c:var(--muted)">efeito verdadeiro</span></div></div>
+    <div class="chart"><h4>Pesos de unidades ω</h4><div id="sdW" style="padding:4px"></div></div>
+  </div>
+  <div class="stats-grid" id="sdOut"></div>
+  <p class="interp" id="sdInterp"></p>
+</div>
+
+<h3>8.4 Lições do caso</h3>
+<ul>
+<li><strong>Fecho convexo:</strong> no juro, o controle sintético põe peso 1 na Tailândia, o doador de juro mais alto, e mesmo assim erra o nível em 2,6 p.p. no pré-tratamento. O efeito estimado (+0,30) não faz sentido. O SDID, com intercepto, ajusta a dinâmica e acerta (−1,30 contra −1,20).</li>
+<li><strong>Precisão:</strong> o DiD também permite a diferença de nível, mas trata todos os doadores igualmente e fica mais longe (−1,52), com erro-padrão duas vezes maior que o do SDID.</li>
+<li><strong>Choque próprio antes do tratamento:</strong> no resultado primário, o SDID dá peso de tempo de 0,49 a 2016, justamente o pior ano da recessão brasileira. A base de comparação fica artificialmente baixa e o efeito é superestimado (+1,57). DiD e controle sintético também erram para cima. É o <em>Ashenfelter’s dip</em> do Conteúdo 6 em versão macroeconômica.</li>
+<li><strong>Remédio:</strong> excluir da janela pré os anos contaminados por um choque próprio, como se faz com a antecipação. Com o pré-tratamento em 2000–2013, os três métodos ficam entre +0,73 e +0,77. A escolha da janela deve ser justificada <em>antes</em> de ver o resultado, com base no que se sabe sobre a economia.</li>
+<li><strong>Os pesos de tempo são informativos:</strong> quando o \(\lambda\) se concentra num ano atípico, desconfie e examine o que aconteceu naquele ano.</li>
+</ul>
+
+<h3>8.5 Código</h3>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="sr">R</button>
+    <button role="tab" aria-selected="false" data-tab="sst">Stata</button>
+    <button role="tab" aria-selected="false" data-tab="spy">Python</button>
+  </div>
+<div class="tabpanel active" data-panel="sr"><pre><code># remotes::install_github("synth-inference/synthdid")
+library(synthdid)
+d &lt;- read.csv("dados_caso/teto_gastos_sintetica.csv")
+d$teto &lt;- as.integer(d$pais == "Brasil" &amp; d$ano &gt;= 2017)
+
+pm &lt;- panel.matrices(d, unit = "pais", time = "ano",
+                     outcome = "juro_real_10a", treatment = "teto")
+sdid &lt;- synthdid_estimate(pm$Y, pm$N0, pm$T0)
+sc   &lt;- sc_estimate(pm$Y, pm$N0, pm$T0)
+did  &lt;- did_estimate(pm$Y, pm$N0, pm$T0)
+c(SDID = sdid, SC = sc, DiD = did)
+sqrt(vcov(sdid, method = "placebo"))          # erro-padrão por placebos
+synthdid_plot(sdid)                            # Brasil × contrafactual e pesos de tempo
+synthdid_units_plot(sdid)                      # pesos de unidades
+
+# Janela sem a recessão: descarte 2014–2016 antes de montar o painel
+d2 &lt;- subset(d, !(ano %in% 2014:2016))</code></pre></div>
+<div class="tabpanel" data-panel="sst"><pre><code>* ssc install sdid
+import delimited "dados_caso/teto_gastos_sintetica.csv", clear encoding(utf-8)
+generate teto = (pais == "Brasil" &amp; ano &gt;= 2017)
+encode pais, generate(id)
+
+sdid juro_real_10a id ano teto, vce(placebo) reps(200) seed(2016) graph
+sdid juro_real_10a id ano teto, vce(placebo) reps(200) method(sc)    // controle sintético
+sdid juro_real_10a id ano teto, vce(placebo) reps(200) method(did)   // DiD
+
+* Resultado primário sem a recessão de 2014–2016
+sdid resultado_primario id ano teto if !inrange(ano, 2014, 2016), vce(placebo) reps(200) seed(2016) graph</code></pre></div>
+<div class="tabpanel" data-panel="spy"><pre><code># Implementação didática completa (pesos ω e λ, DiD, SC, SDID e placebos):
+#   cd 08-controle-sintetico/codigo && python teto_gastos_sdid.py
+import pandas as pd
+d = pd.read_csv("dados_caso/teto_gastos_sintetica.csv")
+Y = d.pivot(index="ano", columns="pais", values="juro_real_10a")
+print(Y.loc[:2016].mean().sort_values())      # o Brasil fica acima de todos: fecho convexo
+# Pacote alternativo em Python: pip install synthdid  (ou pysyncon para o SC clássico)</code></pre></div>
+</div>
+<div class="box"><h4>Referência</h4><p>Arkhangelsky, D.; Athey, S.; Hirshberg, D. A.; Imbens, G. W.; Wager, S. (2021). “Synthetic Difference-in-Differences”. <em>American Economic Review</em>, 111(12), 4088–4118. Pacotes: <code>synthdid</code> (R) e <code>sdid</code> (Stata; Clarke, Pailañir, Athey &amp; Imbens, 2024, <em>Stata Journal</em>).</p></div>
+</section>
+
+<!-- 9 -->
 <section id="exercicios">
-<h2>8. Exercícios</h2>
+<h2>9. Exercícios</h2>
 <ol class="exercises">
 <li>
 <p>Um sintético tem pesos 0,6 para o estado A e 0,4 para o B. Em 2020 (pós-tratamento), o resultado foi 50 no tratado, 40 em A e 55 em B. Calcule o efeito.</p>
@@ -363,6 +473,53 @@ efeito = Y["Tratado"].values - sintetico
   sel.addEventListener('change',run);
   document.getElementById('cS').addEventListener('input',run);
   box.addEventListener('change',run);
+  document.addEventListener('themechange',run);
+  document.addEventListener('DOMContentLoaded',run);
+})();
+</script>
+<script>
+// Visualizador do estudo SDID (resultados de codigo/teto_gastos_sdid.py em casos_dados.js)
+(function(){
+  if(!window.CASOS8) return;
+  var D=CASOS8, anos=D.anos;
+  function run(){
+    var v=document.getElementById('sdV').value, m=document.getElementById('sdM').value, j=document.getElementById('sdJ').value;
+    var V=D[v], R=V[j][m], fimPre=j==='completa'?2016:2013;
+    var br=V.brasil, cf=R.contrafactual, all=br.concat(cf);
+    var lo=Math.min.apply(null,all), hi=Math.max.apply(null,all), pad=(hi-lo)*0.12;
+    var f=plotFrame(document.getElementById('sdPlot'),{xlim:[1999.5,2019.5],ylim:[lo-pad*2.2,hi+pad],xfmt:function(x){return String(x);},xlabel:'ano',ylabel:V.rotulo});
+    if(j!=='completa') f.svg.appendChild(svgEl('rect',{x:f.sx(2013.5),y:f.m.t,width:f.sx(2016.5)-f.sx(2013.5),height:f.H-f.m.b-f.m.t,fill:css('--surface-2'),'fill-opacity':0.9}));
+    plotVLine(f,2016.5,css('--muted'),'4 4','teto (EC 95)');
+    // pesos de tempo como barras no rodapé do gráfico
+    var base=lo-pad*2.2, alt=pad*1.6;
+    Object.keys(R.lambda).forEach(function(a){var l=R.lambda[a];
+      f.svg.appendChild(svgEl('rect',{x:f.sx(+a)-6,y:f.sy(base+alt*l),width:12,height:f.sy(base)-f.sy(base+alt*l),fill:css('--ok'),'fill-opacity':0.8}));});
+    plotLine(f,anos,cf,css('--bar'),2.4,'7 5');
+    plotLine(f,anos,br,css('--accent-2'),2.8); plotPoints(f,anos,br,css('--accent-2'),3,1);
+    document.getElementById('sdT').textContent=V.rotulo+' — '+(m==='SC'?'controle sintético':m)+(j==='completa'?' (pré 2000–2016)':' (pré 2000–2013)');
+    // efeito por ano + placebos (τ)
+    var ef=R.efeito, ver=V.verdadeiro, pl=Object.keys(R.placebos).map(function(k){return R.placebos[k];});
+    var allg=ef.concat(ver,pl), glo=Math.min.apply(null,allg), ghi=Math.max.apply(null,allg), gp=(ghi-glo)*0.12||0.5;
+    var g=plotFrame(document.getElementById('sdGap'),{H:300,xlim:[1999.5,2021.5],ylim:[glo-gp,ghi+gp],xticks:[2000,2004,2008,2012,2016,2019],xfmt:function(x){return String(x);},xlabel:'ano',ylabel:'efeito (real − contrafactual)'});
+    g.svg.appendChild(svgEl('line',{x1:g.m.l,x2:g.W-g.m.r,y1:g.sy(0),y2:g.sy(0),stroke:css('--muted'),'stroke-width':1}));
+    plotVLine(g,2016.5,css('--muted'),'4 4');
+    plotLine(g,anos,ver,css('--muted'),2,'6 4');
+    plotLine(g,anos,ef,css('--accent-2'),2.6);
+    pl.forEach(function(t){g.svg.appendChild(svgEl('circle',{cx:g.sx(2021),cy:g.sy(t),r:3.5,fill:css('--muted'),'fill-opacity':0.6}));});
+    g.svg.appendChild(svgEl('circle',{cx:g.sx(2021),cy:g.sy(R.tau),r:6,fill:css('--accent-2')}));
+    g.svg.appendChild(svgEl('text',{x:g.sx(2021),y:g.H-g.m.b+16,'text-anchor':'middle'},'τ placebos'));
+    document.getElementById('sdW').innerHTML=Object.keys(R.pesos).map(function(k){var w=R.pesos[k];
+      return '<div class="wbar"><span>'+k+'</span><div><div class="b" style="width:'+(w*100).toFixed(1)+'%"></div></div><span class="n">'+fmt(w,3)+'</span></div>';}).join('');
+    statCards('sdOut',[['Efeito médio 2017–2019 (τ)',fmt(R.tau,2)],['Efeito verdadeiro',fmt(V.verdadeiro_medio,2)],['Erro-padrão (placebos)',fmt(R.ep,2)],
+      ['p-valor de permutação',fmt(R.p,3)],['RMSPE pré-tratamento',fmt(R.rmspe_pre,2)]]);
+    var msg=[];
+    if(m==='SC'&&v==='juro_real_10a') msg.push('O controle sintético não consegue reproduzir o nível do juro brasileiro, acima de todos os doadores (fecho convexo): veja o erro pré-tratamento.');
+    if(m==='SDID'&&j==='completa'&&v==='resultado_primario') msg.push('Os pesos de tempo se concentram em 2016, o ano da recessão própria do Brasil: o contrafactual fica baixo e o efeito é superestimado. Troque a janela para 2000–2013.');
+    if(m==='DiD') msg.push('O DiD dá o mesmo peso a todos os doadores e a todos os anos pré-tratamento.');
+    if(!msg.length) msg.push('Compare o efeito estimado com o verdadeiro e a posição do Brasil (ponto laranja) entre os placebos.');
+    document.getElementById('sdInterp').textContent=msg.join(' ');
+  }
+  ['sdV','sdM','sdJ'].forEach(function(id){document.getElementById(id).addEventListener('change',run);});
   document.addEventListener('themechange',run);
   document.addEventListener('DOMContentLoaded',run);
 })();
