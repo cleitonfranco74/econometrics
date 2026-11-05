@@ -543,7 +543,7 @@ pwcorr _all, sig</code></pre></div>
 <h3>8.3 Os cinco problemas do argumento</h3>
 <div class="problema"><span class="tag">Problema 1 de 5</span><h4>Causalidade reversa</h4>
 <div class="fluxo"><div><strong>Selic alta</strong><small>inflação e crise em 1999–2003</small></div><span>→</span><div><strong>Juros da dívida explodem</strong><small>a dívida cresce sozinha</small></div><span>→</span><div class="destaque"><strong>Governo faz superávit</strong><small>metas fiscais, acordo com o FMI, LRF</small></div></div>
-<p>Os superávits de 1999–2008 foram, em boa parte, <strong>resposta</strong> aos juros altos e à dívida, e não algo que “conviveu” com eles por acaso. O tripé de 1999 (câmbio flutuante, metas de inflação e metas de superávit primário) e a Lei de Responsabilidade Fiscal (2000) fizeram do superávit a variável de ajuste. Se a seta vai da Selic para o superávit, a correlação positiva é exatamente o que se espera.</p></div>
+<p>Os superávits de 1999–2008 foram, em boa parte, <strong>resposta</strong> aos juros altos e à dívida, e não algo que “conviveu” com eles por acaso. O tripé de 1999 (câmbio flutuante, metas de inflação e metas de superávit primário) e a Lei de Responsabilidade Fiscal (2000) fizeram do superávit a variável de ajuste. Se a seta vai da Selic para o superávit, a correlação positiva é exatamente o que se espera. A Seção 8.6 discute outro canal no mesmo sentido: a dívida indexada à Selic.</p></div>
 
 <div class="problema"><span class="tag">Problema 2 de 5</span><h4>Variável omitida (confundidor)</h4>
 <svg class="dag" viewBox="0 0 420 170" role="img" aria-label="Inflação e risco causam Selic e superávit">
@@ -601,7 +601,52 @@ pwcorr _all, sig</code></pre></div>
 </ul>
 <p>Todos os canais passam por <strong>dívida e expectativas</strong>, com defasagem, e não pelo resultado primário de um único ano. Por isso a correlação contemporânea entre primário e Selic pode ter qualquer sinal, e o gráfico do reel olha para a variável errada (Blanchard, 2004).</p>
 
-<h3>8.6 Da correlação ao modelo causal</h3>
+<h3>8.6 O outro sentido da seta: dos juros à dívida (Lara Resende)</h3>
+<p>O reel nega que o déficit cause juros altos. André Lara Resende (<em>Juros, moeda e ortodoxia</em>, 2017; <em>Consenso e contrassenso</em>, 2020) faz uma crítica diferente, que inverte a seta: no Brasil, são os <strong>juros que pesam sobre a dívida</strong>. O argumento, em três passos:</p>
+<div class="fluxo"><div><strong>Dívida indexada à Selic</strong><small>LFTs e operações compromissadas do BC têm custo que acompanha a Selic dia a dia</small></div><span>→</span><div><strong>Selic sobe</strong><small>o custo dos juros e o déficit nominal sobem na hora</small></div><span>→</span><div class="destaque"><strong>Política monetária enfraquece</strong><small>quem tem LFT não perde riqueza quando os juros sobem; é preciso juro ainda mais alto</small></div></div>
+<p>A proposta decorrente é <strong>desindexar a dívida da Selic</strong>: reduzir a parcela de títulos pós-fixados, para que a política monetária volte a ter efeito riqueza e para que cada aumento da Selic não se transforme automaticamente em despesa financeira do governo.</p>
+
+<h4>A conta: quanto a Selic pesa no fiscal</h4>
+<div class="formula">$$\text{Resultado nominal}=\text{Resultado primário}-\text{Juros}_t,\qquad \Delta\text{Juros}\approx\theta\times b\times\Delta i_{\text{Selic}}$$</div>
+<div class="formula">$$b_{t+1}=b_t\,\frac{1+i_t}{1+g_t}-s_t\qquad(b=\text{dívida/PIB},\;i=\text{custo médio da dívida},\;g=\text{crescimento nominal do PIB},\;s=\text{primário/PIB})$$</div>
+<p>Se uma fração \(\theta\) da dívida está atrelada à Selic, cada ponto percentual a mais de Selic custa, no primeiro ano, cerca de \(\theta\times b\) pontos do PIB. Com dívida de 75% do PIB e \(\theta=45\%\), são cerca de 0,34% do PIB por ponto, sem nenhuma mudança no primário. Os valores de \(b\) e \(\theta\) do simulador são ilustrativos; os números oficiais estão no <em>Relatório Mensal da Dívida</em> do Tesouro e nas estatísticas fiscais do Banco Central.</p>
+
+<div class="calc ui">
+  <div class="controls">
+    <div><label for="lrB">Dívida bruta inicial (% do PIB) <output for="lrB"></output></label><input type="range" id="lrB" min="40" max="110" step="1" value="75"></div>
+    <div><label for="lrT">Parcela indexada à Selic θ (%) <output for="lrT"></output></label><input type="range" id="lrT" min="0" max="80" step="5" value="45"></div>
+    <div><label for="lrS">Aumento da Selic (p.p.) <output for="lrS"></output></label><input type="range" id="lrS" min="0" max="6" step="0.5" value="3" data-dec="1"></div>
+    <div><label for="lrP">Resultado primário (% do PIB) <output for="lrP"></output></label><input type="range" id="lrP" min="-2" max="3" step="0.5" value="0" data-dec="1"></div>
+  </div>
+  <div class="chart wide"><h4>Trajetória da dívida em 5 anos (Selic inicial 10%, custo dos demais títulos 10%, PIB nominal +9% ao ano)</h4><svg id="lrPlot" viewBox="0 0 560 320" role="img" aria-label="Simulação da dívida pública"></svg>
+    <div class="legend"><span style="--c:var(--muted)">sem aumento da Selic</span><span style="--c:var(--accent-2)">com aumento, parcela θ indexada</span><span class="dash" style="--c:var(--bar)">com aumento, dívida desindexada (θ = 0)</span></div></div>
+  <div class="stats-grid" id="lrOut"></div>
+  <p class="interp">Com a dívida desindexada (θ = 0), a linha tracejada coincide com a trajetória sem aumento da Selic: no curto prazo, o aumento não muda o custo dos títulos já contratados. O custo só subiria à medida que a dívida fosse rolada a taxas novas, efeito que este simulador não inclui.</p>
+  <p class="hint">Simplificação didática: os títulos não indexados mantêm o custo de 10% nos 5 anos (não há rolagem a taxas novas), e o primário e o crescimento não reagem aos juros.</p>
+</div>
+
+<h4>O que isso muda na leitura do reel</h4>
+<ul>
+<li><strong>Qual déficit?</strong> O reel usa o resultado <em>primário</em>, que exclui os juros. Se o argumento de Lara Resende estiver certo, o efeito mais direto da Selic está no resultado <em>nominal</em>: Selic alta produz, mecanicamente, déficit nominal alto. A correlação entre Selic e déficit nominal tende a ser positiva, e a entre Selic e superávit primário pode ser positiva também, porque o governo reage aos juros (Problema 1). O sinal depende de qual variável se olha.</li>
+<li><strong>Circularidade:</strong> déficit → dívida → prêmio de risco → Selic → custo da dívida → déficit nominal. Com causalidade nos dois sentidos, nenhuma correlação simples isola uma seta. É o terreno da <em>dominância fiscal</em> (Blanchard, 2004).</li>
+</ul>
+
+<h4>Contrapontos para debater</h4>
+<ul>
+<li><strong>Por que as LFTs existem:</strong> num país com histórico de inflação alta e risco fiscal, investidores exigem proteção contra a alta dos juros. Desindexar à força pode elevar o prêmio dos títulos prefixados, encurtar os prazos e aumentar o risco de rolagem. Por isso o Plano Anual de Financiamento do Tesouro trata da redução das LFTs como um processo gradual.</li>
+<li><strong>Compromissadas e reservas:</strong> parte do custo atrelado à Selic vem das operações do Banco Central (compromissadas e depósitos remunerados), que não desaparecem com a desindexação dos títulos do Tesouro.</li>
+<li><strong>Outros canais:</strong> o efeito riqueza é só um canal da política monetária; crédito, câmbio e expectativas continuam funcionando com dívida indexada.</li>
+</ul>
+
+<h4>Como testar o argumento</h4>
+<ul>
+<li><strong>Contabilidade:</strong> a elasticidade do custo da dívida à Selic é, em boa parte, uma conta (\(\theta\times b\)), não uma questão de identificação causal.</li>
+<li><strong>Potência da política monetária:</strong> a hipótese é que o efeito de um choque de juros sobre inflação e atividade é menor quando \(\theta\) é maior. Em painel de países ou ao longo do tempo, isso é uma interação: efeito do choque monetário × parcela indexada (um DiD com intensidade de tratamento, Conteúdo 6).</li>
+<li><strong>Estudos de evento:</strong> compare a reação dos juros longos, do câmbio e das expectativas a surpresas do Copom em períodos com parcelas indexadas diferentes.</li>
+<li><strong>Desfecho certo:</strong> no estudo de SDID do teto de gastos (Conteúdo 8), o argumento sugere acompanhar também o resultado nominal e o custo médio da dívida, não só o primário.</li>
+</ul>
+
+<h3>8.7 Da correlação ao modelo causal</h3>
 <div class="formula">$$Juros_t=\alpha+\beta\,Déficit_{t-1}+\gamma\,\pi^e_t+\delta\,Hiato_t+\theta\,Risco_t+\varepsilon_t$$</div>
 <p>Uma regressão é uma correlação <em>condicional</em>: o efeito do déficit mantendo fixos os outros fatores (Conteúdo 4).</p>
 <div class="grid2">
@@ -610,7 +655,7 @@ pwcorr _all, sig</code></pre></div>
 </div>
 <p>O que convence não é o modelo, é o <strong>desenho de identificação</strong> em volta dele.</p>
 
-<h3>8.7 Viés de variável omitida em números</h3>
+<h3>8.8 Viés de variável omitida em números</h3>
 <div class="formula">$$\hat\beta=\beta+\gamma\,\frac{Cov(X,Z)}{Var(X)}\qquad X=\text{déficit},\;Z=\text{inflação (omitida)},\;\gamma=\text{efeito de }Z\text{ sobre os juros}$$</div>
 <div class="grid3 conta">
   <div class="box"><h4>Efeito verdadeiro</h4><p class="big">\(\beta=+0{,}5\)</p><p>o déficit eleva os juros</p></div>
@@ -619,7 +664,7 @@ pwcorr _all, sig</code></pre></div>
 </div>
 <p>Na aba <code>Fiscal_Selic</code>, a regressão da Selic no déficit dá <strong>\(\hat\beta=-0{,}88\)</strong> (ep 0,12) sem controle e <strong>+0,52</strong> (ep 0,08) com a inflação, perto do efeito verdadeiro (+0,5). A identidade confere: \(0{,}52+1{,}57\times(-0{,}89)=-0{,}88\). Omitir um único confundidor pode <strong>inverter o sinal</strong> da relação. Foi exatamente o que o reel fez. <em>Pergunta:</em> qual seria o sinal do viés se a correlação entre inflação e déficit fosse positiva?</p>
 
-<h3>8.8 Paradoxo de Simpson</h3>
+<h3>8.9 Paradoxo de Simpson</h3>
 <div class="chart wide" style="margin:12px 0"><h4>Superávit primário × Selic (aba Fiscal_Selic, simulada; efeito verdadeiro do déficit = +0,5)</h4><svg id="gSimpson" viewBox="0 0 560 340" role="img" aria-label="Paradoxo de Simpson: superávit e Selic por regime de inflação"></svg>
   <div class="legend"><span class="dot" style="--c:var(--accent-2)">inflação alta</span><span class="dot" style="--c:var(--bar)">inflação baixa</span><span class="dash" style="--c:var(--muted)">todos os anos juntos</span></div></div>
 <div class="table-wrap"><table>
@@ -627,7 +672,7 @@ pwcorr _all, sig</code></pre></div>
 <tbody><tr><td>Todos os anos juntos</td><td class="num">+0,82</td></tr><tr><td>Só inflação alta</td><td class="num">−0,50</td></tr><tr><td>Só inflação baixa</td><td class="num">−0,59</td></tr></tbody></table></div>
 <p>Dentro de cada regime, mais superávit vem com Selic menor, que é o efeito verdadeiro. Juntando os regimes, o padrão se inverte: é o que o reel mostra, ao misturar 1999–2005 (inflação e risco altos) com 2017–2021 (inflação baixa).</p>
 
-<h3>8.9 Como investigar causalidade</h3>
+<h3>8.10 Como investigar causalidade</h3>
 <div class="grid3">
   <div class="box"><h4>Controlar os confundidores</h4><p>Regressão com inflação esperada, hiato do produto e risco-país (regra de Taylor ampliada).</p></div>
   <div class="box"><h4>Usar a dinâmica</h4><p>Modelos VAR e choques fiscais identificados: como os juros reagem depois de um anúncio fiscal?</p></div>
@@ -636,7 +681,7 @@ pwcorr _all, sig</code></pre></div>
 <p><strong>Estudo de evento: a janela curta.</strong> Em poucas horas, inflação, PIB e cenário externo não mudam: a variação dos juros na janela de um dia em torno de um anúncio fiscal inesperado pode ser atribuída à notícia, porque tudo o que já se sabia está nos preços antes dele. Meça a variação do DI longo, do câmbio e da inflação implícita (por exemplo, no pacote fiscal de novembro de 2024). Limitação: mede o efeito sobre expectativas e preços de mercado, não necessariamente sobre a Selic.</p>
 <div class="box"><h4>Leitura sugerida</h4><p>Blanchard, O. (2004). “Fiscal dominance and inflation targeting: lessons from Brazil”. <em>NBER Working Paper</em> 10389. Mostra como, em 2002–2003, o risco fiscal pode tornar a política de juros menos eficaz. O canal existe; ele passa por expectativas e dívida, não pelo primário de um ano. É também o gancho para os Conteúdos 6 a 8: DiD, RDD e controle sintético existem justamente porque correlação não basta.</p></div>
 
-<h3>8.10 Atividade em sala · 20 minutos</h3>
+<h3>8.11 Atividade em sala · 20 minutos</h3>
 <div class="grid2">
   <div class="box"><h4>Parte A · calcule o r</h4>
     <div class="table-wrap"><table><thead><tr><th class="num">X</th><th class="num">Y</th></tr></thead><tbody>
@@ -652,7 +697,7 @@ pwcorr _all, sig</code></pre></div>
   </div>
 </div>
 
-<h3>8.11 Tarefa para casa: refaça o gráfico com dados oficiais</h3>
+<h3>8.12 Tarefa para casa: refaça o gráfico com dados oficiais</h3>
 <ol>
 <li>Baixe no SGS/BCB a Selic, o IPCA, o resultado primário e a dívida bruta (% do PIB), de 1999 a 2025.</li>
 <li>Calcule o \(r\) entre primário e Selic em nível e depois em variações (Δ).</li>
@@ -903,6 +948,31 @@ pcorr afogamentos sorvetes_vendidos temperatura_c         // correlação parcia
   xSel.addEventListener('change',run); ySel.addEventListener('change',run);
   document.addEventListener('themechange',run);
   document.addEventListener('DOMContentLoaded',function(){fillVars();run();});
+})();
+</script>
+<script>
+// Simulador da dívida indexada à Selic (Seção 8.6)
+(function(){
+  function el(id){return +document.getElementById(id).value;}
+  function trajetoria(b0,theta,dS,prim){
+    var b=[b0], selic=0.10+dS/100, outros=0.10, g=0.09;
+    for(var t=0;t<5;t++){var i=theta*selic+(1-theta)*outros; b.push(b[t]*(1+i)/(1+g)-prim);}
+    return b;
+  }
+  function run(){
+    var b0=el('lrB'), th=el('lrT')/100, dS=el('lrS'), pr=el('lrP');
+    var base=trajetoria(b0,th,0,pr), choque=trajetoria(b0,th,dS,pr), desind=trajetoria(b0,0,dS,pr), anos=[0,1,2,3,4,5];
+    var all=base.concat(choque,desind), lo=Math.min.apply(null,all), hi=Math.max.apply(null,all), pad=Math.max(1,(hi-lo)*0.15);
+    var f=plotFrame(document.getElementById('lrPlot'),{xlim:[-0.3,5.3],ylim:[lo-pad,hi+pad],xticks:anos,xfmt:function(v){return 'ano '+v;},xlabel:'anos após o aumento da Selic',ylabel:'dívida bruta (% do PIB)'});
+    plotLine(f,anos,base,css('--muted'),2.4); plotLine(f,anos,desind,css('--bar'),2.4,'7 5');
+    plotLine(f,anos,choque,css('--accent-2'),2.8); plotPoints(f,anos,choque,css('--accent-2'),3.2,1);
+    var custo1=th*b0*dS/100;
+    statCards('lrOut',[['Custo extra de juros no 1º ano',fmt(custo1,2)+' <small>% do PIB</small>'],['Dívida em 5 anos: sem aumento',fmt(base[5],1)+'%'],
+      ['Dívida em 5 anos: com aumento (θ = '+fmt(th*100,0)+'%)',fmt(choque[5],1)+'%'],['Diferença causada pela indexação',fmt(choque[5]-desind[5],1)+' <small>p.p. do PIB</small>']]);
+  }
+  ['lrB','lrT','lrS','lrP'].forEach(function(id){document.getElementById(id).addEventListener('input',run);});
+  document.addEventListener('themechange',run);
+  document.addEventListener('DOMContentLoaded',run);
 })();
 </script>
 </body>
