@@ -40,7 +40,8 @@
     <li><a href="#exemplo">5. Exemplo e código</a></li>
     <li><a href="#simulador">6. Simulador</a></li>
     <li><a href="#casos">7. Estudos de caso</a></li>
-    <li><a href="#exercicios">8. Exercícios</a></li>
+    <li><a href="#reel">8. Caso: o reel da Selic</a></li>
+    <li><a href="#exercicios">9. Exercícios</a></li>
   </ul>
 </nav>
 
@@ -510,8 +511,214 @@ pwcorr _all, sig</code></pre></div>
 </section>
 
 <!-- 8 -->
+<section id="reel">
+<h2>8. Estudo de caso: o reel da Selic e do déficit</h2>
+<p class="lede-sec">O que um vídeo viral sobre Selic e déficit público pode, e não pode, provar. O estudo treina o olhar crítico sobre correlação a partir de um caso real das redes sociais.</p>
+<p class="hint">Base sintética do estudo: <a href="../dados_caso/correlacao_causalidade_sintetica.xlsx" download><code>correlacao_causalidade_sintetica.xlsx</code></a>, com as abas <code>Galeria_r</code>, <code>Sorvete_Afogamento</code> e <code>Fiscal_Selic</code>, gerada por <a href="../dados_caso/base_correlacao_causalidade.py" download><code>base_correlacao_causalidade.py</code></a>. Todos os dados da base são simulados.</p>
+
+<h3>8.1 O argumento do reel, em três passos</h3>
+<div class="grid3">
+  <div class="box"><h4>1 · Entre países</h4><p><strong>24 de 27 economias</strong> têm déficit primário em 2025, e quase todas têm juros bem menores que os do Brasil.</p></div>
+  <div class="box"><h4>2 · Brasil 1999–2008</h4><p>Superávits de cerca de 3% do PIB com Selic altíssima. Em 2003: superávit de +3,2% e Selic de 23,4%.</p></div>
+  <div class="box"><h4>3 · Brasil 2014–2021</h4><p>Déficits seguidos com Selic menor. Em 2018: déficit de −1,6% e Selic de 6,4%.</p></div>
+</div>
+<p><strong>Conclusão do vídeo:</strong> “déficit não causa juros altos — é mito”.</p>
+<p class="hint">Fonte: reel “O mito da Selic alta por conta do déficit” (Instagram), com os números como aparecem no vídeo. Reconstruímos o argumento de forma justa antes de criticá-lo. Note que, na série brasileira, superávit e Selic andam juntos: a correlação observada é <em>positiva</em>, e o vídeo usa isso para negar que o déficit eleve os juros.</p>
+
+<h3>8.2 A régua está certa; o salto, não</h3>
+<p>O vídeo define corretamente o coeficiente de Pearson, \(r=\dfrac{Cov(X,Y)}{\sigma_X\,\sigma_Y}\): sem unidade, entre −1 e +1, simétrico. O problema é o salto: ele nunca calcula o \(r\) e trata o <em>sinal</em> da correlação como prova de causa. O \(r\) não diz quem causa quem, se existe um terceiro fator, nem se a relação é não linear.</p>
+<div class="chart wide" style="margin:12px 0"><h4>Como cada valor de r aparece nos dados (simulados, n = 60 por painel)</h4><svg id="gGaleria" viewBox="0 0 720 420" role="img" aria-label="Seis gráficos de dispersão com diferentes valores de r"></svg></div>
+<div class="chart wide" style="margin:12px 0"><h4>Duas armadilhas do r</h4><svg id="gArmadilhas" viewBox="0 0 720 280" role="img" aria-label="Gráficos de outlier e de relação não linear"></svg></div>
+<ul>
+<li><strong>Outlier:</strong> um único ponto cria uma correlação de +0,51 onde não havia nenhuma (sem ele, r = −0,01).</li>
+<li><strong>Não linearidade:</strong> no painel em U, Y depende fortemente de X, mas r ≈ 0. O \(r\) mede só associação <em>linear</em>.</li>
+<li>Lição: nunca reporte \(r\) sem o diagrama de dispersão. No reel, isso significaria plotar superávit contra Selic ano a ano, o que o vídeo não faz.</li>
+</ul>
+
+<div class="box pausa">
+<h4>Pausa para a turma · 5 minutos</h4>
+<p><strong>Os dados mostram correlação. Isso basta para concluir causalidade?</strong> Em duplas, listem tudo o que poderia produzir esse mesmo gráfico sem que o déficit seja irrelevante para os juros. Depois, confiram com os cinco problemas abaixo.</p>
+</div>
+
+<h3>8.3 Os cinco problemas do argumento</h3>
+<div class="problema"><span class="tag">Problema 1 de 5</span><h4>Causalidade reversa</h4>
+<div class="fluxo"><div><strong>Selic alta</strong><small>inflação e crise em 1999–2003</small></div><span>→</span><div><strong>Juros da dívida explodem</strong><small>a dívida cresce sozinha</small></div><span>→</span><div class="destaque"><strong>Governo faz superávit</strong><small>metas fiscais, acordo com o FMI, LRF</small></div></div>
+<p>Os superávits de 1999–2008 foram, em boa parte, <strong>resposta</strong> aos juros altos e à dívida, e não algo que “conviveu” com eles por acaso. O tripé de 1999 (câmbio flutuante, metas de inflação e metas de superávit primário) e a Lei de Responsabilidade Fiscal (2000) fizeram do superávit a variável de ajuste. Se a seta vai da Selic para o superávit, a correlação positiva é exatamente o que se espera.</p></div>
+
+<div class="problema"><span class="tag">Problema 2 de 5</span><h4>Variável omitida (confundidor)</h4>
+<svg class="dag" viewBox="0 0 420 170" role="img" aria-label="Inflação e risco causam Selic e superávit">
+  <defs><marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+  <g stroke="currentColor" stroke-width="2" fill="none" style="color:var(--muted)">
+    <line x1="175" y1="52" x2="95" y2="118" marker-end="url(#arr2)"/>
+    <line x1="245" y1="52" x2="325" y2="118" marker-end="url(#arr2)"/>
+    <line x1="120" y1="138" x2="298" y2="138" stroke-dasharray="6 4"/>
+  </g>
+  <rect x="140" y="10" width="140" height="42" rx="10" fill="var(--hero1)"/><text x="210" y="36" text-anchor="middle" style="fill:#fff">Inflação e risco</text>
+  <rect x="20" y="118" width="100" height="40" rx="10" fill="var(--surface)" stroke="var(--border)"/><text x="70" y="143" text-anchor="middle">Selic</text>
+  <rect x="298" y="118" width="110" height="40" rx="10" fill="var(--surface)" stroke="var(--border)"/><text x="353" y="143" text-anchor="middle">Superávit</text>
+</svg>
+<p class="hint" style="text-align:center">Linha tracejada: a correlação que o gráfico mostra · setas cheias: causas</p>
+<p>Um terceiro fator move as duas séries ao mesmo tempo. Em 2002–2003, inflação de dois dígitos, câmbio disparado e risco-país acima de 2.000 pontos <em>exigem</em> Selic alta e <em>forçam</em> o ajuste fiscal. Em 2017–2020, inflação baixa e recessão permitiram Selic baixa, enquanto a arrecadação caía e o déficit crescia.</p>
+<p><strong>O clássico com os mesmos números:</strong> na aba <code>Sorvete_Afogamento</code> (52 semanas), r(sorvete, afogamentos) = <strong>+0,75</strong>. A temperatura causa as duas: r(temperatura, sorvete) = 0,91 e r(temperatura, afogamentos) = 0,82. Removido o confundidor, a correlação parcial é <strong>−0,01</strong>:</p>
+<div class="formula">$$r_{xy\cdot z}=\frac{r_{xy}-r_{xz}\,r_{yz}}{\sqrt{(1-r_{xz}^2)(1-r_{yz}^2)}}=\frac{0{,}75-0{,}91\times0{,}82}{\sqrt{(1-0{,}91^2)(1-0{,}82^2)}}\approx -0{,}01$$</div>
+<p>Aqui a temperatura faz o papel da inflação e do risco-país. A correlação parcial é a versão “controlada” do \(r\): compara situações com a mesma temperatura (ou a mesma inflação e o mesmo risco).</p></div>
+
+<div class="problema"><span class="tag">Problema 3 de 5</span><h4>Tendência comum em séries de tempo</h4>
+<p>Duas séries que apenas caem com o tempo terão \(r\) alto, mesmo sem ligação nenhuma. A Selic cai há 30 anos por causa da desinflação pós-Real; qualquer série com tendência vai “correlacionar” com ela (veja margarina × divórcio e salário mínimo × cesta básica na Seção 7). Remédio: olhar variações (Δ), remover a tendência e testar estacionariedade. Granger e Newbold (1974) chamaram esse fenômeno de <strong>regressão espúria</strong>.</p></div>
+
+<div class="problema"><span class="tag">Problema 4 de 5</span><h4>Países não comparáveis</h4>
+<div class="grid2">
+  <div><strong>Moeda e credibilidade.</strong> Os EUA emitem a moeda-reserva do mundo; o Japão financia a dívida com poupança interna.</div>
+  <div><strong>Histórico de inflação.</strong> O juro nominal embute a inflação esperada: comparar só o nominal mistura coisas diferentes.</div>
+  <div><strong>Primário ≠ nominal.</strong> O Brasil aparece com −0,4%, mas, somando os juros, o déficit nominal fica perto de 8% do PIB (confira na série de NFSP do Banco Central).</div>
+  <div><strong>Fluxo × estoque.</strong> O que pesa no prêmio de risco é a trajetória da dívida e as expectativas, não o resultado de um único ano.</div>
+</div>
+<p><strong>Falácia ecológica:</strong> um padrão entre países não diz como os juros de <em>um</em> país reagem ao seu próprio déficit. A pergunta relevante é contrafactual: se o Brasil tivesse uma trajetória fiscal mais sólida, a Selic seria menor?</p></div>
+
+<div class="problema"><span class="tag">Problema 5 de 5</span><h4>Qualidade e coerência dos dados</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>O que o vídeo mostra</th><th>O que conferir</th></tr></thead>
+<tbody>
+<tr><td>Brasil com juros de 13,75%</td><td>Esse foi o nível de 2023; ao longo de 2025 a Selic ficou em 15%</td></tr>
+<tr><td>Uma coluna “juros” por país</td><td>Datas misturadas? Taxa básica, título de 10 anos ou juro real?</td></tr>
+<tr><td>27 países escolhidos</td><td>Por que esses? Mudar a amostra muda a conclusão? (<em>cherry picking</em>)</td></tr>
+<tr><td>Nenhum r calculado</td><td>O vídeo fala em correlação, mas nunca mostra o coeficiente nem um diagrama de dispersão</td></tr>
+</tbody></table></div>
+<p>Antes de discutir causa, pergunte: de onde vêm os números, de quando são e quem escolheu a amostra?</p></div>
+
+<h3>8.4 O que o gráfico permite dizer</h3>
+<div class="grid2">
+  <div class="box"><h4>Pode dizer</h4><ul><li>Superávit e Selic andaram juntos no Brasil de 1999 a 2008.</li><li>Muitos países com déficit têm juros baixos.</li><li>O déficit primário não é o único determinante dos juros.</li></ul></div>
+  <div class="box warn"><h4>Não pode dizer</h4><ul><li>Que o déficit não afeta os juros.</li><li>Qual a direção da causalidade.</li><li>O que aconteceria com a Selic se a política fiscal fosse outra.</li></ul></div>
+</div>
+<p><strong>“É mito” e “é verdade” exigem o mesmo tipo de prova: causal.</strong> O erro é simétrico: quem afirmasse que o déficit causa juros altos usando só uma correlação cometeria o mesmo erro. A conclusão honesta é que o gráfico é inconclusivo sobre causalidade.</p>
+
+<h3>8.5 Canais: do déficit aos juros</h3>
+<div class="fluxo"><div><strong>Déficit persistente</strong></div><span>→</span><div><strong>Dívida projetada sobe</strong></div><span>→</span><div class="destaque"><strong>Prêmio de risco</strong><small>o mercado cobra mais: juros longos e câmbio sobem</small></div></div>
+<ul>
+<li><strong>Inflação esperada:</strong> demanda aquecida e real fraco levam o Copom a subir a Selic.</li>
+<li><strong>Dominância fiscal:</strong> subir juros piora a dívida e enfraquece a política monetária.</li>
+</ul>
+<p>Todos os canais passam por <strong>dívida e expectativas</strong>, com defasagem, e não pelo resultado primário de um único ano. Por isso a correlação contemporânea entre primário e Selic pode ter qualquer sinal, e o gráfico do reel olha para a variável errada (Blanchard, 2004).</p>
+
+<h3>8.6 Da correlação ao modelo causal</h3>
+<div class="formula">$$Juros_t=\alpha+\beta\,Déficit_{t-1}+\gamma\,\pi^e_t+\delta\,Hiato_t+\theta\,Risco_t+\varepsilon_t$$</div>
+<p>Uma regressão é uma correlação <em>condicional</em>: o efeito do déficit mantendo fixos os outros fatores (Conteúdo 4).</p>
+<div class="grid2">
+  <div class="box"><h4>β é causal se…</h4><ul><li>nenhum confundidor ficou em \(\varepsilon\);</li><li>não há causalidade reversa;</li><li>o déficit varia “como se fosse aleatório”.</li></ul></div>
+  <div class="box"><h4>Cuidados práticos</h4><ul><li>prefira o juro longo (DI de 10 anos) à Selic, que o Copom fixa olhando a inflação esperada;</li><li>defasar o déficit ajuda, mas não resolve, porque o governo também reage aos juros esperados;</li><li>use dívida e expectativas, não só o primário.</li></ul></div>
+</div>
+<p>O que convence não é o modelo, é o <strong>desenho de identificação</strong> em volta dele.</p>
+
+<h3>8.7 Viés de variável omitida em números</h3>
+<div class="formula">$$\hat\beta=\beta+\gamma\,\frac{Cov(X,Z)}{Var(X)}\qquad X=\text{déficit},\;Z=\text{inflação (omitida)},\;\gamma=\text{efeito de }Z\text{ sobre os juros}$$</div>
+<div class="grid3 conta">
+  <div class="box"><h4>Efeito verdadeiro</h4><p class="big">\(\beta=+0{,}5\)</p><p>o déficit eleva os juros</p></div>
+  <div class="box"><h4>Viés</h4><p class="big">1,5 × (−0,8)</p><p>a inflação alta coincidiu com superávit</p></div>
+  <div class="box warn"><h4>Estimado sem Z</h4><p class="big">\(\hat\beta=-0{,}7\)</p><p>“o déficit reduz os juros”</p></div>
+</div>
+<p>Na aba <code>Fiscal_Selic</code>, a regressão da Selic no déficit dá <strong>\(\hat\beta=-0{,}88\)</strong> (ep 0,12) sem controle e <strong>+0,52</strong> (ep 0,08) com a inflação, perto do efeito verdadeiro (+0,5). A identidade confere: \(0{,}52+1{,}57\times(-0{,}89)=-0{,}88\). Omitir um único confundidor pode <strong>inverter o sinal</strong> da relação. Foi exatamente o que o reel fez. <em>Pergunta:</em> qual seria o sinal do viés se a correlação entre inflação e déficit fosse positiva?</p>
+
+<h3>8.8 Paradoxo de Simpson</h3>
+<div class="chart wide" style="margin:12px 0"><h4>Superávit primário × Selic (aba Fiscal_Selic, simulada; efeito verdadeiro do déficit = +0,5)</h4><svg id="gSimpson" viewBox="0 0 560 340" role="img" aria-label="Paradoxo de Simpson: superávit e Selic por regime de inflação"></svg>
+  <div class="legend"><span class="dot" style="--c:var(--accent-2)">inflação alta</span><span class="dot" style="--c:var(--bar)">inflação baixa</span><span class="dash" style="--c:var(--muted)">todos os anos juntos</span></div></div>
+<div class="table-wrap"><table>
+<thead><tr><th>Amostra</th><th class="num">r(superávit, Selic)</th></tr></thead>
+<tbody><tr><td>Todos os anos juntos</td><td class="num">+0,82</td></tr><tr><td>Só inflação alta</td><td class="num">−0,50</td></tr><tr><td>Só inflação baixa</td><td class="num">−0,59</td></tr></tbody></table></div>
+<p>Dentro de cada regime, mais superávit vem com Selic menor, que é o efeito verdadeiro. Juntando os regimes, o padrão se inverte: é o que o reel mostra, ao misturar 1999–2005 (inflação e risco altos) com 2017–2021 (inflação baixa).</p>
+
+<h3>8.9 Como investigar causalidade</h3>
+<div class="grid3">
+  <div class="box"><h4>Controlar os confundidores</h4><p>Regressão com inflação esperada, hiato do produto e risco-país (regra de Taylor ampliada).</p></div>
+  <div class="box"><h4>Usar a dinâmica</h4><p>Modelos VAR e choques fiscais identificados: como os juros reagem depois de um anúncio fiscal?</p></div>
+  <div class="box"><h4>Experimentos naturais</h4><p>Estudos de evento: o que acontece com a curva de juros no dia de uma surpresa fiscal?</p></div>
+</div>
+<p><strong>Estudo de evento: a janela curta.</strong> Em poucas horas, inflação, PIB e cenário externo não mudam: a variação dos juros na janela de um dia em torno de um anúncio fiscal inesperado pode ser atribuída à notícia, porque tudo o que já se sabia está nos preços antes dele. Meça a variação do DI longo, do câmbio e da inflação implícita (por exemplo, no pacote fiscal de novembro de 2024). Limitação: mede o efeito sobre expectativas e preços de mercado, não necessariamente sobre a Selic.</p>
+<div class="box"><h4>Leitura sugerida</h4><p>Blanchard, O. (2004). “Fiscal dominance and inflation targeting: lessons from Brazil”. <em>NBER Working Paper</em> 10389. Mostra como, em 2002–2003, o risco fiscal pode tornar a política de juros menos eficaz. O canal existe; ele passa por expectativas e dívida, não pelo primário de um ano. É também o gancho para os Conteúdos 6 a 8: DiD, RDD e controle sintético existem justamente porque correlação não basta.</p></div>
+
+<h3>8.10 Atividade em sala · 20 minutos</h3>
+<div class="grid2">
+  <div class="box"><h4>Parte A · calcule o r</h4>
+    <div class="table-wrap"><table><thead><tr><th class="num">X</th><th class="num">Y</th></tr></thead><tbody>
+    <tr><td class="num">1</td><td class="num">2</td></tr><tr><td class="num">2</td><td class="num">4</td></tr><tr><td class="num">3</td><td class="num">5</td></tr><tr><td class="num">4</td><td class="num">4</td></tr><tr><td class="num">5</td><td class="num">5</td></tr></tbody></table></div>
+    <details><summary>Ver gabarito</summary><div class="ans"><p>Médias: \(\bar X=3\), \(\bar Y=4\). Desvios de X: −2, −1, 0, 1, 2; de Y: −2, 0, 1, 0, 1. Soma dos produtos = 6; soma dos quadrados de X = 10, de Y = 6. \(r=6/\sqrt{60}\approx\mathbf{0{,}77}\): correlação positiva forte, mas com apenas 5 pontos. O reel também usa poucos anos e poucos países.</p></div></details>
+  </div>
+  <div class="box"><h4>Parte B · em grupos</h4><ol>
+    <li>Desenhe um diagrama causal (setas) ligando déficit, Selic, inflação e risco-país.</li>
+    <li>Aponte um confundidor e uma possível causalidade reversa.</li>
+    <li>Proponha um dado ou desenho que testaria o efeito do déficit sobre os juros.</li>
+    <li>Reescreva a legenda do reel de forma honesta, em uma frase.</li></ol>
+    <details><summary>Ver sugestão de legenda</summary><div class="ans"><p>“Déficit e Selic não andam juntos de forma simples; o gráfico sozinho não prova nem refuta o efeito do fiscal sobre os juros.”</p></div></details>
+  </div>
+</div>
+
+<h3>8.11 Tarefa para casa: refaça o gráfico com dados oficiais</h3>
+<ol>
+<li>Baixe no SGS/BCB a Selic, o IPCA, o resultado primário e a dívida bruta (% do PIB), de 1999 a 2025.</li>
+<li>Calcule o \(r\) entre primário e Selic em nível e depois em variações (Δ).</li>
+<li>Separe em dois regimes de inflação e calcule o \(r\) em cada um.</li>
+<li>Estime a regressão com o IPCA como controle e compare o sinal do \(\beta\).</li>
+</ol>
+<p><strong>Entrega:</strong> uma página com os quatro resultados e a resposta à pergunta “o reel tinha razão?”. A tarefa replica as três lições da aula: nível × diferenças (tendência), subgrupos (Simpson) e regressão com controle (viés de variável omitida). O resultado esperado é que o sinal e a magnitude mudem conforme a especificação.</p>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="rpy">Python</button>
+    <button role="tab" aria-selected="false" data-tab="rr">R</button>
+    <button role="tab" aria-selected="false" data-tab="rst">Stata</button>
+  </div>
+<div class="tabpanel active" data-panel="rpy"><pre><code>import pandas as pd
+import statsmodels.formula.api as smf
+
+# Base sintética do estudo (as três lições com dados simulados)
+f = pd.read_excel("dados_caso/correlacao_causalidade_sintetica.xlsx", sheet_name="Fiscal_Selic")
+f["superavit_primario"].corr(f["selic"])                        # todos: +0,82
+f.groupby("regime")[["superavit_primario", "selic"]].corr()     # Simpson
+smf.ols("selic ~ deficit_primario", f).fit().params             # β = −0,88
+smf.ols("selic ~ deficit_primario + inflacao", f).fit().params  # β = +0,52
+
+s = pd.read_excel("dados_caso/correlacao_causalidade_sintetica.xlsx", sheet_name="Sorvete_Afogamento")
+s.drop(columns="semana").corr()                                 # r e correlações com a temperatura
+
+# Tarefa: dados oficiais do SGS/BCB (pip install python-bcb)
+# from bcb import sgs
+# d = sgs.get({"selic": 432, "ipca": 433}, start="1999-01-01")   # confira os códigos no SGS
+# Acrescente as séries de resultado primário e dívida bruta (% do PIB) e repita as contas
+# em nível, em diferenças (d.diff()) e por regime de inflação.</code></pre></div>
+<div class="tabpanel" data-panel="rr"><pre><code>library(readxl)
+f &lt;- read_excel("dados_caso/correlacao_causalidade_sintetica.xlsx", sheet = "Fiscal_Selic")
+cor(f$superavit_primario, f$selic)
+by(f, f$regime, function(d) cor(d$superavit_primario, d$selic))     # Simpson
+coef(lm(selic ~ deficit_primario, f))
+coef(lm(selic ~ deficit_primario + inflacao, f))
+
+s &lt;- read_excel("dados_caso/correlacao_causalidade_sintetica.xlsx", sheet = "Sorvete_Afogamento")
+cor(resid(lm(sorvetes_vendidos ~ temperatura_c, s)),
+    resid(lm(afogamentos ~ temperatura_c, s)))                     # correlação parcial
+
+# Tarefa: install.packages("rbcb"); rbcb::get_series(c(selic = 432, ipca = 433))
+# (confira os códigos das séries no SGS e acrescente primário e dívida bruta)</code></pre></div>
+<div class="tabpanel" data-panel="rst"><pre><code>import excel "dados_caso/correlacao_causalidade_sintetica.xlsx", sheet("Fiscal_Selic") firstrow clear
+correlate superavit_primario selic
+bysort regime: correlate superavit_primario selic        // Simpson
+regress selic deficit_primario
+regress selic deficit_primario inflacao                   // viés de variável omitida
+
+import excel "dados_caso/correlacao_causalidade_sintetica.xlsx", sheet("Sorvete_Afogamento") firstrow clear
+pcorr afogamentos sorvetes_vendidos temperatura_c         // correlação parcial
+
+* Tarefa: ssc install sgsbcb (ou importe os CSVs baixados do SGS/BCB)</code></pre></div>
+</div>
+
+<div class="box para-levar">
+<h4>Para levar</h4>
+<p class="big">Correlação é o começo da pergunta, não a resposta.</p>
+<p>Diante de qualquer gráfico viral: qual é a seta? Existe um terceiro fator? Os dados são comparáveis? Tarefa extra: traga um gráfico de rede social que confunda correlação com causalidade e aplique as cinco checagens.</p>
+</div>
+</section>
+
+<!-- 9 -->
 <section id="exercicios">
-<h2>8. Exercícios</h2>
+<h2>9. Exercícios</h2>
 <ol class="exercises">
 <li>
 <p>Em uma amostra de 50 municípios, a correlação entre o número de bibliotecas e a taxa de homicídios é 0,62. Um vereador conclui que “bibliotecas aumentam a violência”. Aponte o erro e proponha uma variável que explique a correlação.</p>
@@ -620,6 +827,34 @@ pwcorr _all, sig</code></pre></div>
       usados.push([px,py,w]);
       f.svg.appendChild(svgEl('text',{x:px,y:py,style:'fill:'+css('--text')},nomes[i]));});
   }
+  function painelXY(svg,x0,y0,w,h,X,Y,titulo,cor){
+    var g=svgEl('g',{transform:'translate('+x0+','+y0+')'}); svg.appendChild(g);
+    var xs=[Math.min.apply(null,X),Math.max.apply(null,X)], ys=[Math.min.apply(null,Y),Math.max.apply(null,Y)];
+    var px=function(v){return 8+(v-xs[0])/(xs[1]-xs[0])*(w-16);}, py=function(v){return h-8-(v-ys[0])/(ys[1]-ys[0])*(h-40);};
+    g.appendChild(svgEl('rect',{x:0,y:0,width:w,height:h,rx:10,fill:css('--surface'),stroke:css('--border')}));
+    g.appendChild(svgEl('text',{x:10,y:20,style:'fill:'+css('--text')+';font-weight:700;font-size:12.5px'},titulo));
+    X.forEach(function(x,i){g.appendChild(svgEl('circle',{cx:px(x),cy:py(Y[i]),r:2.6,fill:cor,'fill-opacity':0.7}));});
+    return {g:g,px:px,py:py};
+  }
+  function reel(){
+    var R=CASOS3.Reel; if(!R) return;
+    var G=R.galeria, sv=document.getElementById('gGaleria'); sv.innerHTML='';
+    var ordem=[['r_090',css('--bar')],['r_050',css('--bar')],['r_000',css('--muted')],['r_m050',css('--accent-2')],['r_m090',css('--accent-2')],['nao_linear',css('--muted')]];
+    ordem.forEach(function(o,k){var d=G[o[0]], r=pearson(d[0],d[1]);
+      painelXY(sv,(k%3)*240+4,Math.floor(k/3)*210+4,228,200,d[0],d[1],'r = '+(r>=0?'+':'')+fmt(r,2)+(o[0]==='nao_linear'?' (relação em U)':''),o[1]);});
+    var sa=document.getElementById('gArmadilhas'); sa.innerHTML='';
+    var o=G.outlier, rr=pearson(o[0],o[1]), rs=pearson(o[0].slice(0,-1),o[1].slice(0,-1));
+    var P=painelXY(sa,4,4,350,270,o[0],o[1],'Com o outlier r = +'+fmt(rr,2)+' · sem ele r = '+fmt(rs,2),css('--bar'));
+    P.g.appendChild(svgEl('circle',{cx:P.px(o[0][o[0].length-1]),cy:P.py(o[1][o[1].length-1]),r:7,fill:'none',stroke:css('--accent-2'),'stroke-width':2.5}));
+    var u=G.nao_linear; painelXY(sa,366,4,350,270,u[0],u[1],'Relação em U: r = '+fmt(pearson(u[0],u[1]),2),css('--muted'));
+    var F=R.fiscal, X=F.superavit, Y=F.selic, A=F.alta;
+    var f=plotFrame(document.getElementById('gSimpson'),{xlim:[Math.min.apply(null,X)-0.5,Math.max.apply(null,X)+0.5],ylim:[Math.min.apply(null,Y)-0.8,Math.max.apply(null,Y)+0.8],xlabel:'Superávit primário (% do PIB)',ylabel:'Selic (%)'});
+    var fit=function(idx){var m=ols(idx.map(function(i){return [1,X[i]];}),idx.map(function(i){return Y[i];})),xx=idx.map(function(i){return X[i];}),lo=Math.min.apply(null,xx),hi=Math.max.apply(null,xx);return [lo,hi,m.beta[0]+m.beta[1]*lo,m.beta[0]+m.beta[1]*hi];};
+    var todos=X.map(function(_,i){return i;}), ia=todos.filter(function(i){return A[i];}), ib=todos.filter(function(i){return !A[i];});
+    var l=fit(todos); plotLine(f,[l[0],l[1]],[l[2],l[3]],css('--muted'),2,'7 5');
+    [[ia,css('--accent-2')],[ib,css('--bar')]].forEach(function(z){var q=fit(z[0]);plotLine(f,[q[0],q[1]],[q[2],q[3]],z[1],2.6);
+      plotPoints(f,z[0].map(function(i){return X[i];}),z[0].map(function(i){return Y[i];}),z[1],4,0.85);});
+  }
   function run(){
     var SA=CASOS3.SorveteAula; dual('gSorvAula',SA.tempo,SA.dados[0],SA.dados[1],1,'Vendas de sorvetes','Número de afogamentos','Mês');
     var SL=CASOS3.Salario; dual('gSal',SL.tempo,SL.dados[0],SL.dados[1],6,'Cesta básica (R$)','Salário mínimo (R$)','Mês');
@@ -628,6 +863,7 @@ pwcorr _all, sig</code></pre></div>
     var M=CASOS3.Margarina; dual('gMarg',M.tempo,M.dados[0],M.dados[1],1,'Margarina (lb per capita, EUA)','Divórcios por mil hab. (Maine)','Ano');
     var C=CASOS3.Cage; dual('gCage',C.tempo,C.dados[0],C.dados[1],1,'Filmes com Nicolas Cage','Afogamentos em piscina (EUA)','Ano');
     var T=CASOS3.Carga; labeled('gCarga',T.dados[0],T.dados[1],T.nomes,'Índice de Gini','Carga tributária (% do PIB)',['Brasil','Índia']);
+    reel();
     var H=CASOS3.Saude; labeled('gSaude',H.dados[0],H.dados[1],H.nomes,'Gasto em saúde per capita (US$ PPC)','Suicídios por 100 mil hab.');
   }
   document.addEventListener('themechange',run);
@@ -640,7 +876,7 @@ pwcorr _all, sig</code></pre></div>
   if(!window.CASOS3) return;
   var bSel=document.getElementById('eB'), xSel=document.getElementById('eX'), ySel=document.getElementById('eY');
   var padrao={Sorvete:[1,2],Salario:[0,1],Vacina:[0,1],SorveteAula:[0,1],Apple:[0,1],Netflix:[0,1],CocaCola:[0,1],Tesla:[0,1],'Tarifaço':[0,1],Tesla_BYD:[0,1],Google:[0,1],Gini:[1,2],CocaPainel:[1,0]};
-  Object.keys(CASOS3).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=CASOS3[k].rotulo;bSel.appendChild(o);});
+  Object.keys(CASOS3).filter(function(k){return CASOS3[k].vars;}).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=CASOS3[k].rotulo;bSel.appendChild(o);});
   function fillVars(){
     var b=CASOS3[bSel.value]; [xSel,ySel].forEach(function(sel){sel.innerHTML='';b.vars.forEach(function(v,i){var o=document.createElement('option');o.value=i;o.textContent=v;sel.appendChild(o);});});
     var d=padrao[bSel.value]||[0,1]; xSel.value=d[0]; ySel.value=d[1];

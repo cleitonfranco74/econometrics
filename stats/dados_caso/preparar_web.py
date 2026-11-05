@@ -89,9 +89,23 @@ c3["Saude"] = tabela(sd[["gasto_saude_pc_usd_ppp", "suicidio_por_100mil"]].renam
     "gasto_saude_pc_usd_ppp": "Gasto em saúde per capita (US$ PPC)", "suicidio_por_100mil": "Suicídios por 100 mil hab."}),
     "Gasto em saúde × suicídio (12 países da OCDE)")
 c3["Saude"]["nomes"] = sd["pais"].tolist()
-ordem = ["SorveteAula", "Sorvete", "Margarina", "Cage", "Carga", "Salario", "Vacina", "Gini", "Saude", "Apple", "Netflix", "CocaCola", "Tesla",
+rx = pd.ExcelFile(AQUI / "correlacao_causalidade_sintetica.xlsx")
+gal = rx.parse("Galeria_r")
+c3_reel = {"galeria": {k: [d.x.round(3).tolist(), d.y.round(3).tolist()] for k, d in gal.groupby("painel")}}
+fs = rx.parse("Fiscal_Selic")
+c3_reel["fiscal"] = {"superavit": fs.superavit_primario.tolist(), "selic": fs.selic.tolist(),
+                     "alta": (fs.regime == "inflação alta").astype(int).tolist()}
+sw = rx.parse("Sorvete_Afogamento")
+c3["Sorvete52"] = tabela(sw[["temperatura_c", "sorvetes_vendidos", "afogamentos"]].rename(columns={
+    "temperatura_c": "Temperatura (°C)", "sorvetes_vendidos": "Sorvetes vendidos na semana", "afogamentos": "Afogamentos na semana"}),
+    "Sorvete × afogamentos (52 semanas, base do estudo do reel)")
+c3["Fiscal"] = tabela(fs[["superavit_primario", "selic", "inflacao"]].rename(columns={
+    "superavit_primario": "Superávit primário (% do PIB)", "selic": "Selic (%)", "inflacao": "Inflação (%)"}),
+    "Fiscal × Selic (simulado, dois regimes de inflação)")
+ordem = ["SorveteAula", "Sorvete", "Sorvete52", "Fiscal", "Margarina", "Cage", "Carga", "Salario", "Vacina", "Gini", "Saude", "Apple", "Netflix", "CocaCola", "Tesla",
          "Tarifaço", "Tesla_BYD", "Google", "CocaPainel"]
 c3 = {k: c3[k] for k in ordem}
+c3["Reel"] = c3_reel
 js("CASOS3", c3, STATS / "03-correlacao-causalidade-regressao" / "casos_dados.js")
 
 # ---------------- Conteúdo 4: laboratório de regressão múltipla ----------------
