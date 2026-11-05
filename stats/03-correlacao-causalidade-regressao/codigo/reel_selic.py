@@ -1,6 +1,7 @@
 # Conteúdo 3 — Estudo de caso: o reel da Selic e do déficit (Estatística e Econometria, PROFINIT)
 # Execute a partir da pasta codigo/.
 
+import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
@@ -8,8 +9,9 @@ import statsmodels.formula.api as smf
 f = pd.read_excel("../../dados_caso/correlacao_causalidade_sintetica.xlsx", sheet_name="Fiscal_Selic")
 f["superavit_primario"].corr(f["selic"])                        # todos: +0,82
 f.groupby("regime")[["superavit_primario", "selic"]].corr()     # Simpson
-smf.ols("selic ~ deficit_primario", f).fit().params             # β = −0,88
-smf.ols("selic ~ deficit_primario + inflacao", f).fit().params  # β = +0,52
+rx = smf.ols("superavit_primario ~ inflacao", f).fit().resid
+ry = smf.ols("selic ~ inflacao", f).fit().resid
+np.corrcoef(rx, ry)[0, 1]                                       # correlação parcial (controla a inflação)
 
 s = pd.read_excel("../../dados_caso/correlacao_causalidade_sintetica.xlsx", sheet_name="Sorvete_Afogamento")
 s.drop(columns="semana").corr()                                 # r e correlações com a temperatura
