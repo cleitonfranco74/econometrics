@@ -1,0 +1,115 @@
+# =====================================================================
+#  Laboratório "Vale a pena estudar?" — regressão linear simples e múltipla
+#  Prof. Cleiton Franco · UNEMAT
+#
+#  Base: dados/pnad_simulada.csv (2.000 trabalhadores FICTÍCIOS, estilo PNAD)
+#  Como usar no Gretl:
+#    1. Salve este arquivo na MESMA pasta do pnad_simulada.csv.
+#    2. Arquivo > Arquivos de script > Abrir arquivo de script... > laboratorio.inp
+#    3. Rode tudo (Ctrl+R) ou selecione um bloco e rode só ele.
+#  Linhas que começam com # são comentários: o Gretl não as executa.
+# =====================================================================
+
+open pnad_simulada.csv --quiet
+set hc_version 1          # erros-padrão robustos tipo HC1 (os mesmos do Stata)
+modeltab free             # zera a tabela de modelos
+
+# ---------------------------------------------------------------------
+# PARTE 0 · Conhecendo os dados
+# ---------------------------------------------------------------------
+summary salario_hora renda_mensal educ exper idade horas mulher urbano --simple
+
+# Salário-hora médio por nível de ensino: compare Superior com Médio
+summary salario_hora --by=superior --simple
+summary salario_hora --by=medio --simple
+
+# Variáveis novas
+series lsal = log(salario_hora)        # log natural do salário-hora
+series exper2 = exper^2                # experiência ao quadrado
+series educ_mulher = educ * mulher     # interação
+setinfo lsal --description="ln(salário-hora)"
+
+corr salario_hora lsal educ exper habilidade
+
+# Gráficos de dispersão com a reta de MQO
+gnuplot salario_hora educ --fit=linear --output=display
+gnuplot lsal educ --fit=linear --output=display
+
+# ---------------------------------------------------------------------
+# PARTE 1 · Regressão linear SIMPLES
+# ---------------------------------------------------------------------
+# (S1) Nível–nível: cada ano de estudo soma quantos R$ ao salário-hora?
+ols salario_hora const educ
+
+# (S2) Log–nível: cada ano de estudo aumenta o salário em quantos %?
+ols lsal const educ
+modeltab add
+# Leitura: 100*b1 ≈ variação % do salário por ano de estudo.
+printf "Variação exata: %.1f%% por ano de estudo\n", 100*(exp($coeff(educ))-1)
+
+# (S3) Regressor binário: superior completo × demais
+ols lsal const superior
+printf "Prêmio do superior (em média geométrica): %.0f%%\n", 100*(exp($coeff(superior))-1)
+
+# (S4) Só quem tem ensino médio ou superior — o "148%" do reel
+smpl medio==1 || superior==1 --restrict
+ols salario_hora const superior
+# Intercepto = média do grupo Médio; b1 = diferença de médias (R$)
+printf "Prêmio sobre a média aritmética: %.0f%%\n", 100*$coeff(superior)/$coeff(const)
+smpl full
+
+# ---------------------------------------------------------------------
+# PARTE 2 · Regressão linear MÚLTIPLA
+# ---------------------------------------------------------------------
+list regioes = norte nordeste sul centro_oeste     # base: Sudeste
+list ctrl = exper exper2 mulher regioes urbano
+
+# (M1) educação + experiência (forma quadrática) + sexo
+ols lsal const educ exper exper2 mulher --robust
+modeltab add
+
+# (M2) + região e área urbana
+ols lsal const educ ctrl --robust
+modeltab add
+# Teste F (robusto): as quatro dummies de região são conjuntamente nulas?
+omit regioes --test-only
+
+# (M3) + diploma de superior: o retorno não é linear nos anos de estudo
+ols lsal const educ superior ctrl --robust
+modeltab add
+# Efeito marginal da experiência e ponto de máximo
+printf "Exper: efeito marginal aos 10 anos = %.4f\n", $coeff(exper)+2*$coeff(exper2)*10
+printf "Exper: efeito marginal aos 30 anos = %.4f\n", $coeff(exper)+2*$coeff(exper2)*30
+printf "Salário máximo com %.1f anos de experiência\n", -$coeff(exper)/(2*$coeff(exper2))
+
+# Diagnóstico: heterocedasticidade (White) e multicolinearidade (VIF)
+ols lsal const educ superior ctrl --quiet
+modtest --white
+vif
+
+# (M4) + habilidade (na vida real NÃO é observada; aqui é didática)
+ols lsal const educ superior ctrl habilidade --robust
+modeltab add
+scalar b_longo = $coeff(educ)
+scalar gama = $coeff(habilidade)
+
+# Viés de variável omitida: b_curto = b_longo + gama * delta
+ols habilidade const educ superior ctrl --quiet
+scalar delta = $coeff(educ)
+printf "b_longo = %.4f | gama = %.4f | delta = %.4f\n", b_longo, gama, delta
+printf "b_longo + gama*delta = %.4f  (compare com educ em M3)\n", b_longo + gama*delta
+
+# (M5) Interação: o retorno da educação difere entre homens e mulheres?
+ols lsal const educ superior mulher educ_mulher exper exper2 regioes urbano habilidade --robust
+modeltab add
+printf "Diferença salarial de gênero com 8 anos de estudo:  %.3f\n", $coeff(mulher)+8*$coeff(educ_mulher)
+printf "Diferença salarial de gênero com 16 anos de estudo: %.3f\n", $coeff(mulher)+16*$coeff(educ_mulher)
+
+# (M6) Dummies de nível de ensino (base: fundamental incompleto)
+ols lsal const fundamental medio superior ctrl --robust
+printf "Médio vs. fund. incompleto:    %.0f%%\n", 100*(exp($coeff(medio))-1)
+printf "Superior vs. fund. incompleto: %.0f%%\n", 100*(exp($coeff(superior))-1)
+printf "Superior vs. médio:            %.0f%%\n", 100*(exp($coeff(superior)-$coeff(medio))-1)
+
+# Tabela comparativa (S2, M1–M5)
+modeltab show

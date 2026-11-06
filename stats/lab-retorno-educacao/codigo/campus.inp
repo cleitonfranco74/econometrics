@@ -1,0 +1,78 @@
+# =====================================================================
+#  Laboratório "Vale a pena estudar?" — Exemplo 2: campus federal e renda
+#  Prof. Cleiton Franco · UNEMAT
+#
+#  Base: dados/municipios_campus.csv (1.500 municípios FICTÍCIOS)
+#  Pergunta: a instalação de um campus federal novo (anos 2000) aumentou a
+#  renda per capita do município entre 2000 e 2010?
+#  Como usar: salve este arquivo na MESMA pasta do municipios_campus.csv e
+#  abra no Gretl em Arquivo > Arquivos de script > Abrir arquivo de script.
+# =====================================================================
+
+open municipios_campus.csv --quiet
+set hc_version 1
+modeltab free
+
+# ---------------------------------------------------------------------
+# PARTE 0 · Os municípios que receberam campus eram parecidos com os outros?
+# ---------------------------------------------------------------------
+series lrenda10 = log(renda_pc_2010)
+series lrenda00 = log(renda_pc_2000)
+series lpop = log(pop_2000)
+series dlrenda = lrenda10 - lrenda00            # crescimento da renda 2000-2010 (em log)
+series dist100 = dist_capital / 100             # distância à capital em centenas de km
+series campus_pequeno = campus * pequeno        # interação
+
+summary pop_2000 renda_pc_2000 dist_capital urbanizacao_2000 --by=campus --simple
+
+# Quem recebeu campus? (modelo de probabilidade linear)
+ols campus const lpop lrenda00 dist100 --robust
+
+# ---------------------------------------------------------------------
+# PARTE 1 · Regressão SIMPLES: campus como dummy
+# ---------------------------------------------------------------------
+# (C1) Comparação ingênua: municípios com campus têm renda maior em 2010?
+ols lrenda10 const campus --robust
+modeltab add
+printf "Diferença ingênua: %.1f%%\n", 100*(exp($coeff(campus))-1)
+
+# ---------------------------------------------------------------------
+# PARTE 2 · Regressão MÚLTIPLA: comparando municípios parecidos
+# ---------------------------------------------------------------------
+list regioes = norte nordeste sul centro_oeste
+list ctrl = lpop urbanizacao_2000 dist100 regioes
+
+# (C2) Mesma renda em 2000
+ols lrenda10 const campus lrenda00 --robust
+modeltab add
+
+# (C3) Mesma renda, população, urbanização, distância e região
+ols lrenda10 const campus lrenda00 ctrl --robust
+modeltab add
+printf "Efeito estimado do campus: %.1f%%\n", 100*(exp($coeff(campus))-1)
+
+# (C4) O efeito é maior nas cidades pequenas (< 50 mil hab.)?
+ols lrenda10 const campus campus_pequeno pequeno lrenda00 ctrl --robust
+modeltab add
+printf "Efeito nas cidades grandes:  %.3f\n", $coeff(campus)
+printf "Efeito nas cidades pequenas: %.3f\n", $coeff(campus) + $coeff(campus_pequeno)
+# Teste: o efeito nas pequenas é diferente de zero?
+restrict --quiet
+  b[campus] + b[campus_pequeno] = 0
+end restrict
+
+# ---------------------------------------------------------------------
+# PARTE 3 · Variável dependente em variação (ponte para dif-em-dif)
+# ---------------------------------------------------------------------
+# (C5) Crescimento da renda: com e sem campus
+ols dlrenda const campus --robust
+# (C6) Crescimento da renda com controles
+ols dlrenda const campus ctrl --robust
+
+# ---------------------------------------------------------------------
+# PARTE 4 · Outro resultado: pobreza (pontos percentuais)
+# ---------------------------------------------------------------------
+ols pobreza_2010 const campus --robust
+ols pobreza_2010 const campus pobreza_2000 lrenda00 ctrl --robust
+
+modeltab show
