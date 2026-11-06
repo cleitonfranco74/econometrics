@@ -95,3 +95,44 @@ dm.to_stata(DADOS / "municipios_campus.dta", write_index=False, version=118,
             variable_labels=rot2, value_labels=vl2,
             data_label="Laboratório Vale a pena estudar? Municípios e campus federal (dados fictícios)")
 print("pnad_simulada.dta e municipios_campus.dta gravados")
+
+# ---------------------------------------------------------------------------
+# Caso 3: IDF-MT (com o índice já calculado)
+# ---------------------------------------------------------------------------
+INDIC = ["banda_larga", "cobertura_4g", "agencias", "cooperativa", "escolaridade", "capacitacao", "mei_mil"]
+
+
+def construir_indice(d):
+    """Mesma construção de analise_idf.py e da planilha: min-max, dimensões, pesos iguais."""
+    d = d.copy()
+    for c in INDIC:
+        d[f"n_{c}"] = (d[c] - d[c].min()) / (d[c].max() - d[c].min())
+    d["dim_digital"] = 100 * d[["n_banda_larga", "n_cobertura_4g"]].mean(axis=1)
+    d["dim_financeira"] = 100 * d[["n_agencias", "n_cooperativa"]].mean(axis=1)
+    d["dim_capacidades"] = 100 * d[["n_escolaridade", "n_capacitacao", "n_mei_mil"]].mean(axis=1)
+    d["idf"] = d[["dim_digital", "dim_financeira", "dim_capacidades"]].mean(axis=1)
+    return d
+
+
+di = construir_indice(pd.read_csv(DADOS / "idf_mt.csv"))
+di = di.drop(columns=[c for c in di.columns if c.startswith("n_")])
+di["lpix"] = np.log(di["pix_pj"])
+di["lpop"] = np.log(di["pop"])
+di["lpib"] = np.log(di["pib_pc"])
+MESO = ["Norte", "Nordeste", "Sudoeste", "Centro-Sul", "Sudeste"]
+di["mesorregiao"] = di["mesorregiao"].map({r: i for i, r in enumerate(MESO, start=1)}).astype("int8")
+rot3 = {
+    "municipio": "Identificador do município", "mesorregiao": "Mesorregião de MT (1 = Norte)",
+    "pop": "População", "pib_pc": "PIB per capita (R$)",
+    "banda_larga": "Banda larga fixa: acessos por 100 domicílios", "cobertura_4g": "Cobertura 4G (% da população)",
+    "agencias": "Agências, postos e correspondentes por 10 mil hab.", "cooperativa": "Tem cooperativa de crédito",
+    "escolaridade": "Anos médios de estudo dos adultos", "capacitacao": "Participantes em cursos por 100 empresas",
+    "mei_mil": "MEI por mil habitantes", "pix_pj": "Pix recebidos por empresa por mês",
+    "dim_digital": "Dimensão digital (0 a 100)", "dim_financeira": "Dimensão financeira (0 a 100)",
+    "dim_capacidades": "Dimensão capacidades (0 a 100)", "idf": "IDF-MT (0 a 100), pesos iguais",
+    "lpix": "ln(Pix por empresa)", "lpop": "ln(população)", "lpib": "ln(PIB per capita)",
+}
+di.to_stata(DADOS / "idf_mt.dta", write_index=False, version=118, variable_labels=rot3,
+            value_labels={"mesorregiao": dict(enumerate(MESO, start=1)), "cooperativa": SIMNAO},
+            data_label="Laboratório: IDF-MT, municípios fictícios de Mato Grosso")
+print("idf_mt.dta gravado")

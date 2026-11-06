@@ -41,7 +41,8 @@
     <li><a href="#diagnostico">7. Diagnóstico</a></li>
     <li><a href="#roteiro">8. Gretl e Excel</a></li>
     <li><a href="#campus">9. Campus e cidades</a></li>
-    <li><a href="#exercicios">10. Exercícios</a></li>
+    <li><a href="#idf">10. Índice IDF-MT</a></li>
+    <li><a href="#exercicios">11. Exercícios</a></li>
   </ul>
 </nav>
 
@@ -348,6 +349,7 @@ modeltab show</code></pre>
 <li><a href="codigo/gerar_base.py"><code>codigo/gerar_base.py</code></a>: simula a base (semente fixa);</li>
 <li><a href="codigo/analise_referencia.py"><code>codigo/analise_referencia.py</code></a>: estima todos os modelos, gera as figuras e grava <a href="codigo/resultados_referencia.json"><code>resultados_referencia.json</code></a>;</li>
 <li><a href="codigo/gerar_planilha.py"><code>codigo/gerar_planilha.py</code></a>: monta a planilha do Excel.</li>
+<li>Caso 3: <a href="codigo/gerar_base_idf.py"><code>gerar_base_idf.py</code></a>, <a href="codigo/analise_idf.py"><code>analise_idf.py</code></a> e <a href="codigo/gerar_planilha_idf.py"><code>gerar_planilha_idf.py</code></a>; formato Stata: <a href="codigo/gerar_dta.py"><code>gerar_dta.py</code></a>.</li>
 <li>Exemplo 2: <a href="codigo/gerar_base_campus.py"><code>gerar_base_campus.py</code></a>, <a href="codigo/analise_campus.py"><code>analise_campus.py</code></a> e <a href="codigo/gerar_planilha_campus.py"><code>gerar_planilha_campus.py</code></a>.</li>
 </ul>
 </div>
@@ -402,8 +404,66 @@ modeltab show</code></pre>
 </section>
 
 <!-- 10 -->
+<section id="idf">
+<h2>10. Caso 3: um índice municipal, o IDF-MT</h2>
+<p>Pergunta: <strong>municípios com melhores condições digitais e financeiras têm pequenos negócios que usam mais o Pix?</strong> O caso junta duas coisas: construir um índice composto, no espírito da <em>Design Science Research</em>, e validá-lo com regressão.</p>
+<ul>
+<li><a href="dados/idf_mt.csv"><code>dados/idf_mt.csv</code></a> e <a href="dados/idf_mt.dta"><code>dados/idf_mt.dta</code></a>: 142 municípios <strong>fictícios</strong> de Mato Grosso (o .dta já traz o índice calculado);</li>
+<li><a href="dados/idf_excel.xlsx"><code>dados/idf_excel.xlsx</code></a>: o índice construído com fórmulas, pesos editáveis e as regressões de validação;</li>
+<li><a href="codigo/idf.inp"><code>codigo/idf.inp</code></a>: roteiro do Gretl, da construção do índice à validação.</li>
+</ul>
+
+<h3>10.1 Como o índice é construído</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Dimensão</th><th>Indicadores</th><th>Fonte real equivalente</th></tr></thead>
+<tbody>
+<tr><td>Digital</td><td>banda larga fixa por 100 domicílios; cobertura 4G (% da população)</td><td>Anatel</td></tr>
+<tr><td>Financeira</td><td>agências, postos e correspondentes por 10 mil hab.; presença de cooperativa de crédito</td><td>Banco Central</td></tr>
+<tr><td>Capacidades</td><td>escolaridade dos adultos; participantes em cursos de gestão por 100 empresas; MEI por mil hab.</td><td>IBGE, SEBRAE/SENAR, Receita Federal</td></tr>
+</tbody></table></div>
+<ol>
+<li>Cada indicador vira um número de 0 a 1: \((x-\min)/(\max-\min)\). O pior município recebe 0 e o melhor, 1.</li>
+<li>Cada dimensão é a média dos seus indicadores, multiplicada por 100.</li>
+<li>O IDF-MT é a média das três dimensões, com pesos iguais. Na planilha, os pesos ficam em células amarelas, e o aluno pode mudá-los e ver o ranking mudar.</li>
+</ol>
+<p>Nos dados, o IDF vai de 7,8 a 81,4 (média 51,6). Os sete indicadores andam juntos de forma moderada (alfa de Cronbach = 0,67). O índice tem correlação de 0,69 com o ln da população e de 0,55 com o ln do PIB per capita: municípios maiores e mais ricos têm, em geral, melhores condições.</p>
+
+<h3>10.2 Validação: o índice explica o uso de Pix?</h3>
+<div class="chart"><img class="fig" src="img/fig7_idf_pix.png" alt="Dispersão do IDF-MT contra Pix recebidos por empresa por mês, com bolhas proporcionais à população; a curva ajustada sobe de cerca de 15 para 80 Pix por empresa à medida que o índice passa de 8 para 81" loading="lazy"></div>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: ln(Pix por empresa)</th><th>(I1)</th><th>(I2)</th><th>(I3)</th></tr></thead>
+<tbody>
+<tr><td>IDF-MT</td><td>0,0226***<br><small>(0,0015)</small></td><td>0,0103***<br><small>(0,0021)</small></td><td></td></tr>
+<tr><td>Dimensão digital</td><td></td><td></td><td>0,0044**<br><small>(0,0018)</small></td></tr>
+<tr><td>Dimensão financeira</td><td></td><td></td><td>0,0030***<br><small>(0,0008)</small></td></tr>
+<tr><td>Dimensão capacidades</td><td></td><td></td><td>0,0072***<br><small>(0,0025)</small></td></tr>
+<tr><td>ln(população)</td><td></td><td>0,1547***<br><small>(0,0290)</small></td><td>0,1207***<br><small>(0,0353)</small></td></tr>
+<tr><td>ln(PIB per capita)</td><td></td><td>0,3525***<br><small>(0,0502)</small></td><td>0,2901***<br><small>(0,0597)</small></td></tr>
+<tr><td>\(n\) / \(R^2\)</td><td>142 / 0,622</td><td>142 / 0,698</td><td>142 / 0,705</td></tr>
+</tbody></table></div>
+<p class="hint">Erros-padrão robustos (HC1) entre parênteses. *** p&lt;0,01; ** p&lt;0,05.</p>
+<div class="box">
+<h4>Interpretação</h4>
+<ul>
+<li><strong>I1:</strong> 10 pontos a mais no índice estão associados a \(100(e^{10\times0{,}0226}-1)\approx\) 25% mais Pix por empresa. O \(R^2\) de 0,62 parece uma validação forte.</li>
+<li><strong>I2:</strong> comparando municípios do mesmo tamanho e da mesma riqueza, o efeito cai para 11% a cada 10 pontos. Metade da associação de I1 vinha do porte e da renda, não do índice.</li>
+<li><strong>I3:</strong> as três dimensões contam, e as capacidades pesam mais por ponto.</li>
+</ul>
+</div>
+
+<h3>10.3 Revisão do artefato: qual parte do índice importa?</h3>
+<div class="chart"><img class="fig" src="img/fig8_idf_indicadores.png" alt="Para cada indicador, a mudança percentual no Pix por empresa indo do pior ao melhor município, com intervalo de 95% e o valor verdadeiro: banda larga +121% (verdadeiro 87%), capacitação +37% (29%), cooperativa +23% (35%); escolaridade, MEI, cobertura 4G e pontos de atendimento têm intervalos que incluem zero, e o verdadeiro é zero" loading="lazy"></div>
+<p>Com os sete indicadores na mesma regressão (I4, \(R^2\) = 0,79), a figura mostra quanto o Pix por empresa muda indo do município com pior para o com melhor valor em cada indicador. Banda larga, capacitação e cooperativa de crédito fazem diferença. Cobertura 4G, pontos de atendimento, escolaridade e MEI não: o teste F conjunto robusto não rejeita que os quatro sejam nulos (F = 1,80; p = 0,13). No processo gerador, de fato, só os três primeiros afetam o uso de Pix.</p>
+<div class="box warn">
+<h4>O que isso significa para a Design Science Research</h4>
+<p>A avaliação não serve só para aprovar o índice: ela orienta a próxima versão. Aqui, a dimensão financeira mistura um indicador que importa (cooperativa) com outro que não importa (pontos de atendimento), e a dimensão digital faz o mesmo. Uma segunda iteração do artefato revisaria os indicadores ou os pesos, de preferência com a opinião de especialistas (SEBRAE-MT, SENAR-MT, cooperativas). E, como no caso 2, a regressão mostra associação: municípios com mais condições podem ter outras vantagens não medidas.</p>
+</div>
+<p class="hint">Referências do método: Peffers et al. (2007), “A Design Science Research Methodology for Information Systems Research”, <em>Journal of Management Information Systems</em> 24(3); OCDE e JRC (2008), <em>Handbook on Constructing Composite Indicators</em>. Dados reais equivalentes: o Banco Central publica as transações Pix por município, separadas entre pessoas físicas e jurídicas.</p>
+</section>
+
+<!-- 11 -->
 <section id="exercicios">
-<h2>10. Exercícios</h2>
+<h2>11. Exercícios</h2>
 <ol class="exercises">
 <li>
 <p>Em S1, o intercepto é −17,24. Um trabalhador sem nenhum ano de estudo ganha −R$ 17,24 por hora? O que esse número revela sobre o modelo nível–nível?</p>
@@ -444,6 +504,14 @@ modeltab show</code></pre>
 <li>
 <p>(Exemplo 2) Suponha que o governo tenha escolhido as cidades que já cresciam mais rápido antes de 2000. O que aconteceria com as estimativas de C3 e C6? Que dado você pediria para testar isso?</p>
 <details><summary>Ver gabarito</summary><div class="ans"><p>As duas superestimariam o efeito, porque parte do crescimento de 2000 a 2010 viria da tendência prévia, não do campus. Os controles de C3 e a diferença de C6 não removem diferenças de <em>tendência</em>. Seria preciso observar a renda em anos anteriores (por exemplo, 1991) para verificar se as cidades com e sem campus cresciam no mesmo ritmo antes: o teste de tendências paralelas do Conteúdo 6.</p></div></details>
+</li>
+<li>
+<p>(Caso 3) Na aba <code>1_indice</code> da planilha do IDF-MT, dê peso 0,5 à dimensão digital e 0,25 às outras duas. O que acontece com o ranking dos municípios? Por que a escolha dos pesos é uma decisão de projeto do artefato?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Os municípios fortes em internet sobem e os fortes em capacitação ou cooperativa descem. Três dos dez primeiros saem do topo, e cada município muda em média seis posições. Não existe peso “certo” em abstrato: ele expressa o que o índice quer medir. Por isso a DSR pede justificar os pesos (estatística, especialistas ou teoria) e testar a robustez do ranking a escolhas alternativas.</p></div></details>
+</li>
+<li>
+<p>(Caso 3) O \(R^2\) de I1 é 0,62. Um colega conclui que “o índice está validado: explica 62% do uso de Pix”. Comente usando I2.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Parte dessa associação é do porte e da riqueza do município, que melhoram o índice e o uso de Pix ao mesmo tempo. Controlando ln(população) e ln(PIB per capita), o coeficiente do IDF cai de 0,0226 para 0,0103. O índice continua associado ao uso, mas a validação honesta é a de I2, e mesmo ela não prova causa.</p></div></details>
 </li>
 </ol>
 </section>

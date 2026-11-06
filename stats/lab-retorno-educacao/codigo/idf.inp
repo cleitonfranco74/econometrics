@@ -1,0 +1,74 @@
+# =====================================================================
+#  Laboratório — Caso 3: IDF-MT, índice de condições digitais e
+#  financeiras para os pequenos negócios dos municípios de Mato Grosso
+#  Prof. Cleiton Franco · UNEMAT
+#
+#  Base: dados/idf_mt.csv (142 municípios FICTÍCIOS)
+#  Pergunta: municípios com melhores condições digitais e financeiras têm
+#  pequenos negócios que usam mais o Pix?
+#  Como usar: salve este arquivo na MESMA pasta do idf_mt.csv e abra no Gretl
+#  em Arquivo > Arquivos de script > Abrir arquivo de script.
+# =====================================================================
+
+open idf_mt.csv --quiet
+set hc_version 1
+modeltab free
+
+# ---------------------------------------------------------------------
+# PARTE 1 · Construindo o índice (passo a passo)
+# ---------------------------------------------------------------------
+# 1) Normalizar cada indicador de 0 a 1: (x - mínimo) / (máximo - mínimo)
+series n_banda = (banda_larga - min(banda_larga)) / (max(banda_larga) - min(banda_larga))
+series n_4g    = (cobertura_4g - min(cobertura_4g)) / (max(cobertura_4g) - min(cobertura_4g))
+series n_agenc = (agencias - min(agencias)) / (max(agencias) - min(agencias))
+series n_coop  = cooperativa                       # já vai de 0 a 1
+series n_escol = (escolaridade - min(escolaridade)) / (max(escolaridade) - min(escolaridade))
+series n_capac = (capacitacao - min(capacitacao)) / (max(capacitacao) - min(capacitacao))
+series n_mei   = (mei_mil - min(mei_mil)) / (max(mei_mil) - min(mei_mil))
+
+# 2) Dimensões: média dos indicadores de cada uma, de 0 a 100
+series dim_digital     = 100 * (n_banda + n_4g) / 2
+series dim_financeira  = 100 * (n_agenc + n_coop) / 2
+series dim_capacidades = 100 * (n_escol + n_capac + n_mei) / 3
+
+# 3) Índice: média das três dimensões (pesos iguais)
+series idf = (dim_digital + dim_financeira + dim_capacidades) / 3
+setinfo idf --description="IDF-MT (0 a 100)"
+summary idf dim_digital dim_financeira dim_capacidades --simple
+
+# Consistência: os indicadores andam juntos?
+corr n_banda n_4g n_agenc n_coop n_escol n_capac n_mei
+
+# ---------------------------------------------------------------------
+# PARTE 2 · Validação: o índice explica o uso de Pix pelas empresas?
+# ---------------------------------------------------------------------
+series lpix = log(pix_pj)
+series lpop = log(pop)
+series lpib = log(pib_pc)
+
+gnuplot lpix idf --fit=linear --output=display
+
+# (I1) Regressão simples
+ols lpix const idf --robust
+modeltab add
+printf "Cada 10 pontos no IDF: %.1f%% a mais de Pix por empresa\n", 100*(exp(10*$coeff(idf))-1)
+
+# (I2) Comparando municípios de mesmo tamanho e mesma riqueza
+ols lpix const idf lpop lpib --robust
+modeltab add
+printf "Com controles, cada 10 pontos no IDF: %.1f%%\n", 100*(exp(10*$coeff(idf))-1)
+
+# ---------------------------------------------------------------------
+# PARTE 3 · Revisão do artefato: qual parte do índice importa?
+# ---------------------------------------------------------------------
+# (I3) Por dimensão
+ols lpix const dim_digital dim_financeira dim_capacidades lpop lpib --robust
+modeltab add
+
+# (I4) Por indicador
+ols lpix const banda_larga cobertura_4g agencias cooperativa escolaridade capacitacao mei_mil lpop lpib --robust
+modeltab add
+# Teste conjunto: os quatro indicadores com coeficiente pequeno são todos nulos?
+omit cobertura_4g agencias escolaridade mei_mil --test-only
+
+modeltab show
