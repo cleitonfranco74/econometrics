@@ -82,30 +82,30 @@ c3["Cage"]["tempo"] = ng["ano"].astype(str).tolist()
 ct = pd.read_csv(AQUI / "carga_tributaria_gini.csv")
 c3["Carga"] = tabela(ct[["gini", "carga_tributaria_pib"]].rename(columns={
     "gini": "Índice de Gini", "carga_tributaria_pib": "Carga tributária (% do PIB)"}),
-    "Carga tributária × Gini (17 países)")
+    "Carga tributária × Gini (17 países, planilha da disciplina)")
 c3["Carga"]["nomes"] = ct["pais"].tolist()
 sd = pd.read_csv(AQUI / "gasto_saude_suicidio_ocde.csv")
 c3["Saude"] = tabela(sd[["gasto_saude_pc_usd_ppp", "suicidio_por_100mil"]].rename(columns={
     "gasto_saude_pc_usd_ppp": "Gasto em saúde per capita (US$ PPC)", "suicidio_por_100mil": "Suicídios por 100 mil hab."}),
     "Gasto em saúde × suicídio (12 países da OCDE)")
 c3["Saude"]["nomes"] = sd["pais"].tolist()
+cg = pd.read_csv(AQUI / "carga_gini_ocde_brasil.csv")
+c3["CargaOCDE"] = tabela(cg[["carga_pib", "gini"]].rename(columns={
+    "carga_pib": "Carga tributária (% do PIB)", "gini": "Índice de Gini"}),
+    "Carga tributária × Gini (37 países da OCDE e o Brasil)")
+c3["CargaOCDE"]["nomes"] = cg["pais"].tolist()
+c3["CargaOCDE"]["grupo"] = cg["grupo"].tolist()
 rx = pd.ExcelFile(AQUI / "correlacao_causalidade_sintetica.xlsx")
 gal = rx.parse("Galeria_r")
-c3_reel = {"galeria": {k: [d.x.round(3).tolist(), d.y.round(3).tolist()] for k, d in gal.groupby("painel")}}
-fs = rx.parse("Fiscal_Selic")
-c3_reel["fiscal"] = {"superavit": fs.superavit_primario.tolist(), "selic": fs.selic.tolist(),
-                     "alta": (fs.regime == "inflação alta").astype(int).tolist()}
+galeria = {"galeria": {k: [d.x.round(3).tolist(), d.y.round(3).tolist()] for k, d in gal.groupby("painel")}}
 sw = rx.parse("Sorvete_Afogamento")
 c3["Sorvete52"] = tabela(sw[["temperatura_c", "sorvetes_vendidos", "afogamentos"]].rename(columns={
     "temperatura_c": "Temperatura (°C)", "sorvetes_vendidos": "Sorvetes vendidos na semana", "afogamentos": "Afogamentos na semana"}),
-    "Sorvete × afogamentos (52 semanas, base do estudo do reel)")
-c3["Fiscal"] = tabela(fs[["superavit_primario", "selic", "inflacao"]].rename(columns={
-    "superavit_primario": "Superávit primário (% do PIB)", "selic": "Selic (%)", "inflacao": "Inflação (%)"}),
-    "Fiscal × Selic (simulado, dois regimes de inflação)")
-ordem = ["SorveteAula", "Sorvete", "Sorvete52", "Fiscal", "Margarina", "Cage", "Carga", "Salario", "Vacina", "Gini", "Saude", "Apple", "Netflix", "CocaCola", "Tesla",
+    "Sorvete × afogamentos (52 semanas, simulado)")
+ordem = ["SorveteAula", "Sorvete", "Sorvete52", "Margarina", "Cage", "CargaOCDE", "Carga", "Salario", "Vacina", "Gini", "Saude", "Apple", "Netflix", "CocaCola", "Tesla",
          "Tarifaço", "Tesla_BYD", "Google", "CocaPainel"]
 c3 = {k: c3[k] for k in ordem}
-c3["Reel"] = c3_reel
+c3["Galeria"] = galeria
 js("CASOS3", c3, STATS / "03-correlacao-causalidade-regressao" / "casos_dados.js")
 
 # ---------------- Conteúdo 4: laboratório de regressão múltipla ----------------

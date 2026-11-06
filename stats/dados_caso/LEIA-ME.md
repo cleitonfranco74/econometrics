@@ -12,7 +12,8 @@ abrem no Stata, no R (`haven::read_dta`) e no Python (`pandas.read_stata`).
 | `carga_tributaria_gini.csv` | 17 países | Conteúdo 3 | Planilha da disciplina (valores aproximados) + coluna `gini_bm_2019` com o Gini do Banco Mundial (de `gini_pib_mundo.dta`) |
 | `salario_minimo_cesta_basica.csv` | Mensal, jan/2018–out/2021 | Conteúdo 3 | Planilha da disciplina |
 | `vacinacao_obitos.csv` | 10 meses | Conteúdo 3 | Planilha da disciplina |
-| `correlacao_causalidade_sintetica.xlsx` | Abas Galeria_r, Sorvete_Afogamento (52 semanas) e Fiscal_Selic (30 obs.) | Conteúdo 3 | Base sintética do estudo do reel da Selic e do déficit (gerada por `base_correlacao_causalidade.py`) |
+| `correlacao_causalidade_sintetica.xlsx` | Abas Galeria_r e Sorvete_Afogamento (52 semanas) | Conteúdo 3 | Exemplos simulados de correlação (gerada por `base_correlacao_causalidade.py`) |
+| `paises_carga_gini.xlsx` (e `carga_gini_ocde_brasil.csv`) | 37 países da OCDE e o Brasil | Conteúdo 3 | Estudo de caso carga tributária × desigualdade. Carga: OCDE, Revenue Statistics 2025 (2024); Gini: Banco Mundial, último ano disponível; Brasil: Tesouro Nacional e IBGE (2024) |
 | `gasto_saude_suicidio_ocde.csv` | 12 países da OCDE | Conteúdo 3 | Valores aproximados do gráfico dos slides (Peterson-KFF; OECD Health Statistics) |
 | `correlacoes_empresariais.xlsx` | Abas Apple, Netflix, CocaCola, Tesla, Tarifaço, Tesla_BYD | Conteúdo 3 | Séries ilustrativas da disciplina |
 | `google_reglinear.xlsx` | Google, mensal, 2019–2023 | Conteúdo 3 | Série ilustrativa |

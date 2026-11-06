@@ -287,3 +287,4 @@ ol.exercises>li>details{margin-top:10px}
 .box.para-levar{background:var(--hero1);border-color:var(--hero1);color:var(--hero-muted)}
 .box.para-levar h4{color:#ffb27d}
 .box.para-levar p.big{color:#fff;font-size:26px}
+.chart img.fig{display:block;width:100%;height:auto;border-radius:8px;background:#fff;margin-top:6px}

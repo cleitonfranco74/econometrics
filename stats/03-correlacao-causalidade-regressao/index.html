@@ -40,7 +40,7 @@
     <li><a href="#exemplo">5. Exemplo e código</a></li>
     <li><a href="#simulador">6. Simulador</a></li>
     <li><a href="#casos">7. Estudos de caso</a></li>
-    <li><a href="#reel">8. Caso: o reel da Selic</a></li>
+    <li><a href="#carga">8. Caso: carga e desigualdade</a></li>
     <li><a href="#exercicios">9. Exercícios</a></li>
   </ul>
 </nav>
@@ -73,6 +73,16 @@
 <li><strong>Correlação espúria:</strong> duas séries com tendência no tempo (PIB e número de celulares, por exemplo) são correlacionadas sem que uma cause a outra.</li>
 <li><strong>Agregação:</strong> a correlação entre médias de grupos (municípios, setores) costuma ser bem maior que a correlação entre indivíduos (falácia ecológica).</li>
 </ul>
+<h3>Como cada valor de r aparece nos dados</h3>
+<p>Dados simulados (aba <code>Galeria_r</code> de <a href="../dados_caso/correlacao_causalidade_sintetica.xlsx" download><code>correlacao_causalidade_sintetica.xlsx</code></a>). Antes de ler o \(r\) de cada painel, tente estimá-lo.</p>
+<div class="chart wide" style="margin:12px 0"><h4>Como cada valor de r aparece nos dados (simulados, n = 60 por painel)</h4><svg id="gGaleria" viewBox="0 0 720 420" role="img" aria-label="Seis gráficos de dispersão com diferentes valores de r"></svg></div>
+<div class="chart wide" style="margin:12px 0"><h4>Duas armadilhas do r</h4><svg id="gArmadilhas" viewBox="0 0 720 280" role="img" aria-label="Gráficos de outlier e de relação não linear"></svg></div>
+<ul>
+<li><strong>Outlier:</strong> um único ponto cria uma correlação de +0,51 onde não havia nenhuma (sem ele, r = −0,01).</li>
+<li><strong>Não linearidade:</strong> no painel em U, Y depende fortemente de X, mas r ≈ 0. O \(r\) mede só associação <em>linear</em>.</li>
+<li>Lição: nunca reporte \(r\) sem o diagrama de dispersão.</li>
+</ul>
+
 </section>
 
 <!-- 2 -->
@@ -309,24 +319,7 @@ regress vendas publicidade tamanho</code></pre></div>
 <p>Antes de aceitar uma correlação, pergunte: existe um mecanismo plausível? A relação se mantém em outro período, em outra amostra, ou depois de retirar a tendência?</p>
 
 <h3>7.3 Carga tributária e concentração de renda</h3>
-<p>Carga tributária (% do PIB) e índice de Gini em 17 países, com os valores da planilha da disciplina (<a href="../dados_caso/carga_tributaria_gini.csv" download><code>carga_tributaria_gini.csv</code></a>).</p>
-<div class="chart wide" style="margin:12px 0"><h4>Carga tributária × índice de Gini</h4><svg id="gCarga" viewBox="0 0 560 360" role="img" aria-label="Dispersão de carga tributária e Gini por país"></svg>
-  <div class="legend"><span style="--c:var(--accent-2)">reta de MQO com todos os países</span><span class="dash" style="--c:var(--muted)">reta sem Brasil e Índia</span></div></div>
-<div class="table-wrap"><table>
-<thead><tr><th>Amostra</th><th class="num">n</th><th class="num">Pearson r</th></tr></thead>
-<tbody>
-<tr><td>Todos os países</td><td class="num">17</td><td class="num">−0,581</td></tr>
-<tr><td>Sem o Brasil</td><td class="num">16</td><td class="num">−0,742</td></tr>
-<tr><td>Sem Brasil e Índia</td><td class="num">15</td><td class="num">−0,906</td></tr>
-<tr><td>Spearman, todos</td><td class="num">17</td><td class="num">−0,708</td></tr>
-</tbody></table></div>
-<p>Com todos os países, \(\widehat{Carga}=53{,}7-60{,}4\times Gini\) (\(R^2=0{,}34\)). Sem Brasil e Índia, a inclinação vai a −99,2 e o \(R^2\) a 0,82.</p>
-<ul>
-<li>Países com maior carga tributária tendem a ter menor desigualdade. Em gráficos com o eixo do Gini invertido (de 0,60 para 0,20), a reta aparece “subindo”.</li>
-<li><strong>Pontos atípicos:</strong> o Brasil combina carga tributária de país europeu com desigualdade latino-americana, e a Índia tem carga muito baixa (12%) e Gini moderado. Só esses dois pontos mudam r de −0,91 para −0,58. Sempre faça o gráfico e verifique a influência de cada observação.</li>
-<li><strong>Fonte dos dados:</strong> os valores de Gini da planilha são aproximados. Comparados com o Gini do Banco Mundial de 2019 (coluna <code>gini_bm_2019</code> da base, vinda de <a href="../dados_caso/gini_pib_mundo.dta" download><code>gini_pib_mundo.dta</code></a>), há diferenças relevantes: Suécia 0,23 contra 0,29, México 0,53 contra 0,46, Índia 0,31 contra 0,26. Com o Gini oficial, r = −0,45 com todos os países e −0,89 sem Brasil e Índia; a conclusão se mantém. Em trabalhos, use séries oficiais do mesmo ano para as duas variáveis.</li>
-<li><strong>Direção da causalidade:</strong> impostos e transferências reduzem a desigualdade, ou sociedades mais igualitárias aceitam pagar mais impostos? O caso brasileiro mostra que o <em>tamanho</em> da carga não basta: importa também a composição dos tributos (consumo × renda e patrimônio) e para onde vai o gasto.</li>
-</ul>
+<p>Este exemplo virou o estudo de caso completo da <a href="#carga">Seção 8</a>, com dados atuais da OCDE e do Brasil (<a href="../dados_caso/paises_carga_gini.xlsx" download><code>paises_carga_gini.xlsx</code></a>).</p>
 
 <h3>7.4 Salário mínimo e cesta básica: correlação por tendência</h3>
 <p>Valores mensais de jan/2018 a out/2021 (<a href="../dados_caso/salario_minimo_cesta_basica.csv" download><code>salario_minimo_cesta_basica.csv</code></a>).</p>
@@ -511,173 +504,200 @@ pwcorr _all, sig</code></pre></div>
 </section>
 
 <!-- 8 -->
-<section id="reel">
-<h2>8. Estudo de caso: o reel da Selic e do déficit</h2>
-<p class="lede-sec">O que um vídeo viral sobre Selic e déficit público pode, e não pode, provar. O estudo treina o olhar crítico sobre correlação a partir de um caso real das redes sociais.</p>
-<p class="hint">Base sintética do estudo: <a href="../dados_caso/correlacao_causalidade_sintetica.xlsx" download><code>correlacao_causalidade_sintetica.xlsx</code></a>, com as abas <code>Galeria_r</code>, <code>Sorvete_Afogamento</code> e <code>Fiscal_Selic</code>, gerada por <a href="../dados_caso/base_correlacao_causalidade.py" download><code>base_correlacao_causalidade.py</code></a>. Todos os dados da base são simulados.</p>
+<section id="carga">
+<h2>8. Estudo de caso: carga tributária e desigualdade</h2>
+<p class="lede-sec">Países que cobram mais impostos são menos desiguais. Os impostos causam isso? O estudo aplica as checagens de correlação e causalidade a uma pergunta de finanças públicas.</p>
+<p class="hint">Base do estudo: <a href="../dados_caso/paises_carga_gini.xlsx" download><code>paises_carga_gini.xlsx</code></a> (também em CSV: <a href="../dados_caso/carga_gini_ocde_brasil.csv" download><code>carga_gini_ocde_brasil.csv</code></a>), com 37 países da OCDE e o Brasil. Carga: OCDE, <em>Revenue Statistics</em> 2025 (dados de 2024; Austrália e Japão, 2023). Gini: Banco Mundial (SI.POV.GINI), último ano disponível. Brasil: carga do Tesouro Nacional (2024) e Gini do IBGE/PNAD Contínua (2024).</p>
 
-<h3>8.1 O argumento do reel, em três passos</h3>
-<div class="grid3">
-  <div class="box"><h4>1 · Entre países</h4><p><strong>24 de 27 economias</strong> têm déficit primário em 2025, e quase todas têm juros bem menores que os do Brasil.</p></div>
-  <div class="box"><h4>2 · Brasil 1999–2008</h4><p>Superávits de cerca de 3% do PIB com Selic altíssima. Em 2003: superávit de +3,2% e Selic de 23,4%.</p></div>
-  <div class="box"><h4>3 · Brasil 2014–2021</h4><p>Déficits seguidos com Selic menor. Em 2018: déficit de −1,6% e Selic de 6,4%.</p></div>
-</div>
-<p><strong>Conclusão do vídeo:</strong> “déficit não causa juros altos — é mito”.</p>
-<p class="hint">Fonte: reel “O mito da Selic alta por conta do déficit” (Instagram), com os números como aparecem no vídeo. Reconstruímos o argumento de forma justa antes de criticá-lo. Note que, na série brasileira, superávit e Selic andam juntos: a correlação observada é <em>positiva</em>, e o vídeo usa isso para negar que o déficit eleve os juros.</p>
-
-<h3>8.2 A régua está certa; o salto, não</h3>
-<p>O vídeo define corretamente o coeficiente de Pearson, \(r=\dfrac{Cov(X,Y)}{\sigma_X\,\sigma_Y}\): sem unidade, entre −1 e +1, simétrico. O problema é o salto: ele nunca calcula o \(r\) e trata o <em>sinal</em> da correlação como prova de causa. O \(r\) não diz quem causa quem, se existe um terceiro fator, nem se a relação é não linear.</p>
-<div class="chart wide" style="margin:12px 0"><h4>Como cada valor de r aparece nos dados (simulados, n = 60 por painel)</h4><svg id="gGaleria" viewBox="0 0 720 420" role="img" aria-label="Seis gráficos de dispersão com diferentes valores de r"></svg></div>
-<div class="chart wide" style="margin:12px 0"><h4>Duas armadilhas do r</h4><svg id="gArmadilhas" viewBox="0 0 720 280" role="img" aria-label="Gráficos de outlier e de relação não linear"></svg></div>
+<h3>8.1 O gráfico de partida: correlação negativa</h3>
+<div class="chart wide" style="margin:12px 0"><h4>Carga tributária × índice de Gini em 17 países</h4>
+  <img class="fig" src="img/carga_gini_17paises.png" alt="Diagrama de dispersão de 17 países: carga tributária (% do PIB) contra índice de Gini, com reta decrescente; r igual a −0,57, ou −0,71 sem o Brasil, que aparece isolado no alto com carga de cerca de 37% e Gini de 0,57" loading="lazy"></div>
 <ul>
-<li><strong>Outlier:</strong> um único ponto cria uma correlação de +0,51 onde não havia nenhuma (sem ele, r = −0,01).</li>
-<li><strong>Não linearidade:</strong> no painel em U, Y depende fortemente de X, mas r ≈ 0. O \(r\) mede só associação <em>linear</em>.</li>
-<li>Lição: nunca reporte \(r\) sem o diagrama de dispersão. No reel, isso significaria plotar superávit contra Selic ano a ano, o que o vídeo não faz.</li>
+<li>Países com carga maior tendem a ter Gini menor: a relação é <strong>negativa</strong> (r = −0,57).</li>
+<li>O Brasil é o <em>outlier</em>: carga de país rico, desigualdade de país pobre. Sem o Brasil, o r vai de −0,57 para −0,71.</li>
+<li>O Gini final depende também da desigualdade de mercado: educação, salários, estrutura produtiva.</li>
 </ul>
+<p class="hint">Valores aproximados, digitalizados do gráfico “Carga Tributária × Concentração de Renda” (sem ano informado). No original, o eixo do Gini era invertido (de 0,60 para 0,20), e por isso a reta aparecia subindo. Aqui o eixo está na ordem natural, e o sinal aparece como é: negativo. O Gini da Índia é de consumo, não de renda, e não se compara aos demais.</p>
+
+<h3>8.2 Dados atuais: OCDE e Brasil</h3>
+<div class="chart wide" style="margin:12px 0"><h4>Carga tributária × índice de Gini: 37 países da OCDE e o Brasil</h4><svg id="gCargaOCDE" viewBox="0 0 640 400" role="img" aria-label="Dispersão de carga tributária e Gini em 38 países, com reta decrescente; o Brasil fica bem acima da reta"></svg>
+  <div class="legend"><span class="dot" style="--c:var(--bar)">OCDE</span><span class="dot" style="--c:var(--muted)">OCDE da América Latina</span><span class="dot" style="--c:var(--accent-2)">Brasil</span><span style="--c:var(--text)">reta de MQO com todos</span></div></div>
+<div class="table-wrap"><table>
+<thead><tr><th>Amostra</th><th class="num">n</th><th class="num">Pearson r</th><th class="num">valor-p</th></tr></thead>
+<tbody>
+<tr><td>Todos</td><td class="num">38</td><td class="num">−0,66</td><td class="num">&lt; 0,001</td></tr>
+<tr><td>Sem o Brasil</td><td class="num">37</td><td class="num">−0,70</td><td class="num">&lt; 0,001</td></tr>
+<tr><td>Sem a América Latina</td><td class="num">33</td><td class="num">−0,46</td><td class="num">0,008</td></tr>
+<tr><td>Só a América Latina (Brasil, Chile, Colômbia, Costa Rica, México)</td><td class="num">5</td><td class="num">+0,31</td><td class="num">0,62</td></tr>
+</tbody></table></div>
+<p>O padrão se repete com dados atuais, e o Brasil continua acima da reta: carga de país rico (32,3% do PIB), Gini latino-americano (0,506). Parte importante da correlação é a <strong>distância entre o bloco latino-americano e o resto</strong>: sem a América Latina, o r cai para −0,46, e dentro dela o sinal se inverte. Isso antecipa os problemas 2 e 3.</p>
+<p class="hint">Cuidados com os dados: o Gini do Banco Mundial tem anos diferentes por país (a maioria entre 2017 e 2020; Japão, 2013). Para o Brasil foi usado o IBGE de 2024, porque o último valor do Banco Mundial é de 2020, ano atípico por causa do auxílio emergencial. A carga brasileira é a do Tesouro (metodologia revisada), próxima do conceito da OCDE.</p>
 
 <div class="box pausa">
 <h4>Pausa para a turma · 5 minutos</h4>
-<p><strong>Os dados mostram correlação. Isso basta para concluir causalidade?</strong> Em duplas, listem tudo o que poderia produzir esse mesmo gráfico sem que o déficit seja irrelevante para os juros. Depois, confiram com os cinco problemas abaixo.</p>
+<p><strong>Os dados mostram correlação. Isso basta para concluir causalidade?</strong> Em duplas, listem tudo o que poderia produzir esse mesmo gráfico sem que os impostos reduzam a desigualdade. Depois, confiram com os quatro problemas abaixo.</p>
 </div>
 
-<h3>8.3 Os cinco problemas do argumento</h3>
-<div class="problema"><span class="tag">Problema 1 de 5</span><h4>Causalidade reversa</h4>
-<div class="fluxo"><div><strong>Selic alta</strong><small>inflação e crise em 1999–2003</small></div><span>→</span><div><strong>Juros da dívida explodem</strong><small>a dívida cresce sozinha</small></div><span>→</span><div class="destaque"><strong>Governo faz superávit</strong><small>metas fiscais, acordo com o FMI, LRF</small></div></div>
-<p>Os superávits de 1999–2008 foram, em boa parte, <strong>resposta</strong> aos juros altos e à dívida, e não algo que “conviveu” com eles por acaso. O tripé de 1999 (câmbio flutuante, metas de inflação e metas de superávit primário) e a Lei de Responsabilidade Fiscal (2000) fizeram do superávit a variável de ajuste. Se a seta vai da Selic para o superávit, a correlação positiva é exatamente o que se espera.</p></div>
+<h3>8.3 Os quatro problemas do argumento</h3>
+<div class="problema"><span class="tag">Problema 1 de 4</span><h4>Causalidade reversa</h4>
+<div class="fluxo"><div><strong>Sociedade mais igual</strong><small>coesão, confiança nas instituições</small></div><span>→</span><div><strong>Aceita pagar mais</strong><small>“o imposto volta para mim”</small></div><span>→</span><div class="destaque"><strong>Carga tributária alta</strong><small>Estado de bem-estar amplo</small></div></div>
+<p>A seta pode ir da igualdade para a carga: os países nórdicos já eram relativamente iguais e coesos quando ampliaram o Estado. A correlação negativa apareceria mesmo que o imposto não reduzisse nada.</p>
+<p>A teoria também prevê o sentido oposto: em Meltzer e Richard (1981), mais desigualdade leva o eleitor mediano a pedir mais redistribuição (correlação positiva). O sinal observado é a soma dessas setas, e nenhuma delas é o efeito do imposto sobre a desigualdade.</p></div>
 
-<div class="problema"><span class="tag">Problema 2 de 5</span><h4>Variável omitida (confundidor)</h4>
-<svg class="dag" viewBox="0 0 420 170" role="img" aria-label="Inflação e risco causam Selic e superávit">
+<div class="problema"><span class="tag">Problema 2 de 4</span><h4>Variável omitida (confundidor)</h4>
+<svg class="dag" viewBox="0 0 420 170" role="img" aria-label="O desenvolvimento causa a carga tributária e o Gini">
   <defs><marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
   <g stroke="currentColor" stroke-width="2" fill="none" style="color:var(--muted)">
     <line x1="175" y1="52" x2="95" y2="118" marker-end="url(#arr2)"/>
     <line x1="245" y1="52" x2="325" y2="118" marker-end="url(#arr2)"/>
     <line x1="120" y1="138" x2="298" y2="138" stroke-dasharray="6 4"/>
   </g>
-  <rect x="140" y="10" width="140" height="42" rx="10" fill="var(--hero1)"/><text x="210" y="36" text-anchor="middle" style="fill:#fff">Inflação e risco</text>
-  <rect x="20" y="118" width="100" height="40" rx="10" fill="var(--surface)" stroke="var(--border)"/><text x="70" y="143" text-anchor="middle">Selic</text>
-  <rect x="298" y="118" width="110" height="40" rx="10" fill="var(--surface)" stroke="var(--border)"/><text x="353" y="143" text-anchor="middle">Superávit</text>
+  <rect x="120" y="10" width="180" height="42" rx="10" fill="var(--hero1)"/><text x="210" y="36" text-anchor="middle" style="fill:#fff">Desenvolvimento</text>
+  <rect x="20" y="118" width="100" height="40" rx="10" fill="var(--surface)" stroke="var(--border)"/><text x="70" y="143" text-anchor="middle">Carga</text>
+  <rect x="298" y="118" width="110" height="40" rx="10" fill="var(--surface)" stroke="var(--border)"/><text x="353" y="143" text-anchor="middle">Gini</text>
 </svg>
 <p class="hint" style="text-align:center">Linha tracejada: a correlação que o gráfico mostra · setas cheias: causas</p>
-<p>Um terceiro fator move as duas séries ao mesmo tempo. Em 2002–2003, inflação de dois dígitos, câmbio disparado e risco-país acima de 2.000 pontos <em>exigem</em> Selic alta e <em>forçam</em> o ajuste fiscal. Em 2017–2020, inflação baixa e recessão permitiram Selic baixa, enquanto a arrecadação caía e o déficit crescia.</p>
-<p><strong>O clássico com os mesmos números:</strong> na aba <code>Sorvete_Afogamento</code> (52 semanas), r(sorvete, afogamentos) = <strong>+0,75</strong>. A temperatura causa as duas: r(temperatura, sorvete) = 0,91 e r(temperatura, afogamentos) = 0,82. Removido o confundidor, a correlação parcial é <strong>−0,01</strong>:</p>
-<div class="formula">$$r_{xy\cdot z}=\frac{r_{xy}-r_{xz}\,r_{yz}}{\sqrt{(1-r_{xz}^2)(1-r_{yz}^2)}}=\frac{0{,}75-0{,}91\times0{,}82}{\sqrt{(1-0{,}91^2)(1-0{,}82^2)}}\approx -0{,}01$$</div>
-<p>Aqui a temperatura faz o papel da inflação e do risco-país. A correlação parcial é a versão “controlada” do \(r\): compara situações com a mesma temperatura (ou a mesma inflação e o mesmo risco).</p></div>
-
-<div class="problema"><span class="tag">Problema 3 de 5</span><h4>Tendência comum em séries de tempo</h4>
-<p>Duas séries que apenas caem com o tempo terão \(r\) alto, mesmo sem ligação nenhuma. A Selic cai há 30 anos por causa da desinflação pós-Real; qualquer série com tendência vai “correlacionar” com ela (veja margarina × divórcio e salário mínimo × cesta básica na Seção 7). Remédio: olhar variações (Δ), remover a tendência e testar estacionariedade. Granger e Newbold (1974) chamaram esse fenômeno de <strong>regressão espúria</strong>.</p></div>
-
-<div class="problema"><span class="tag">Problema 4 de 5</span><h4>Países não comparáveis</h4>
-<div class="grid2">
-  <div><strong>Moeda e credibilidade.</strong> Os EUA emitem a moeda-reserva do mundo; o Japão financia a dívida com poupança interna.</div>
-  <div><strong>Histórico de inflação.</strong> O juro nominal embute a inflação esperada: comparar só o nominal mistura coisas diferentes.</div>
-  <div><strong>Primário ≠ nominal.</strong> O Brasil aparece com −0,4%, mas, somando os juros, o déficit nominal fica perto de 8% do PIB (confira na série de NFSP do Banco Central).</div>
-  <div><strong>Fluxo × estoque.</strong> O que pesa no prêmio de risco é a trajetória da dívida e as expectativas, não o resultado de um único ano.</div>
-</div>
-<p><strong>Falácia ecológica:</strong> um padrão entre países não diz como os juros de <em>um</em> país reagem ao seu próprio déficit. A pergunta relevante é contrafactual: se o Brasil tivesse uma trajetória fiscal mais sólida, a Selic seria menor?</p></div>
-
-<div class="problema"><span class="tag">Problema 5 de 5</span><h4>Qualidade e coerência dos dados</h4>
+<p>O nível de desenvolvimento (renda, educação, formalidade) move as duas variáveis. Países ricos têm mais renda formal para tributar (Lei de Wagner) e mais educação, empregos formais e salários menos dispersos. Na América Latina, a informalidade faz o oposto: base tributária estreita e desigualdade alta ao mesmo tempo. Outros confundidores possíveis: qualidade das instituições, peso das <em>commodities</em> e estrutura demográfica (países mais velhos têm previdência maior, logo carga maior, e transferências que reduzem o Gini).</p>
+<div class="chart wide" style="margin:12px 0"><h4>Controlando o desenvolvimento, a correlação some (40 países simulados)</h4>
+  <img class="fig" src="img/carga_gini_simulacao.png" alt="Diagrama de dispersão simulado de 40 países: carga tributária contra Gini, com pontos coloridos pelo PIB per capita; países ricos, em amarelo, ficam embaixo à direita, e países pobres, em roxo, no alto à esquerda; reta fortemente decrescente" loading="lazy"></div>
 <div class="table-wrap"><table>
-<thead><tr><th>O que o vídeo mostra</th><th>O que conferir</th></tr></thead>
+<thead><tr><th>Medida</th><th class="num">Valor</th></tr></thead>
 <tbody>
-<tr><td>Brasil com juros de 13,75%</td><td>Esse foi o nível de 2023; ao longo de 2025 a Selic ficou em 15%</td></tr>
-<tr><td>Uma coluna “juros” por país</td><td>Datas misturadas? Taxa básica, título de 10 anos ou juro real?</td></tr>
-<tr><td>27 países escolhidos</td><td>Por que esses? Mudar a amostra muda a conclusão? (<em>cherry picking</em>)</td></tr>
-<tr><td>Nenhum r calculado</td><td>O vídeo fala em correlação, mas nunca mostra o coeficiente nem um diagrama de dispersão</td></tr>
+<tr><td>r(carga, Gini)</td><td class="num">−0,76</td></tr>
+<tr><td>r parcial, controlando a renda per capita</td><td class="num">−0,03</td></tr>
+<tr><td>Inclinação da regressão simples (Gini por p.p. de carga)</td><td class="num">−0,0074</td></tr>
+<tr><td>Inclinação com a renda como controle</td><td class="num">−0,0003</td></tr>
+<tr><td>Efeito verdadeiro da carga na simulação</td><td class="num">−0,001</td></tr>
 </tbody></table></div>
-<p>Antes de discutir causa, pergunte: de onde vêm os números, de quando são e quem escolheu a amostra?</p></div>
+<p>Na simulação, a renda per capita eleva a carga e reduz o Gini, e o efeito verdadeiro da carga é pequeno. A correlação bruta superestima o efeito cerca de sete vezes; com a renda como controle, a estimativa fica perto do verdadeiro. A cor dos pontos já mostra isso: quase toda a correlação vinha do desenvolvimento. É a mesma lógica do sorvete e da temperatura (Seção 7.1). Nos dados reais, o exercício exige juntar o PIB per capita de cada país (veja a tarefa em 8.9).</p></div>
 
-<h3>8.4 O que o gráfico permite dizer</h3>
-<div class="grid2">
-  <div class="box"><h4>Pode dizer</h4><ul><li>Superávit e Selic andaram juntos no Brasil de 1999 a 2008.</li><li>Muitos países com déficit têm juros baixos.</li><li>O déficit primário não é o único determinante dos juros.</li></ul></div>
-  <div class="box warn"><h4>Não pode dizer</h4><ul><li>Que o déficit não afeta os juros.</li><li>Qual a direção da causalidade.</li><li>O que aconteceria com a Selic se a política fiscal fosse outra.</li></ul></div>
-</div>
-<p><strong>“É mito” e “é verdade” exigem o mesmo tipo de prova: causal.</strong> O erro é simétrico: quem afirmasse que o déficit causa juros altos usando só uma correlação cometeria o mesmo erro. A conclusão honesta é que o gráfico é inconclusivo sobre causalidade.</p>
-
-<h3>8.5 Paradoxo de Simpson</h3>
-<div class="chart wide" style="margin:12px 0"><h4>Superávit primário × Selic (aba Fiscal_Selic, simulada; efeito verdadeiro do déficit = +0,5)</h4><svg id="gSimpson" viewBox="0 0 560 340" role="img" aria-label="Paradoxo de Simpson: superávit e Selic por regime de inflação"></svg>
-  <div class="legend"><span class="dot" style="--c:var(--accent-2)">inflação alta</span><span class="dot" style="--c:var(--bar)">inflação baixa</span><span class="dash" style="--c:var(--muted)">todos os anos juntos</span></div></div>
+<div class="problema"><span class="tag">Problema 3 de 4</span><h4>Paradoxo de Simpson nos dados reais</h4>
+<div class="chart wide" style="margin:12px 0"><h4>Os 17 países do gráfico de partida, separados em dois grupos</h4>
+  <img class="fig" src="img/carga_gini_simpson.png" alt="Diagrama de dispersão dos 17 países do gráfico original, separados em América Latina (laranja) e países ricos (azul). Dentro da América Latina a reta sobe; entre os países ricos, desce levemente; a reta com todos juntos desce mais forte, ligando os dois grupos" loading="lazy"></div>
 <div class="table-wrap"><table>
-<thead><tr><th>Amostra</th><th class="num">r(superávit, Selic)</th></tr></thead>
-<tbody><tr><td>Todos os anos juntos</td><td class="num">+0,82</td></tr><tr><td>Só inflação alta</td><td class="num">−0,50</td></tr><tr><td>Só inflação baixa</td><td class="num">−0,59</td></tr></tbody></table></div>
-<p>Dentro de cada regime, mais superávit vem com Selic menor, que é o efeito verdadeiro. Juntando os regimes, o padrão se inverte: é o que o reel mostra, ao misturar 1999–2005 (inflação e risco altos) com 2017–2021 (inflação baixa).</p>
+<thead><tr><th>Amostra</th><th class="num">n</th><th class="num">r(carga, Gini)</th></tr></thead>
+<tbody><tr><td>Todos juntos</td><td class="num">17</td><td class="num">−0,57</td></tr><tr><td>Só países ricos</td><td class="num">11</td><td class="num">−0,57</td></tr><tr><td>Só América Latina</td><td class="num">5</td><td class="num">+0,66</td></tr></tbody></table></div>
+<p>O <strong>paradoxo de Simpson</strong> acontece quando a relação que aparece nos dados agregados muda de sinal, ou some, dentro dos grupos. Aqui, dentro da América Latina o sinal se inverte: quem cobra mais (o Brasil) é também o mais desigual. Boa parte da reta “todos juntos” é a distância entre os dois blocos, que diferem em desenvolvimento, instituições e informalidade, e não o efeito da carga.</p>
+<p class="hint">Cuidado honesto: com 5 países, o r da América Latina depende quase só do Brasil (sem ele, +0,19), e nenhum r de grupo é significativo a 5%. O exemplo mostra o mecanismo; não permite afirmar que, na região, mais impostos aumentam a desigualdade. A Índia (círculo vazio) fica fora dos grupos. O mesmo padrão aparece nos dados atuais da Seção 8.2: −0,46 fora da América Latina e +0,31 dentro dela.</p></div>
 
-<h3>8.6 Atividade em sala · 20 minutos</h3>
+<div class="problema"><span class="tag">Problema 4 de 4</span><h4><em>Outliers</em> e medidas que não se comparam</h4>
+<div class="chart wide" style="margin:12px 0"><h4>Correlação carga × Gini em quatro amostras dos 17 países</h4>
+  <img class="fig" src="img/carga_gini_outliers.png" alt="Barras horizontais com o r entre carga e Gini em quatro amostras: todos os 17 países, −0,57; sem o Brasil, −0,71; sem a Índia, −0,69; sem Brasil e Índia, −0,84" loading="lazy"></div>
 <div class="grid2">
-  <div class="box"><h4>Parte A · calcule o r</h4>
-    <div class="table-wrap"><table><thead><tr><th class="num">X</th><th class="num">Y</th></tr></thead><tbody>
-    <tr><td class="num">1</td><td class="num">2</td></tr><tr><td class="num">2</td><td class="num">4</td></tr><tr><td class="num">3</td><td class="num">5</td></tr><tr><td class="num">4</td><td class="num">4</td></tr><tr><td class="num">5</td><td class="num">5</td></tr></tbody></table></div>
-    <details><summary>Ver gabarito</summary><div class="ans"><p>Médias: \(\bar X=3\), \(\bar Y=4\). Desvios de X: −2, −1, 0, 1, 2; de Y: −2, 0, 1, 0, 1. Soma dos produtos = 6; soma dos quadrados de X = 10, de Y = 6. \(r=6/\sqrt{60}\approx\mathbf{0{,}77}\): correlação positiva forte, mas com apenas 5 pontos. O reel também usa poucos anos e poucos países.</p></div></details>
-  </div>
-  <div class="box"><h4>Parte B · em grupos</h4><ol>
-    <li>Desenhe um diagrama causal (setas) ligando déficit, Selic, inflação e risco-país.</li>
-    <li>Aponte um confundidor e uma possível causalidade reversa.</li>
-    <li>Proponha um dado ou desenho que testaria o efeito do déficit sobre os juros.</li>
-    <li>Reescreva a legenda do reel de forma honesta, em uma frase.</li></ol>
-    <details><summary>Ver sugestão de legenda</summary><div class="ans"><p>“Déficit e Selic não andam juntos de forma simples; o gráfico sozinho não prova nem refuta o efeito do fiscal sobre os juros.”</p></div></details>
-  </div>
+  <div><strong>Brasil.</strong> Carga de país rico, Gini de país pobre. Só ele enfraquece o r de −0,71 para −0,57.</div>
+  <div><strong>Índia.</strong> Gini de consumo, não de renda: sempre sai menor. É um ponto incomparável no mesmo gráfico.</div>
+</div>
+<p>Retirando os dois, o r chega a −0,84: a correlação “fica mais forte” só porque escolhemos a amostra. Antes de discutir causa, pergunte de onde vem cada número e se todos medem a mesma coisa.</p></div>
+
+<h3>8.4 O que explica o Brasil: a composição, não o tamanho</h3>
+<div class="chart wide" style="margin:12px 0"><h4>Composição da arrecadação: Brasil (2021) × média da OCDE</h4>
+  <img class="fig" src="img/composicao_arrecadacao.png" alt="Barras comparando a composição da arrecadação: tributos sobre bens e serviços são 45% no Brasil (2021) contra cerca de 32% na média da OCDE; imposto de renda da pessoa física é 9% no Brasil contra cerca de 24% na OCDE" loading="lazy"></div>
+<ul>
+<li>Tributo sobre consumo pesa mais, em proporção da renda, para quem ganha menos: é <strong>regressivo</strong>. No Brasil, cerca de 45% da arrecadação vem de bens e serviços.</li>
+<li>O imposto de renda progressivo é o que reduz o Gini, e no Brasil ele é pequeno: o IR da pessoa física é cerca de 9% da arrecadação, contra perto de um quarto na média da OCDE.</li>
+<li>“Carga” soma coisas que agem em sentidos opostos. A variável do gráfico mede mal o que importa. Quando a variável explicativa agrega componentes com efeitos opostos, a correlação com o agregado diz pouco.</li>
+</ul>
+<p class="hint">Brasil: OCDE, <em>Revenue Statistics in Latin America and the Caribbean</em> (2021). Composição em 2021: bens e serviços 44,7%, contribuições sociais 23,9%, IR de empresas 11,1%, IR de pessoas físicas 8,8%, propriedade 4,8%. Média da OCDE aproximada, <em>Revenue Statistics</em>.</p>
+
+<h3>8.5 O que os gráficos permitem dizer</h3>
+<div class="grid2">
+  <div class="box"><h4>Pode dizer</h4><ul><li>Entre países, carga alta convive com Gini menor.</li><li>Onde há mais tributo direto e transferência, o Gini cai mais.</li><li>O Brasil foge do padrão.</li></ul></div>
+  <div class="box warn"><h4>Não pode dizer</h4><ul><li>Que subir a carga reduz a desigualdade.</li><li>Quanto do r vem do desenvolvimento.</li><li>O que aconteceria no Brasil com mais impostos.</li></ul></div>
+</div>
+<p><strong>O desenho de pesquisa convence, não a correlação.</strong> A frase “mais impostos reduzem a desigualdade” pode até ser verdadeira para certos impostos, mas o gráfico de dispersão entre países não é a prova.</p>
+
+<h3>8.6 Canais: da carga à desigualdade</h3>
+<div class="grid2">
+  <div class="box"><h4>Imposto progressivo</h4><p>IR com alíquota maior no topo: reduz a renda dos mais ricos.</p></div>
+  <div class="box"><h4>Transferências</h4><p>Bolsa Família, previdência, seguro-desemprego: elevam a renda da base.</p></div>
+  <div class="box"><h4>Bens públicos</h4><p>Educação e saúde: reduzem a desigualdade de mercado no longo prazo.</p></div>
+  <div class="box warn"><h4>Tributo sobre consumo</h4><p>Pesa mais para quem ganha menos: aumenta a desigualdade.</p></div>
+</div>
+<p>Todos os canais dependem de <strong>como se cobra e como se gasta</strong>, não do tamanho da carga. Por isso o gráfico olha para a variável errada. No Brasil, o canal regressivo pesa mais, o que explica a posição do país acima da reta.</p>
+
+<h3>8.7 Da correlação ao modelo causal</h3>
+<div class="formula">$$Gini_{it}=\alpha_i+\lambda_t+\beta\,Carga_{it}+\gamma\ln(PIBpc_{it})+\delta\,Educação_{it}+\theta\,Informalidade_{it}+\varepsilon_{it}$$</div>
+<p>Painel de países (\(i\)) ao longo dos anos (\(t\)): \(\alpha_i\) absorve o que é fixo em cada país (cultura, instituições, história), e \(\lambda_t\) os choques comuns a todos (veja o Conteúdo 5).</p>
+<div class="grid2">
+  <div class="box"><h4>\(\beta\) é causal se…</h4><ul><li>nenhum confundidor que muda no tempo ficou em \(\varepsilon\);</li><li>a desigualdade não determina a carga;</li><li>a carga varia “como se fosse aleatória”.</li></ul></div>
+  <div class="box"><h4>Cuidados práticos</h4><ul><li>separe tributo direto e indireto;</li><li>use o Gini antes e depois do fisco;</li><li>compare o mesmo conceito de Gini.</li></ul></div>
+</div>
+<p>Com efeitos fixos, o \(\beta\) passa a ser identificado só pela variação da carga <em>dentro</em> de cada país ao longo do tempo, que costuma ser pequena. Sobra a causalidade reversa: governos ampliam a carga quando a sociedade pede mais redistribuição. <strong>O que convence não é o modelo, é o desenho de identificação em volta dele.</strong></p>
+
+<h3>8.8 Como investigar causalidade</h3>
+<div class="grid3">
+  <div class="box"><h4>Controlar os confundidores</h4><p>Painel de países com efeitos fixos: renda per capita, educação, informalidade e idade da população.</p></div>
+  <div class="box"><h4>Microssimulação</h4><p>Calcular, família a família, o Gini antes e depois de cada tributo e transferência (método CEQ).</p></div>
+  <div class="box"><h4>Experimentos naturais</h4><p>Reformas tributárias datadas: DiD, controle sintético ou regressão descontínua no limite de isenção.</p></div>
+</div>
+<p class="hint"><strong>Leitura sugerida:</strong> Lustig (org.), <em>Commitment to Equity Handbook</em> (2018), o método por trás das medidas de redução do Gini. Mostra que o efeito redistributivo depende de quais tributos e transferências, não do tamanho da carga. A microssimulação não é causal no sentido estrito (supõe que ninguém muda de comportamento), mas separa o efeito mecânico de cada instrumento.</p>
+<div class="box">
+<h4>A reforma do IR de 2026 como experimento natural</h4>
+<p>A reforma do imposto de renda de 2026 isenta quem ganha até R$ 5 mil por mês, reduz parcialmente o imposto até R$ 7.350 e cria um imposto mínimo sobre altas rendas.</p>
+<ul>
+<li><strong>Por que funciona:</strong> quem ganha R$ 4.900 e quem ganha R$ 5.100 são quase iguais. Perto do limite, os dois grupos só diferem pela regra do IR, e a diferença no resultado é atribuída à reforma.</li>
+<li><strong>O que medir:</strong> renda disponível, consumo e endividamento antes e depois de 2026, dos dois lados do limite (RDD e DiD; veja os Conteúdos 6 e 7).</li>
+<li><strong>Cuidado:</strong> a redução parcial até R$ 7.350 suaviza a descontinuidade; o desenho mais limpo combina o limite com a data (diferenças em descontinuidades).</li>
+</ul>
+<p class="hint">A reforma vai gerar dados para TCCs e dissertações nos próximos anos (PNAD Contínua e dados da Receita Federal).</p>
 </div>
 
-<h3>8.7 Tarefa para casa: refaça o gráfico com dados oficiais</h3>
-<ol>
-<li>Baixe no SGS/BCB a Selic, o IPCA, o resultado primário e a dívida bruta (% do PIB), de 1999 a 2025.</li>
-<li>Calcule o \(r\) entre primário e Selic em nível e depois em variações (Δ).</li>
-<li>Separe em dois regimes de inflação e calcule o \(r\) em cada um.</li>
-<li>Calcule a correlação parcial entre primário e Selic, controlando o IPCA, e compare com a correlação simples.</li>
-</ol>
-<p><strong>Entrega:</strong> uma página com os quatro resultados e a resposta à pergunta “o reel tinha razão?”. A tarefa replica as três lições da aula: nível × diferenças (tendência), subgrupos (Simpson) e correlação parcial (confundidor). O resultado esperado é que o sinal e a magnitude da correlação mudem conforme o cálculo.</p>
+<h3>8.9 Atividade e tarefa</h3>
+<div class="grid2">
+  <div class="box"><h4>Atividade em sala · 20 minutos</h4><ol>
+    <li>Desenhe um diagrama causal (setas) ligando carga tributária, Gini, desenvolvimento e informalidade.</li>
+    <li>Aponte um confundidor e uma possível causalidade reversa.</li>
+    <li>Proponha um dado ou desenho que testaria o efeito dos impostos sobre a desigualdade.</li>
+    <li>Escreva uma legenda honesta para o gráfico da Seção 8.2, em uma frase.</li></ol>
+    <details><summary>Ver sugestão de legenda</summary><div class="ans"><p>“Entre países, carga tributária maior convive com desigualdade menor; o gráfico sozinho não mostra se aumentar impostos reduz a desigualdade.”</p></div></details>
+  </div>
+  <div class="box"><h4>Tarefa para casa</h4><ol>
+    <li>Com a base <code>paises_carga_gini.xlsx</code>, recalcule o r sem o Brasil e só com a América Latina.</li>
+    <li>Junte o PIB per capita de cada país (Banco Mundial, indicador NY.GDP.PCAP.PP.KD) e calcule a correlação parcial entre carga e Gini, controlando o ln do PIB per capita.</li>
+    <li>Na OCDE (<em>Revenue Statistics</em>), separe tributos diretos e indiretos e refaça o gráfico com cada um.</li></ol>
+    <p><strong>Entrega:</strong> uma página com os resultados e a resposta à pergunta “os impostos reduzem a desigualdade?”.</p>
+  </div>
+</div>
 <div class="tabs" data-tabs>
   <div class="tablist" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="rpy">Python</button>
-    <button role="tab" aria-selected="false" data-tab="rr">R</button>
-    <button role="tab" aria-selected="false" data-tab="rst">Stata</button>
+    <button role="tab" aria-selected="true" data-tab="cpy">Python</button>
+    <button role="tab" aria-selected="false" data-tab="cr">R</button>
+    <button role="tab" aria-selected="false" data-tab="cst">Stata</button>
   </div>
-<div class="tabpanel active" data-panel="rpy"><pre><code>import numpy as np
-import pandas as pd
+<div class="tabpanel active" data-panel="cpy"><pre><code>import pandas as pd
+from scipy import stats
 import statsmodels.formula.api as smf
 
-# Base sintética do estudo (as três lições com dados simulados)
-f = pd.read_excel("dados_caso/correlacao_causalidade_sintetica.xlsx", sheet_name="Fiscal_Selic")
-f["superavit_primario"].corr(f["selic"])                        # todos: +0,82
-f.groupby("regime")[["superavit_primario", "selic"]].corr()     # Simpson
-rx = smf.ols("superavit_primario ~ inflacao", f).fit().resid
-ry = smf.ols("selic ~ inflacao", f).fit().resid
-np.corrcoef(rx, ry)[0, 1]                                       # correlação parcial (controla a inflação)
+d = pd.read_csv("dados_caso/carga_gini_ocde_brasil.csv")
+stats.pearsonr(d["carga_pib"], d["gini"])                          # todos (38): r = −0,66
+sem_br = d[d["pais"] != "Brasil"]
+stats.pearsonr(sem_br["carga_pib"], sem_br["gini"])                # sem o Brasil: −0,70
+for g, x in d.groupby("grupo"):                                    # Simpson: −0,46 e +0,31
+    print(g, len(x), round(x["carga_pib"].corr(x["gini"]), 2))
+smf.ols("gini ~ carga_pib", d).fit().summary()                     # reta do gráfico
 
-s = pd.read_excel("dados_caso/correlacao_causalidade_sintetica.xlsx", sheet_name="Sorvete_Afogamento")
-s.drop(columns="semana").corr()                                 # r e correlações com a temperatura
-
-# Tarefa: dados oficiais do SGS/BCB (pip install python-bcb)
-# from bcb import sgs
-# d = sgs.get({"selic": 432, "ipca": 433}, start="1999-01-01")   # confira os códigos no SGS
-# Acrescente as séries de resultado primário e dívida bruta (% do PIB) e repita as contas
-# em nível, em diferenças (d.diff()) e por regime de inflação.</code></pre></div>
-<div class="tabpanel" data-panel="rr"><pre><code>library(readxl)
-f &lt;- read_excel("dados_caso/correlacao_causalidade_sintetica.xlsx", sheet = "Fiscal_Selic")
-cor(f$superavit_primario, f$selic)
-by(f, f$regime, function(d) cor(d$superavit_primario, d$selic))     # Simpson
-cor(resid(lm(superavit_primario ~ inflacao, f)), resid(lm(selic ~ inflacao, f)))   # correlação parcial
-
-s &lt;- read_excel("dados_caso/correlacao_causalidade_sintetica.xlsx", sheet = "Sorvete_Afogamento")
-cor(resid(lm(sorvetes_vendidos ~ temperatura_c, s)),
-    resid(lm(afogamentos ~ temperatura_c, s)))                     # correlação parcial
-
-# Tarefa: install.packages("rbcb"); rbcb::get_series(c(selic = 432, ipca = 433))
-# (confira os códigos das séries no SGS e acrescente primário e dívida bruta)</code></pre></div>
-<div class="tabpanel" data-panel="rst"><pre><code>import excel "dados_caso/correlacao_causalidade_sintetica.xlsx", sheet("Fiscal_Selic") firstrow clear
-correlate superavit_primario selic
-bysort regime: correlate superavit_primario selic        // Simpson
-pcorr selic superavit_primario inflacao                  // correlação parcial (controla a inflação)
-
-import excel "dados_caso/correlacao_causalidade_sintetica.xlsx", sheet("Sorvete_Afogamento") firstrow clear
-pcorr afogamentos sorvetes_vendidos temperatura_c         // correlação parcial
-
-* Tarefa: ssc install sgsbcb (ou importe os CSVs baixados do SGS/BCB)</code></pre></div>
+# Tarefa: junte o PIB per capita (Banco Mundial) em uma coluna "pibpc" e controle por ele
+# smf.ols("gini ~ carga_pib + np.log(pibpc)", d).fit().summary()</code></pre></div>
+<div class="tabpanel" data-panel="cr"><pre><code>d &lt;- read.csv("dados_caso/carga_gini_ocde_brasil.csv", encoding = "UTF-8")
+cor.test(d$carga_pib, d$gini)                                      # todos (38): r = −0,66
+with(subset(d, pais != "Brasil"), cor(carga_pib, gini))            # sem o Brasil: −0,70
+by(d, d$grupo, function(x) cor(x$carga_pib, x$gini))               # Simpson: −0,46 e +0,31
+summary(lm(gini ~ carga_pib, data = d))
+plot(d$carga_pib, d$gini, xlab = "Carga tributária (% do PIB)", ylab = "Índice de Gini")
+text(d$carga_pib, d$gini, d$pais, pos = 3, cex = 0.6)
+abline(lm(gini ~ carga_pib, data = d))</code></pre></div>
+<div class="tabpanel" data-panel="cst"><pre><code>import delimited "dados_caso/carga_gini_ocde_brasil.csv", clear encoding(utf-8)
+pwcorr carga_pib gini, sig                       // todos (38): r = −0,66
+pwcorr carga_pib gini if pais != "Brasil", sig   // sem o Brasil: −0,70
+bysort grupo: pwcorr carga_pib gini, sig         // Simpson: −0,46 e +0,31
+regress gini carga_pib
+twoway (scatter gini carga_pib, mlabel(pais) mlabsize(vsmall)) (lfit gini carga_pib)</code></pre></div>
 </div>
 
 <div class="box para-levar">
 <h4>Para levar</h4>
 <p class="big">Correlação é o começo da pergunta, não a resposta.</p>
-<p>Diante de qualquer gráfico viral: qual é a seta? Existe um terceiro fator? Os dados são comparáveis? Tarefa extra: traga um gráfico de rede social que confunda correlação com causalidade e aplique as cinco checagens.</p>
+<p>Diante de qualquer gráfico entre países: qual é a seta? Existe um terceiro fator? Os grupos são comparáveis? Os dados medem a mesma coisa? Tarefa extra: traga um gráfico das redes sociais ou da imprensa que confunda correlação com causalidade e aplique as quatro checagens.</p>
 </div>
 </section>
 
@@ -801,8 +821,8 @@ pcorr afogamentos sorvetes_vendidos temperatura_c         // correlação parcia
     X.forEach(function(x,i){g.appendChild(svgEl('circle',{cx:px(x),cy:py(Y[i]),r:2.6,fill:cor,'fill-opacity':0.7}));});
     return {g:g,px:px,py:py};
   }
-  function reel(){
-    var R=CASOS3.Reel; if(!R) return;
+  function galeria(){
+    var R=CASOS3.Galeria; if(!R) return;
     var G=R.galeria, sv=document.getElementById('gGaleria'); sv.innerHTML='';
     var ordem=[['r_090',css('--bar')],['r_050',css('--bar')],['r_000',css('--muted')],['r_m050',css('--accent-2')],['r_m090',css('--accent-2')],['nao_linear',css('--muted')]];
     ordem.forEach(function(o,k){var d=G[o[0]], r=pearson(d[0],d[1]);
@@ -812,13 +832,19 @@ pcorr afogamentos sorvetes_vendidos temperatura_c         // correlação parcia
     var P=painelXY(sa,4,4,350,270,o[0],o[1],'Com o outlier r = +'+fmt(rr,2)+' · sem ele r = '+fmt(rs,2),css('--bar'));
     P.g.appendChild(svgEl('circle',{cx:P.px(o[0][o[0].length-1]),cy:P.py(o[1][o[1].length-1]),r:7,fill:'none',stroke:css('--accent-2'),'stroke-width':2.5}));
     var u=G.nao_linear; painelXY(sa,366,4,350,270,u[0],u[1],'Relação em U: r = '+fmt(pearson(u[0],u[1]),2),css('--muted'));
-    var F=R.fiscal, X=F.superavit, Y=F.selic, A=F.alta;
-    var f=plotFrame(document.getElementById('gSimpson'),{xlim:[Math.min.apply(null,X)-0.5,Math.max.apply(null,X)+0.5],ylim:[Math.min.apply(null,Y)-0.8,Math.max.apply(null,Y)+0.8],xlabel:'Superávit primário (% do PIB)',ylabel:'Selic (%)'});
-    var fit=function(idx){var m=ols(idx.map(function(i){return [1,X[i]];}),idx.map(function(i){return Y[i];})),xx=idx.map(function(i){return X[i];}),lo=Math.min.apply(null,xx),hi=Math.max.apply(null,xx);return [lo,hi,m.beta[0]+m.beta[1]*lo,m.beta[0]+m.beta[1]*hi];};
-    var todos=X.map(function(_,i){return i;}), ia=todos.filter(function(i){return A[i];}), ib=todos.filter(function(i){return !A[i];});
-    var l=fit(todos); plotLine(f,[l[0],l[1]],[l[2],l[3]],css('--muted'),2,'7 5');
-    [[ia,css('--accent-2')],[ib,css('--bar')]].forEach(function(z){var q=fit(z[0]);plotLine(f,[q[0],q[1]],[q[2],q[3]],z[1],2.6);
-      plotPoints(f,z[0].map(function(i){return X[i];}),z[0].map(function(i){return Y[i];}),z[1],4,0.85);});
+  }
+  function cargaOCDE(){
+    var T=CASOS3.CargaOCDE; if(!T) return;
+    var X=T.dados[0], Y=T.dados[1], N=T.nomes, G=T.grupo, sv=document.getElementById('gCargaOCDE'); sv.innerHTML='';
+    var f=plotFrame(sv,{H:400,xlim:[16,47],ylim:[0.22,0.56],xlabel:'Carga tributária (% do PIB)',ylabel:'Índice de Gini'});
+    var m=ols(X.map(function(x){return [1,x];}),Y);
+    plotLine(f,[17,46],[m.beta[0]+m.beta[1]*17,m.beta[0]+m.beta[1]*46],css('--text'),2);
+    var cor=function(i){return N[i]==='Brasil'?css('--accent-2'):(G[i]==='América Latina'?css('--muted'):css('--bar'));};
+    X.forEach(function(x,i){plotPoints(f,[x],[Y[i]],cor(i),N[i]==='Brasil'?7:4.5,0.9);});
+    var rot=['Brasil','Colômbia','Costa Rica','México','Chile','Estados Unidos','Turquia','Israel','Irlanda','Suíça','França','Dinamarca','Eslováquia','Suécia'];
+    X.forEach(function(x,i){ if(rot.indexOf(N[i])<0) return; var br=N[i]==='Brasil';
+      f.svg.appendChild(svgEl('text',{x:f.sx(x)+7,y:f.sy(Y[i])-6,style:'font-size:'+(br?13:11)+'px;font-weight:'+(br?700:400),fill:br?css('--accent-2'):css('--muted')},N[i]));});
+    f.svg.appendChild(svgEl('text',{x:f.sx(46.5),y:f.sy(0.54),'text-anchor':'end',style:'font-size:17px;font-weight:700',fill:css('--text')},'r = '+fmt(pearson(X,Y),2)));
   }
   function run(){
     var SA=CASOS3.SorveteAula; dual('gSorvAula',SA.tempo,SA.dados[0],SA.dados[1],1,'Vendas de sorvetes','Número de afogamentos','Mês');
@@ -827,8 +853,7 @@ pcorr afogamentos sorvetes_vendidos temperatura_c         // correlação parcia
     var S=CASOS3.Sorvete; dual('gSorv',S.tempo.map(function(t){var m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];return m[+t.slice(5)-1]+'/'+t.slice(2,4);}),S.dados[1],S.dados[2],3,'Vendas de sorvete (mil unid.)','Afogamentos','Mês');
     var M=CASOS3.Margarina; dual('gMarg',M.tempo,M.dados[0],M.dados[1],1,'Margarina (lb per capita, EUA)','Divórcios por mil hab. (Maine)','Ano');
     var C=CASOS3.Cage; dual('gCage',C.tempo,C.dados[0],C.dados[1],1,'Filmes com Nicolas Cage','Afogamentos em piscina (EUA)','Ano');
-    var T=CASOS3.Carga; labeled('gCarga',T.dados[0],T.dados[1],T.nomes,'Índice de Gini','Carga tributária (% do PIB)',['Brasil','Índia']);
-    reel();
+    galeria(); cargaOCDE();
     var H=CASOS3.Saude; labeled('gSaude',H.dados[0],H.dados[1],H.nomes,'Gasto em saúde per capita (US$ PPC)','Suicídios por 100 mil hab.');
   }
   document.addEventListener('themechange',run);
