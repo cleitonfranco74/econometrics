@@ -40,7 +40,8 @@
     <li><a href="#especificacao">6. Especificação</a></li>
     <li><a href="#diagnostico">7. Diagnóstico</a></li>
     <li><a href="#roteiro">8. Gretl e Excel</a></li>
-    <li><a href="#exercicios">9. Exercícios</a></li>
+    <li><a href="#campus">9. Campus e cidades</a></li>
+    <li><a href="#exercicios">10. Exercícios</a></li>
   </ul>
 </nav>
 
@@ -346,14 +347,61 @@ modeltab show</code></pre>
 <li><a href="codigo/gerar_base.py"><code>codigo/gerar_base.py</code></a>: simula a base (semente fixa);</li>
 <li><a href="codigo/analise_referencia.py"><code>codigo/analise_referencia.py</code></a>: estima todos os modelos, gera as figuras e grava <a href="codigo/resultados_referencia.json"><code>resultados_referencia.json</code></a>;</li>
 <li><a href="codigo/gerar_planilha.py"><code>codigo/gerar_planilha.py</code></a>: monta a planilha do Excel.</li>
+<li>Exemplo 2: <a href="codigo/gerar_base_campus.py"><code>gerar_base_campus.py</code></a>, <a href="codigo/analise_campus.py"><code>analise_campus.py</code></a> e <a href="codigo/gerar_planilha_campus.py"><code>gerar_planilha_campus.py</code></a>.</li>
 </ul>
 </div>
 </div>
 </section>
 
 <!-- 9 -->
+<section id="campus">
+<h2>9. Exemplo 2: o campus federal e a renda da cidade</h2>
+<p>O reel também afirma que, onde um campus federal abriu, a renda do município subiu de 3% a 6%, mais nas cidades pequenas. A estimativa vem de estudos sobre a expansão das universidades federais nos anos 2000; Barbosa, Petterini e Ferreira (<em>RAC</em>, 2020), por exemplo, encontram ganhos de 3,5% a 5,8% na renda per capita. Este exemplo mostra por que esses estudos não comparam simplesmente cidades com e sem campus.</p>
+<ul>
+<li><a href="dados/municipios_campus.csv"><code>dados/municipios_campus.csv</code></a>: 1.500 municípios <strong>fictícios</strong>, 120 com campus novo;</li>
+<li><a href="dados/campus_excel.xlsx"><code>dados/campus_excel.xlsx</code></a>: médias por grupo, regressão simples e PROJ.LIN;</li>
+<li><a href="codigo/campus.inp"><code>codigo/campus.inp</code></a>: roteiro do Gretl.</li>
+</ul>
+<div class="box">
+<h4>O gabarito</h4>
+<p>O campus aumenta a renda per capita de 2010 em 3,5% nas cidades grandes e em 7% nas pequenas (menos de 50 mil habitantes). Como metade dos municípios com campus é pequena, o efeito médio entre eles é de 0,051. Os campi <strong>não foram sorteados</strong>: foram para cidades maiores, mais ricas e mais distantes da capital (interiorização). O gerador está em <a href="codigo/gerar_base_campus.py"><code>codigo/gerar_base_campus.py</code></a>.</p>
+</div>
+
+<h3>9.1 Quem recebeu campus já era diferente</h3>
+<div class="chart"><img class="fig" src="img/fig5_campus_selecao.png" alt="À esquerda, dispersão de população contra renda per capita em 2000: os municípios com campus, em laranja, concentram-se entre os maiores e mais ricos. À direita, ln da renda em 2010 contra ln da renda em 2000: as duas retas paralelas mostram que, com a mesma renda inicial, os municípios com campus ficam um pouco acima" loading="lazy"></div>
+<p>Antes da expansão, a população média dos municípios que receberam campus era de 70 mil habitantes, contra 24 mil nos demais. A renda per capita média era de R$ 401, contra R$ 328. A regressão de <code>campus</code> em ln(população), ln(renda de 2000) e distância confirma: os três aumentam a chance de receber campus.</p>
+
+<h3>9.2 Do ingênuo ao comparável</h3>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente</th><th>(C1) ln renda 2010</th><th>(C2) ln renda 2010</th><th>(C3) ln renda 2010</th><th>(C4) ln renda 2010</th><th>(C6) crescimento</th></tr></thead>
+<tbody>
+<tr><td>campus</td><td>0,2735***<br><small>(0,0296)</small></td><td>0,0824***<br><small>(0,0098)</small></td><td>0,0557***<br><small>(0,0102)</small></td><td>0,0183<br><small>(0,0133)</small></td><td>0,0507***<br><small>(0,0104)</small></td></tr>
+<tr><td>campus × pequeno</td><td></td><td></td><td></td><td>0,0737***<br><small>(0,0197)</small></td><td></td></tr>
+<tr><td>ln renda 2000</td><td></td><td>0,8998***<br><small>(0,0071)</small></td><td>0,9234***<br><small>(0,0117)</small></td><td>0,9233***<br><small>(0,0117)</small></td><td></td></tr>
+<tr><td>Controles</td><td>não</td><td>não</td><td>sim</td><td>sim + pequeno</td><td>sim</td></tr>
+<tr><td>\(n\) / \(R^2\)</td><td>1.500 / 0,045</td><td>1.500 / 0,910</td><td>1.500 / 0,920</td><td>1.500 / 0,921</td><td>1.500 / 0,197</td></tr>
+</tbody></table></div>
+<p class="hint">Controles: ln(população), urbanização e distância à capital em 2000 e dummies de região. Crescimento = ln(renda 2010) − ln(renda 2000). Erros-padrão robustos (HC1). *** p&lt;0,01.</p>
+<div class="chart"><img class="fig" src="img/fig6_campus_coeficiente.png" alt="Coeficiente de campus com intervalo de 95% em cinco modelos: 0,273 na comparação simples; 0,082 com a renda de 2000; 0,056 com os demais controles; 0,061 usando o crescimento da renda; 0,051 com crescimento e controles. A linha do valor verdadeiro está em 0,051" loading="lazy"></div>
+<div class="box">
+<h4>Interpretação</h4>
+<ul>
+<li><strong>C1 (regressão simples com dummy):</strong> municípios com campus têm renda 31% maior em 2010. É a diferença de médias, e quase toda ela já existia em 2000. O viés de seleção é cinco vezes o efeito verdadeiro.</li>
+<li><strong>C2 e C3:</strong> comparando municípios com a mesma renda inicial, o coeficiente cai para 0,082; com população, urbanização, distância e região, para 0,056, ou \(100(e^{0{,}0557}-1)\approx\) 5,7%. Fica perto do verdadeiro (0,051) e dentro da faixa da literatura. O \(R^2\) salta de 0,05 para 0,91 só com a renda de 2000: o passado explica quase todo o presente.</li>
+<li><strong>C4 (interação):</strong> nas cidades grandes o efeito estimado é 0,018 (não significativo); nas pequenas, \(0{,}0183+0{,}0737=0{,}092\) (erro-padrão 0,015). As estimativas ficam a pouco mais de um erro-padrão dos valores verdadeiros (0,035 e 0,070): com apenas 64 cidades grandes com campus, a precisão é baixa.</li>
+<li><strong>C5 e C6 (crescimento):</strong> usar a variação da renda como variável dependente elimina tudo o que era fixo em cada município. É a ideia das diferenças em diferenças (Conteúdo 6). Sem controles, dá 0,061; com controles, 0,051.</li>
+<li><strong>Pobreza:</strong> a diferença ingênua é de −3,4 pontos percentuais; com a pobreza de 2000 e os controles, −1,5 ponto (erro-padrão 0,21), o valor do processo gerador e próximo do que relatam Casqueiro, Irffi e Silva (2020).</li>
+</ul>
+</div>
+<div class="box warn">
+<h4>O limite da regressão</h4>
+<p>Aqui os controles bastaram porque a seleção dependia apenas de variáveis que estão na base. Na vida real, o governo pode ter escolhido cidades com prefeitos mais articulados ou com expectativa de crescimento, que não aparecem nos dados. Por isso os estudos usam pareamento, diferenças em diferenças e comparações como a de Andrews (2023): cidades que ganharam a faculdade contra as que ficaram em segundo lugar na disputa.</p>
+</div>
+</section>
+
+<!-- 10 -->
 <section id="exercicios">
-<h2>9. Exercícios</h2>
+<h2>10. Exercícios</h2>
 <ol class="exercises">
 <li>
 <p>Em S1, o intercepto é −17,24. Um trabalhador sem nenhum ano de estudo ganha −R$ 17,24 por hora? O que esse número revela sobre o modelo nível–nível?</p>
@@ -383,6 +431,18 @@ modeltab show</code></pre>
 <p>Em M3 (Excel, aba 3_multipla), mude a célula amarela para 20 e para 40 anos de experiência. Interprete os dois efeitos marginais.</p>
 <details><summary>Ver gabarito</summary><div class="ans"><p>\(\partial\ln sal/\partial exper=0{,}0395-2(0{,}000536)\,exper\). Aos 20 anos: ≈ 0,018, ou seja, mais um ano de experiência está associado a salário 1,8% maior. Aos 40 anos: ≈ −0,003, levemente negativo, pois já passou do pico de 36,8 anos.</p></div></details>
 </li>
+<li>
+<p>(Exemplo 2) Na aba <code>1_comparacao</code> da planilha do campus, a diferença de ln(renda 2010) entre os grupos é 0,273, mas a diferença no crescimento da renda é 0,061. Explique a diferença usando a tabela de médias.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Os municípios com campus já tinham renda maior em 2000 (R$ 401 contra R$ 328) e eram maiores. A comparação em nível mistura essa diferença prévia com o efeito do campus. A comparação do crescimento desconta o nível de 2000 e isola melhor o que mudou depois da instalação, embora ainda possa refletir diferenças de tendência entre cidades maiores e menores.</p></div></details>
+</li>
+<li>
+<p>(Exemplo 2) Em C4, o coeficiente de <code>campus</code> não é significativo. Um colega conclui que “o campus não tem efeito nas cidades grandes”. Comente.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>A conclusão não se sustenta. O intervalo de 95% para as cidades grandes vai de cerca de −0,008 a 0,044 e inclui o valor verdadeiro (0,035). Com apenas 64 cidades grandes com campus, a estimativa é imprecisa: não rejeitar \(H_0\) não é o mesmo que provar que o efeito é zero.</p></div></details>
+</li>
+<li>
+<p>(Exemplo 2) Suponha que o governo tenha escolhido as cidades que já cresciam mais rápido antes de 2000. O que aconteceria com as estimativas de C3 e C6? Que dado você pediria para testar isso?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>As duas superestimariam o efeito, porque parte do crescimento de 2000 a 2010 viria da tendência prévia, não do campus. Os controles de C3 e a diferença de C6 não removem diferenças de <em>tendência</em>. Seria preciso observar a renda em anos anteriores (por exemplo, 1991) para verificar se as cidades com e sem campus cresciam no mesmo ritmo antes: o teste de tendências paralelas do Conteúdo 6.</p></div></details>
+</li>
 </ol>
 </section>
 
@@ -393,7 +453,7 @@ modeltab show</code></pre>
 <footer class="wrap">
 <p class="autor"><strong>Prof. Cleiton Franco · Universidade do Estado de Mato Grosso (UNEMAT)</strong></p>
 <p>Estatística e Econometria · Laboratório dos Conteúdos 3 e 4. Dados simulados com finalidade didática; não representam a PNAD.</p>
-<p>Leituras: Wooldridge, <em>Introdução à Econometria</em>, caps. 2–8; OCDE, <em>Education at a Glance 2025</em>; Psacharopoulos e Patrinos (2018), “Returns to investment in education: a decennial review of the global literature”, <em>Education Economics</em> 26(5); Angrist e Pischke, <em>Mostly Harmless Econometrics</em>, cap. 3. Software gratuito: <a href="https://gretl.sourceforge.net/win32/index_pt.html">gretl para Windows</a>.</p>
+<p>Leituras: Wooldridge, <em>Introdução à Econometria</em>, caps. 2–8; Barbosa, Petterini e Ferreira (2020), “Política de expansão das universidades federais: é possível potencializar os impactos econômicos?”, <em>RAC</em> 24(1); Andrews (2023), <em>AEJ: Economic Policy</em>; OCDE, <em>Education at a Glance 2025</em>; Psacharopoulos e Patrinos (2018), “Returns to investment in education: a decennial review of the global literature”, <em>Education Economics</em> 26(5); Angrist e Pischke, <em>Mostly Harmless Econometrics</em>, cap. 3. Software gratuito: <a href="https://gretl.sourceforge.net/win32/index_pt.html">gretl para Windows</a>.</p>
 </footer>
 
 </body>
