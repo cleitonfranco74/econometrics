@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Cleiton Franco">
+<title>Laboratório: vale a pena estudar?</title>
+<meta name="description" content="Laboratório de regressão linear simples e múltipla: retorno da educação com 2.000 trabalhadores simulados no estilo da PNAD, roteiros em Gretl e Excel, viés de variável omitida e exercícios.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="../assets/estilo.css">
+<script src="../assets/comum.js"></script>
+<script src="../assets/layout.js"></script>
+</head>
+<body>
+
+<header class="hero">
+  <button class="btn ghost theme-toggle ui" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">◐ Tema</button>
+  <div class="wrap">
+    <p class="crumbs ui"><a href="../index.html">← Todos os conteúdos</a></p>
+    <p class="eyebrow">Estatística e Econometria · Laboratório dos Conteúdos 3 e 4</p>
+    <h1>Laboratório: vale a pena estudar?</h1>
+    <p class="lede">Regressão linear simples e múltipla do zero, no Excel e no Gretl, com 2.000 trabalhadores simulados no estilo da PNAD. A pergunta vem de um reel: o diploma de ensino superior paga 148% a mais. Quanto disso é efeito do diploma?</p>
+    <p class="autor-topo">Prof. Cleiton Franco · Universidade do Estado de Mato Grosso (UNEMAT)</p>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="toc" aria-label="Sumário">
+  <ul>
+    <li><a href="#pergunta">1. Pergunta</a></li>
+    <li><a href="#base">2. Base</a></li>
+    <li><a href="#simples">3. Simples</a></li>
+    <li><a href="#multipla">4. Múltipla</a></li>
+    <li><a href="#ovb">5. Variável omitida</a></li>
+    <li><a href="#especificacao">6. Especificação</a></li>
+    <li><a href="#diagnostico">7. Diagnóstico</a></li>
+    <li><a href="#roteiro">8. Gretl e Excel</a></li>
+    <li><a href="#exercicios">9. Exercícios</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<div class="objectives">
+  <h4>Ao final deste laboratório você deve ser capaz de</h4>
+  <ul>
+    <li>estimar uma regressão simples à mão e conferir com o Excel e o Gretl;</li>
+    <li>interpretar coeficientes em modelos nível–nível, log–nível e com variáveis binárias;</li>
+    <li>ler uma tabela de regressão múltipla e explicar por que os coeficientes mudam entre colunas;</li>
+    <li>calcular o viés de variável omitida e reconhecer quando a significância não garante causalidade;</li>
+    <li>diagnosticar heterocedasticidade e usar erros-padrão robustos.</li>
+  </ul>
+</div>
+
+<!-- 1 -->
+<section id="pergunta">
+<h2>1. A pergunta</h2>
+<p>Um reel sobre universidade pública abre com um número da OCDE (<em>Education at a Glance 2025</em>): no Brasil, quem tem diploma de ensino superior ganha <strong>148% a mais</strong> do que quem parou no ensino médio. Na média dos países da OCDE, a diferença é de 54%.</p>
+<p>O número descreve bem o mercado de trabalho brasileiro. Mas ele responde a outra pergunta, que não é a do efeito do diploma. Quem conclui a faculdade difere de quem não conclui em muitas coisas além do diploma: habilidade, escolaridade dos pais, região, idade. A regressão múltipla tenta separar essas coisas. Este laboratório mostra até onde ela consegue ir.</p>
+<div class="box">
+<h4>Por que dados simulados?</h4>
+<p>Com dados reais, nunca sabemos o efeito verdadeiro. Aqui sabemos: o processo gerador foi escrito pelo professor. Isso permite ver, com números, quando a regressão acerta e quando ela erra mesmo com coeficientes “muito significativos”.</p>
+</div>
+</section>
+
+<!-- 2 -->
+<section id="base">
+<h2>2. A base de dados</h2>
+<p>São 2.000 trabalhadores ocupados de 25 a 64 anos, <strong>fictícios</strong>, gerados para lembrar a PNAD Contínua. Baixe os arquivos:</p>
+<ul>
+<li><a href="dados/pnad_simulada.csv"><code>dados/pnad_simulada.csv</code></a>: a base (abre no Gretl, no Excel, no R ou no Stata);</li>
+<li><a href="dados/laboratorio_excel.xlsx"><code>dados/laboratorio_excel.xlsx</code></a>: a base com as abas de exercício e todas as contas em fórmulas;</li>
+<li><a href="codigo/laboratorio.inp"><code>codigo/laboratorio.inp</code></a>: o roteiro completo do Gretl, comentado;</li>
+<li>o Gretl é gratuito: <a href="https://gretl.sourceforge.net/win32/index_pt.html">gretl para Windows</a>.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead><tr><th>Variável</th><th>Descrição</th></tr></thead>
+<tbody>
+<tr><td><code>salario_hora</code>, <code>renda_mensal</code></td><td>Salário por hora e renda mensal do trabalho (R$)</td></tr>
+<tr><td><code>educ</code></td><td>Anos de estudo (0 a 20): 9 = fundamental, 12 = médio, 16 = superior</td></tr>
+<tr><td><code>nivel</code>, <code>fundamental</code>, <code>medio</code>, <code>superior</code></td><td>Nível concluído e suas dummies (base: fundamental incompleto)</td></tr>
+<tr><td><code>exper</code>, <code>idade</code></td><td>Experiência potencial = idade − anos de estudo − 6</td></tr>
+<tr><td><code>mulher</code>, <code>urbano</code></td><td>Dummies de sexo e de área urbana</td></tr>
+<tr><td><code>regiao</code>, <code>norte</code>, <code>nordeste</code>, <code>sul</code>, <code>centro_oeste</code></td><td>Região e suas dummies (base: Sudeste)</td></tr>
+<tr><td><code>educ_mae</code>, <code>horas</code></td><td>Anos de estudo da mãe; horas trabalhadas por semana</td></tr>
+<tr><td><code>habilidade</code></td><td>Habilidade padronizada. <strong>Não é observada na vida real</strong>; aqui está disponível para fins didáticos</td></tr>
+</tbody></table></div>
+<h3>O processo gerador (o “gabarito”)</h3>
+<div class="formula">$$\ln(\text{sal}) = 1{,}25 + \underbrace{0{,}075}_{\text{por ano}}\,educ + \underbrace{0{,}40}_{\text{diploma}}\,superior + 0{,}035\,exper - 0{,}0005\,exper^2 - 0{,}20\,mulher + 0{,}01\,educ{\times}mulher + \text{região} + 0{,}12\,urbano + 0{,}13\,habilidade + u$$</div>
+<p>A habilidade também aumenta a escolaridade (correlação de 0,60 entre as duas). A variância de \(u\) cresce com os anos de estudo. Guarde esses dois fatos: eles explicam o viés da seção 5 e a heterocedasticidade da seção 7. O gerador está em <a href="codigo/gerar_base.py"><code>codigo/gerar_base.py</code></a>.</p>
+</section>
+
+<!-- 3 -->
+<section id="simples">
+<h2>3. Regressão linear simples</h2>
+<p>Primeiro, a descrição. O salário-hora médio de quem tem superior é R$ 43,76; o de quem tem médio, R$ 17,91: um prêmio bruto de <strong>144%</strong>, muito perto do número do reel. Na mediana, o prêmio é de 124%.</p>
+<div class="chart"><img class="fig" src="img/fig1_salario_por_nivel.png" alt="Barras do salário-hora médio por nível de ensino: fundamental incompleto R$ 8,68; fundamental R$ 13,14; médio R$ 17,91; superior R$ 43,76, 144% acima do médio" loading="lazy"></div>
+
+<h3>3.1 O estimador de MQO à mão</h3>
+<div class="formula">$$\hat\beta_1=\frac{\sum_i (x_i-\bar x)(y_i-\bar y)}{\sum_i (x_i-\bar x)^2},\qquad \hat\beta_0=\bar y-\hat\beta_1\bar x,\qquad ep(\hat\beta_1)=\frac{\hat\sigma}{\sqrt{\sum_i (x_i-\bar x)^2}}$$</div>
+<p>A aba <code>1_simples</code> da planilha faz cada uma dessas contas em uma célula e as confere com as funções prontas <code>INCLINAÇÃO</code>, <code>INTERCEPÇÃO</code>, <code>RQUAD</code> e <code>EPADYX</code>.</p>
+
+<h3>3.2 Nível ou logaritmo?</h3>
+<div class="chart"><img class="fig" src="img/fig2_simples_nivel_log.png" alt="Dois gráficos de dispersão de anos de estudo contra salário: à esquerda em nível, nuvem em forma de leque e reta que fica negativa para poucos anos de estudo; à direita em log, relação mais próxima de uma reta, com as médias por ano de estudo marcadas" loading="lazy"></div>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Modelo</th><th>(S1) salário-hora</th><th>(S2) ln(salário-hora)</th><th>(S3) ln(salário-hora)</th></tr></thead>
+<tbody>
+<tr><td>educ</td><td>3,1830***<br><small>(0,1606)</small></td><td>0,1317***<br><small>(0,0035)</small></td><td></td></tr>
+<tr><td>superior</td><td></td><td></td><td>1,0189***<br><small>(0,0339)</small></td></tr>
+<tr><td>constante</td><td>−17,2438***<br><small>(1,6600)</small></td><td>1,1588***<br><small>(0,0427)</small></td><td>2,5340***<br><small>(0,0152)</small></td></tr>
+<tr><td>\(n\) / \(R^2\)</td><td>2.000 / 0,269</td><td>2.000 / 0,412</td><td>2.000 / 0,337</td></tr>
+</tbody></table></div>
+<p class="hint">Erros-padrão robustos (HC1) entre parênteses. *** p&lt;0,01. Os coeficientes são idênticos no Excel, que mostra só o erro-padrão clássico (0,1175 para educ em S1).</p>
+<div class="box">
+<h4>Interpretação</h4>
+<ul>
+<li><strong>S1 (nível–nível):</strong> cada ano de estudo está associado a R$ 3,18 a mais por hora. O intercepto negativo não tem leitura econômica: é o prolongamento da reta para zero anos de estudo.</li>
+<li><strong>S2 (log–nível):</strong> cada ano de estudo está associado a salário ≈ 13,2% maior; exatamente, \(100(e^{0{,}1317}-1)=14{,}1\%\). O log acomoda o leque de S1 e eleva o \(R^2\). Os dois \(R^2\) não se comparam, porque as variáveis dependentes são diferentes.</li>
+<li><strong>S3 (regressor binário):</strong> com uma única dummy, a constante é a média de ln(salário) do grupo base e o coeficiente é a diferença de médias. Restrita a quem tem médio ou superior, a regressão <code>salario_hora ~ superior</code> dá constante 17,91 (a média do médio) e coeficiente 25,85: \(25{,}85/17{,}91 = 144\%\), o mesmo prêmio do gráfico. Em log, o coeficiente é 0,823, ou 128% na média geométrica.</li>
+<li><strong>Nenhum desses números é efeito causal.</strong> O verdadeiro é 7,5% por ano mais o salto do diploma, e nenhuma coluna controla pela habilidade.</li>
+</ul>
+</div>
+</section>
+
+<!-- 4 -->
+<section id="multipla">
+<h2>4. Regressão linear múltipla</h2>
+<p>Na regressão múltipla, cada coeficiente mede a associação com \(y\) <em>mantidas constantes as demais variáveis do modelo</em>. Vamos acrescentar controles em blocos e acompanhar o coeficiente de educ.</p>
+<div class="table-wrap"><table class="reg-table">
+<thead><tr><th>Dependente: ln(salário-hora)</th><th>(M1)</th><th>(M2)</th><th>(M3)</th><th>(M4)</th></tr></thead>
+<tbody>
+<tr><td>educ</td><td>0,1532***<br><small>(0,0041)</small></td><td>0,1426***<br><small>(0,0041)</small></td><td>0,1031***<br><small>(0,0049)</small></td><td>0,0734***<br><small>(0,0060)</small></td></tr>
+<tr><td>superior</td><td></td><td></td><td>0,4739***<br><small>(0,0436)</small></td><td>0,4841***<br><small>(0,0427)</small></td></tr>
+<tr><td>exper</td><td>0,0331***<br><small>(0,0041)</small></td><td>0,0317***<br><small>(0,0040)</small></td><td>0,0395***<br><small>(0,0040)</small></td><td>0,0384***<br><small>(0,0039)</small></td></tr>
+<tr><td>exper²</td><td>−0,00041***<br><small>(0,00007)</small></td><td>−0,00040***<br><small>(0,00007)</small></td><td>−0,00054***<br><small>(0,00007)</small></td><td>−0,00056***<br><small>(0,00007)</small></td></tr>
+<tr><td>mulher</td><td>−0,0755***<br><small>(0,0252)</small></td><td>−0,0648***<br><small>(0,0246)</small></td><td>−0,0633***<br><small>(0,0239)</small></td><td>−0,0576**<br><small>(0,0234)</small></td></tr>
+<tr><td>norte</td><td></td><td>−0,1398***<br><small>(0,0492)</small></td><td>−0,1422***<br><small>(0,0481)</small></td><td>−0,1907***<br><small>(0,0473)</small></td></tr>
+<tr><td>nordeste</td><td></td><td>−0,2842***<br><small>(0,0310)</small></td><td>−0,2716***<br><small>(0,0302)</small></td><td>−0,3311***<br><small>(0,0308)</small></td></tr>
+<tr><td>sul</td><td></td><td>−0,0570<br><small>(0,0358)</small></td><td>−0,0383<br><small>(0,0347)</small></td><td>−0,0411<br><small>(0,0339)</small></td></tr>
+<tr><td>centro_oeste</td><td></td><td>0,0233<br><small>(0,0493)</small></td><td>0,0389<br><small>(0,0489)</small></td><td>0,0241<br><small>(0,0483)</small></td></tr>
+<tr><td>urbano</td><td></td><td>0,0608*<br><small>(0,0351)</small></td><td>0,0581*<br><small>(0,0343)</small></td><td>0,0823**<br><small>(0,0338)</small></td></tr>
+<tr><td>habilidade</td><td></td><td></td><td></td><td>0,1400***<br><small>(0,0161)</small></td></tr>
+<tr><td>\(n\)</td><td>2.000</td><td>2.000</td><td>2.000</td><td>2.000</td></tr>
+<tr><td>\(R^2\) / \(\bar R^2\)</td><td>0,452 / 0,451</td><td>0,477 / 0,474</td><td>0,509 / 0,506</td><td>0,528 / 0,525</td></tr>
+</tbody></table></div>
+<p class="hint">Erros-padrão robustos (HC1) entre parênteses. *** p&lt;0,01; ** p&lt;0,05; * p&lt;0,10. Todos os modelos têm constante (omitida).</p>
+<div class="box">
+<h4>Interpretação</h4>
+<ul>
+<li><strong>M1:</strong> com mesma experiência e sexo, um ano a mais de estudo está associado a salário 15,3% maior. O coeficiente <em>sobe</em> em relação a S2 porque quem estudou mais tem, em média, menos experiência potencial.</li>
+<li><strong>M2:</strong> as regiões tiram um pouco do coeficiente: parte da associação vinha de o Sudeste ter mais escolaridade e salários maiores. Mantidos educação, experiência e sexo, quem mora no Nordeste ganha \(100(e^{-0{,}284}-1)\approx\) 25% menos que no Sudeste.</li>
+<li><strong>M3:</strong> com a dummy de superior, educ cai para 0,103. Sem ela, o coeficiente linear absorvia o salto do diploma. O diploma soma \(100(e^{0{,}474}-1)\approx 61\%\) além dos anos de estudo.</li>
+<li><strong>M4:</strong> com a habilidade, educ cai para 0,073, perto do verdadeiro (0,075). Na vida real, esta coluna não existe.</li>
+</ul>
+</div>
+</section>
+
+<!-- 5 -->
+<section id="ovb">
+<h2>5. Viés de variável omitida</h2>
+<div class="chart"><img class="fig" src="img/fig3_caminho_coeficiente.png" alt="Coeficiente de educação com intervalo de 95% em cinco modelos: 0,132 só com educ; 0,153 com experiência e sexo; 0,143 com região e urbano; 0,103 com a dummy de superior; 0,073 com a habilidade. A linha tracejada do valor verdadeiro está em 0,075" loading="lazy"></div>
+<p>Se o modelo verdadeiro inclui a habilidade e nós a omitimos, o coeficiente “curto” de educ é uma combinação exata de três números:</p>
+<div class="formula">$$\underbrace{\tilde\beta_{educ}}_{\text{M3: }0{,}1031}=\underbrace{\hat\beta_{educ}}_{\text{M4: }0{,}0734}+\underbrace{\hat\gamma}_{\text{habilidade em M4: }0{,}1400}\times\underbrace{\hat\delta}_{\text{habilidade em educ: }0{,}2120}$$</div>
+<p>Confira: \(0{,}0734+0{,}1400\times0{,}2120=0{,}1031\). Não é aproximação: é uma identidade do MQO. O viés é positivo porque a habilidade aumenta o salário (\(\hat\gamma>0\)) e anda junto com a escolaridade (\(\hat\delta>0\)). Sem a habilidade, superestimaríamos o retorno de um ano de estudo em cerca de 40%.</p>
+<div class="box warn">
+<h4>A lição</h4>
+<p>Todas as colunas da tabela têm p-valores minúsculos para educ. Significância estatística mede precisão, não ausência de viés. Por isso os estudos citados no reel usam desenhos como a regressão descontínua na nota de corte do vestibular (Conteúdo 7) e experimentos naturais, em vez de apenas acrescentar controles.</p>
+</div>
+</section>
+
+<!-- 6 -->
+<section id="especificacao">
+<h2>6. Especificação</h2>
+<h3>6.1 Termo quadrático: a experiência tem retornos decrescentes</h3>
+<p>Em M3, o efeito marginal de um ano de experiência é \(\hat\beta_{exper}+2\hat\beta_{exper^2}\,exper\): 2,9% aos 10 anos e 0,7% aos 30. O salário atinge o máximo com \(-\hat\beta_{exper}/(2\hat\beta_{exper^2})\approx\) 36,8 anos de experiência. Isoladamente os dois termos importam pouco; o teste F conjunto dá F = 65,4.</p>
+<h3>6.2 Dummies de grupo e o teste F</h3>
+<p>As quatro dummies de região são comparadas com o Sudeste. Sul e Centro-Oeste não diferem do Sudeste a 10%, mas o teste F conjunto robusto rejeita com folga que todas sejam nulas (F = 23,3). No Gretl: <code>omit regioes --test-only</code> logo depois de estimar M2.</p>
+<h3>6.3 Dummies de nível de ensino</h3>
+<p>Trocando os anos de estudo por dummies de nível (M6, com os controles de M2), os prêmios sobre o fundamental incompleto são de 43% (fundamental), 96% (médio) e 380% (superior). O superior paga \(100(e^{1{,}568-0{,}675}-1)\approx\) 144% a mais que o médio. O retorno cresce com o nível: a relação entre estudo e salário não é linear.</p>
+<p>O prêmio condicional coincide com o bruto por acaso, não porque os controles não importem. Quem tem superior tem menos experiência potencial, o que puxa o prêmio para cima ao controlar, e mora mais no Sudeste e em área urbana, o que puxa para baixo.</p>
+<h3>6.4 Interação: o retorno da educação difere por sexo?</h3>
+<p>Em M5, que acrescenta \(educ\times mulher\) a M4, o coeficiente de mulher é −0,179 e o da interação, 0,0098 (p = 0,12). A diferença salarial entre mulheres e homens depende dos anos de estudo: \(-0{,}179+0{,}0098\,educ\), ou seja, −10,0 log-pontos com 8 anos e −2,2 com 16. O coeficiente de mulher sozinho é a diferença para zero anos de estudo, uma situação quase inexistente na amostra.</p>
+<p>O valor verdadeiro da interação é 0,01, e mesmo assim ela não é significativa a 5%. Falta de significância não prova ausência de efeito: com 2.000 observações, a interação é estimada com pouca precisão.</p>
+</section>
+
+<!-- 7 -->
+<section id="diagnostico">
+<h2>7. Diagnóstico</h2>
+<div class="chart"><img class="fig" src="img/fig4_residuos.png" alt="Resíduos do modelo M3 contra anos de estudo, com faixas de mais ou menos dois desvios-padrão que se alargam à medida que a escolaridade aumenta" loading="lazy"></div>
+<ul>
+<li><strong>Heterocedasticidade:</strong> a dispersão dos resíduos cresce com a escolaridade. O teste de White rejeita a homocedasticidade (LM = 90,2; p &lt; 0,001). Os coeficientes continuam não viesados, mas os erros-padrão clássicos não valem. Use <code>--robust</code> no Gretl. Em S1 (nível), o erro-padrão de educ passa de 0,118 (clássico) para 0,161 (robusto).</li>
+<li><strong>Multicolinearidade:</strong> os VIFs de exper e exper² são ≈ 19, o esperado quando um regressor entra com seu quadrado. Os demais ficam abaixo de 3. Não há nada a corrigir: testamos os dois termos juntos.</li>
+</ul>
+</section>
+
+<!-- 8 -->
+<section id="roteiro">
+<h2>8. Roteiro no Gretl e no Excel</h2>
+<div class="tabs" data-tabs>
+  <div class="tablist" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="gretl">Gretl</button>
+    <button role="tab" aria-selected="false" data-tab="excel">Excel</button>
+    <button role="tab" aria-selected="false" data-tab="python">Python (gabarito)</button>
+  </div>
+<div class="tabpanel active" data-panel="gretl">
+<ol>
+<li>Instale o Gretl: <a href="https://gretl.sourceforge.net/win32/index_pt.html">gretl para Windows</a>.</li>
+<li>Salve <a href="codigo/laboratorio.inp"><code>laboratorio.inp</code></a> e <a href="dados/pnad_simulada.csv"><code>pnad_simulada.csv</code></a> na mesma pasta.</li>
+<li>No Gretl: <em>Arquivo › Arquivos de script › Abrir arquivo de script</em>. Rode tudo com Ctrl+R ou selecione um bloco e rode só ele.</li>
+<li>Pelo menu também funciona: <em>Modelo › Mínimos Quadrados Ordinários</em>, marque “Erros-padrão robustos”.</li>
+</ol>
+<pre><code># =====================================================================
+#  Laboratório "Vale a pena estudar?" — regressão linear simples e múltipla
+#  Prof. Cleiton Franco · UNEMAT
+#
+#  Base: dados/pnad_simulada.csv (2.000 trabalhadores FICTÍCIOS, estilo PNAD)
+#  Como usar no Gretl:
+#    1. Salve este arquivo na MESMA pasta do pnad_simulada.csv.
+#    2. Arquivo &gt; Arquivos de script &gt; Abrir arquivo de script... &gt; laboratorio.inp
+#    3. Rode tudo (Ctrl+R) ou selecione um bloco e rode só ele.
+#  Linhas que começam com # são comentários: o Gretl não as executa.
+# =====================================================================
+
+open pnad_simulada.csv --quiet
+set hc_version 1          # erros-padrão robustos tipo HC1 (os mesmos do Stata)
+modeltab free             # zera a tabela de modelos
+
+# ---------------------------------------------------------------------
+# PARTE 0 · Conhecendo os dados
+# ---------------------------------------------------------------------
+summary salario_hora renda_mensal educ exper idade horas mulher urbano --simple
+
+# Salário-hora médio por nível de ensino: compare Superior com Médio
+summary salario_hora --by=superior --simple
+summary salario_hora --by=medio --simple
+
+# Variáveis novas
+series lsal = log(salario_hora)        # log natural do salário-hora
+series exper2 = exper^2                # experiência ao quadrado
+series educ_mulher = educ * mulher     # interação
+setinfo lsal --description="ln(salário-hora)"
+
+corr salario_hora lsal educ exper habilidade
+
+# Gráficos de dispersão com a reta de MQO
+gnuplot salario_hora educ --fit=linear --output=display
+gnuplot lsal educ --fit=linear --output=display
+
+# ---------------------------------------------------------------------
+# PARTE 1 · Regressão linear SIMPLES
+# ---------------------------------------------------------------------
+# (S1) Nível–nível: cada ano de estudo soma quantos R$ ao salário-hora?
+ols salario_hora const educ
+
+# (S2) Log–nível: cada ano de estudo aumenta o salário em quantos %?
+ols lsal const educ
+modeltab add
+# Leitura: 100*b1 ≈ variação % do salário por ano de estudo.
+printf "Variação exata: %.1f%% por ano de estudo\n", 100*(exp($coeff(educ))-1)
+
+# (S3) Regressor binário: superior completo × demais
+ols lsal const superior
+printf "Prêmio do superior (em média geométrica): %.0f%%\n", 100*(exp($coeff(superior))-1)
+
+# (S4) Só quem tem ensino médio ou superior — o "148%" do reel
+smpl medio==1 || superior==1 --restrict
+ols salario_hora const superior
+# Intercepto = média do grupo Médio; b1 = diferença de médias (R$)
+printf "Prêmio sobre a média aritmética: %.0f%%\n", 100*$coeff(superior)/$coeff(const)
+smpl full
+
+# ---------------------------------------------------------------------
+# PARTE 2 · Regressão linear MÚLTIPLA
+# ---------------------------------------------------------------------
+list regioes = norte nordeste sul centro_oeste     # base: Sudeste
+list ctrl = exper exper2 mulher regioes urbano
+
+# (M1) educação + experiência (forma quadrática) + sexo
+ols lsal const educ exper exper2 mulher --robust
+modeltab add
+
+# (M2) + região e área urbana
+ols lsal const educ ctrl --robust
+modeltab add
+# Teste F (robusto): as quatro dummies de região são conjuntamente nulas?
+omit regioes --test-only
+
+# (M3) + diploma de superior: o retorno não é linear nos anos de estudo
+ols lsal const educ superior ctrl --robust
+modeltab add
+# Efeito marginal da experiência e ponto de máximo
+printf "Exper: efeito marginal aos 10 anos = %.4f\n", $coeff(exper)+2*$coeff(exper2)*10
+printf "Exper: efeito marginal aos 30 anos = %.4f\n", $coeff(exper)+2*$coeff(exper2)*30
+printf "Salário máximo com %.1f anos de experiência\n", -$coeff(exper)/(2*$coeff(exper2))
+
+# Diagnóstico: heterocedasticidade (White) e multicolinearidade (VIF)
+ols lsal const educ superior ctrl --quiet
+modtest --white
+vif
+
+# (M4) + habilidade (na vida real NÃO é observada; aqui é didática)
+ols lsal const educ superior ctrl habilidade --robust
+modeltab add
+scalar b_longo = $coeff(educ)
+scalar gama = $coeff(habilidade)
+
+# Viés de variável omitida: b_curto = b_longo + gama * delta
+ols habilidade const educ superior ctrl --quiet
+scalar delta = $coeff(educ)
+printf "b_longo = %.4f | gama = %.4f | delta = %.4f\n", b_longo, gama, delta
+printf "b_longo + gama*delta = %.4f  (compare com educ em M3)\n", b_longo + gama*delta
+
+# (M5) Interação: o retorno da educação difere entre homens e mulheres?
+ols lsal const educ superior mulher educ_mulher exper exper2 regioes urbano habilidade --robust
+modeltab add
+printf "Diferença salarial de gênero com 8 anos de estudo:  %.3f\n", $coeff(mulher)+8*$coeff(educ_mulher)
+printf "Diferença salarial de gênero com 16 anos de estudo: %.3f\n", $coeff(mulher)+16*$coeff(educ_mulher)
+
+# (M6) Dummies de nível de ensino (base: fundamental incompleto)
+ols lsal const fundamental medio superior ctrl --robust
+printf "Médio vs. fund. incompleto:    %.0f%%\n", 100*(exp($coeff(medio))-1)
+printf "Superior vs. fund. incompleto: %.0f%%\n", 100*(exp($coeff(superior))-1)
+printf "Superior vs. médio:            %.0f%%\n", 100*(exp($coeff(superior)-$coeff(medio))-1)
+
+# Tabela comparativa (S2, M1–M5)
+modeltab show</code></pre>
+</div>
+<div class="tabpanel" data-panel="excel">
+<ol>
+<li>Abra <a href="dados/laboratorio_excel.xlsx"><code>laboratorio_excel.xlsx</code></a>. A aba <code>LEIA-ME</code> traz o dicionário e o passo a passo.</li>
+<li><strong>1_simples:</strong> o MQO calculado célula a célula para S1 e S2, conferido com <code>INCLINAÇÃO</code>, <code>INTERCEPÇÃO</code>, <code>RQUAD</code> e <code>EPADYX</code>.</li>
+<li><strong>2_dummy:</strong> médias e medianas por nível com <code>MÉDIASE</code> e o prêmio do superior na média aritmética, na mediana e na média geométrica.</li>
+<li><strong>3_multipla:</strong> M1 a M4 com <code>PROJ.LIN</code> (em inglês, <code>LINEST</code>). Atenção: os coeficientes saem em <em>ordem inversa</em> à das colunas de X, com a constante por último. No fim da aba, o viés de variável omitida é recalculado com fórmulas e o efeito marginal da experiência muda quando você altera a célula amarela.</li>
+<li><strong>Saída completa:</strong> <em>Dados › Análise de Dados › Regressão</em>. Se o botão não aparecer: <em>Arquivo › Opções › Suplementos › Suplementos do Excel › Ir</em> e marque “Ferramentas de Análise”. Em M1, o Y é <code>dados!S1:S2001</code> (lsal) e o X é <code>dados!J1:M2001</code>, com “Rótulos” marcado. As colunas de X precisam ser vizinhas.</li>
+<li>O Excel calcula apenas erros-padrão clássicos. Os coeficientes batem com o Gretl até a última casa; os erros-padrão diferem um pouco por causa da heterocedasticidade (seção 7).</li>
+</ol>
+</div>
+<div class="tabpanel" data-panel="python">
+<p>O professor pode regenerar a base e conferir todos os números desta página com dois scripts:</p>
+<ul>
+<li><a href="codigo/gerar_base.py"><code>codigo/gerar_base.py</code></a>: simula a base (semente fixa);</li>
+<li><a href="codigo/analise_referencia.py"><code>codigo/analise_referencia.py</code></a>: estima todos os modelos, gera as figuras e grava <a href="codigo/resultados_referencia.json"><code>resultados_referencia.json</code></a>;</li>
+<li><a href="codigo/gerar_planilha.py"><code>codigo/gerar_planilha.py</code></a>: monta a planilha do Excel.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- 9 -->
+<section id="exercicios">
+<h2>9. Exercícios</h2>
+<ol class="exercises">
+<li>
+<p>Em S1, o intercepto é −17,24. Um trabalhador sem nenhum ano de estudo ganha −R$ 17,24 por hora? O que esse número revela sobre o modelo nível–nível?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Não. O intercepto é a extrapolação da reta até educ = 0, onde quase não há observações. O valor negativo mostra que a reta em nível não descreve bem a relação: os salários crescem proporcionalmente, não em reais constantes. O modelo log–nível (S2) evita salários previstos negativos.</p></div></details>
+</li>
+<li>
+<p>Usando S2, calcule a variação percentual aproximada e a exata do salário associada a 4 anos a mais de estudo.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Aproximada: \(4\times13{,}17\%\approx52{,}7\%\). Exata: \(100(e^{4\times0{,}1317}-1)=100(e^{0{,}527}-1)\approx\mathbf{69{,}4\%}\). Para variações grandes, a aproximação \(100\beta\) subestima bastante.</p></div></details>
+</li>
+<li>
+<p>O prêmio do superior sobre o médio é de 144% na média aritmética e de 128% quando calculado pela diferença das médias de ln(salário). Por que os dois números diferem? Qual é o “148%” da OCDE?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>A diferença de médias do log corresponde à razão das médias geométricas, que pesam menos os salários muito altos. Como a distribuição salarial do grupo com superior é mais assimétrica (cauda direita longa), a média aritmética fica mais acima da geométrica nesse grupo. O indicador da OCDE compara rendimentos relativos, mais próximo da comparação aritmética.</p></div></details>
+</li>
+<li>
+<p>Por que o coeficiente de educ <em>aumenta</em> de S2 (0,132) para M1 (0,153) quando incluímos a experiência?</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Pela fórmula do viés: a experiência aumenta o salário e é negativamente correlacionada com a escolaridade (quem estudou mais começou a trabalhar mais tarde). O viés de omitir a experiência é negativo, então S2 <em>subestimava</em> a associação. Variáveis omitidas podem viesar para baixo ou para cima.</p></div></details>
+</li>
+<li>
+<p>No Gretl, rode M3 e acrescente <code>educ_mae</code> no lugar da habilidade. O coeficiente de educ se aproxima de 0,075? Explique.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>Quase não muda: passa de 0,1031 para 0,1021, e educ_mae tem coeficiente próximo de zero. A escolaridade da mãe explica parte da escolaridade do filho, mas, depois dos controles, carrega pouca informação sobre a habilidade, e não afeta o salário diretamente. Uma proxy fraca não corrige o viés. Seria preciso outra estratégia de identificação.</p></div></details>
+</li>
+<li>
+<p>Um colega propõe controlar pela ocupação atual (gerente, técnico, operário) para “isolar” o efeito do diploma. Comente.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>É um <strong>controle ruim</strong>. A ocupação é em grande parte consequência do diploma: é um mediador. Controlar por ela compara, por exemplo, gerentes com e sem diploma e elimina justamente o canal pelo qual o diploma aumenta o salário. O coeficiente resultante subestima o efeito total. Controles devem ser determinados antes do “tratamento”.</p></div></details>
+</li>
+<li>
+<p>Em M3 (Excel, aba 3_multipla), mude a célula amarela para 20 e para 40 anos de experiência. Interprete os dois efeitos marginais.</p>
+<details><summary>Ver gabarito</summary><div class="ans"><p>\(\partial\ln sal/\partial exper=0{,}0395-2(0{,}000536)\,exper\). Aos 20 anos: ≈ 0,018, ou seja, mais um ano de experiência está associado a salário 1,8% maior. Aos 40 anos: ≈ −0,003, levemente negativo, pois já passou do pico de 36,8 anos.</p></div></details>
+</li>
+</ol>
+</section>
+
+<nav class="pager" aria-label="Navegação entre conteúdos"><a href="../03-correlacao-causalidade-regressao/index.html">← Conteúdo 3: Regressão simples</a><a href="../04-regressao-multipla/index.html">Conteúdo 4: Regressão múltipla →</a></nav>
+</main>
+</div>
+
+<footer class="wrap">
+<p class="autor"><strong>Prof. Cleiton Franco · Universidade do Estado de Mato Grosso (UNEMAT)</strong></p>
+<p>Estatística e Econometria · Laboratório dos Conteúdos 3 e 4. Dados simulados com finalidade didática; não representam a PNAD.</p>
+<p>Leituras: Wooldridge, <em>Introdução à Econometria</em>, caps. 2–8; OCDE, <em>Education at a Glance 2025</em>; Psacharopoulos e Patrinos (2018), “Returns to investment in education: a decennial review of the global literature”, <em>Education Economics</em> 26(5); Angrist e Pischke, <em>Mostly Harmless Econometrics</em>, cap. 3. Software gratuito: <a href="https://gretl.sourceforge.net/win32/index_pt.html">gretl para Windows</a>.</p>
+</footer>
+
+</body>
+</html>
