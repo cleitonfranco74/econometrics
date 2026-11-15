@@ -271,9 +271,12 @@ if hon is not None:
            "Magnitudes relativas: o desvio de tendência pós-2018 pode ser até M̄ vezes o maior "
            "desvio observado entre anos consecutivos antes de 2018.")
     doc.add_paragraph(
-        "Se o intervalo inclui zero já com M̄ pequeno, o resultado não tolera violações de "
-        "tendência do tamanho das já observadas no pré-período — o que é o caso aqui, dado o salto "
-        "entre 2016 e 2017 no estudo de eventos.")
+        "O efeito médio 2018–2024 medido pelo estudo de eventos (relativo a 2017) já tem IC 95% "
+        "que inclui zero mesmo sob tendências paralelas exatas (−0,115 a +0,019). Permitindo que o "
+        "desvio de tendência após 2018 seja até metade do maior salto observado antes (M̄ = 0,5), o "
+        "intervalo se abre para cerca de −0,46 a +0,38. O resultado, portanto, não tolera violações de "
+        "tendência nem menores do que as já vistas no pré-período — reforça a leitura de evidência "
+        "sugestiva, não conclusiva.")
     secao = 9
 else:
     secao = 8

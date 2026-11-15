@@ -100,5 +100,13 @@ attr(,"vcov_type")
 4:                               [-0.1680; 0.0078]
 null device 
           1 
+   Mbar         lb         ub               metodo
+1:   NA -0.1151782 0.01926974             Original
+2:  0.0 -0.1146719 0.01853977 Magnitudes relativas
+3:  0.5 -0.4621209 0.37972196 Magnitudes relativas
+4:  1.0 -0.6859715 0.68597150 Magnitudes relativas
+5:  1.5 -0.6859715 0.68597150 Magnitudes relativas
+6:  2.0 -0.6859715 0.68597150 Magnitudes relativas
+There were 20 warnings (use warnings() to see them)
 
 Média pré-programa (MT, alto risco): 0.4307 % da área/ano

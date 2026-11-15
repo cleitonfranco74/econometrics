@@ -243,7 +243,7 @@ if (requireNamespace("HonestDiD", quietly = TRUE)) {
   orig  <- HonestDiD::constructOriginalCS(bh, Vh, npre, npos, l_vec = l_vec)
   rm_   <- HonestDiD::createSensitivityResults_relativeMagnitudes(
     bh, Vh, npre, npos, Mbarvec = c(0, .5, 1, 1.5, 2), l_vec = l_vec)
-  hon <- rbind(data.table(Mbar = NA, lb = orig$lb, ub = orig$ub, metodo = "Original"),
+  hon <- rbind(data.table(Mbar = NA_real_, lb = as.numeric(orig$lb), ub = as.numeric(orig$ub), metodo = "Original"),
                data.table(Mbar = rm_$Mbar, lb = rm_$lb, ub = rm_$ub, metodo = "Magnitudes relativas"))
   print(hon)
   fwrite(hon, "resultados/tabelas/tab8_honestdid.csv")
