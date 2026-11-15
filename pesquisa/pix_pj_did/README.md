@@ -70,8 +70,11 @@ original apenas como descrição.
 `y3_ihh_credito` e `y5_credito_pc` usam o **crédito total** (verbete 160).
 Para crédito PJ por município seria preciso o SCR (não público nesse nível).
 Os depósitos à vista também vêm agregados (PF+PJ+governo) no ESTBAN.
-Municípios sem agência/posto bancário não aparecem no ESTBAN
-(`tem_agencia_estban = 0`).
+Municípios sem agência bancária não aparecem no ESTBAN
+(`tem_agencia_estban = 0`; 296 dos 467 municípios aparecem).
+**O ESTBAN não inclui cooperativas de crédito** (Sicredi, Sicoob etc.), muito
+relevantes no Centro-Oeste: o IHH mede a concentração entre bancos, não do
+mercado de crédito inteiro. Vale citar essa limitação ao discutir H3.
 
 **3. Não-reporte no ESTBAN.** Quando uma instituição aparece com todos os
 saldos zerados no país inteiro num mês (falha de envio — ex.: Santander em

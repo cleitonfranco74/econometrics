@@ -16,7 +16,7 @@ Variáveis agregadas (município x mês):
   credito_total   = verbete 160 (operações de crédito; PF + PJ)
   emprestimos     = verbete 161 (empréstimos e títulos descontados)
   financiamentos  = verbete 162
-  credito_rural   = verbete 163 + 167
+  credito_rural   = verbete 163 (fin_agroind = 167, só a partir de jul/2022)
   dep_vista       = verbetes 401 a 419 (depósitos à vista; o BCB publica
                     PF, PJ e governo agrupados numa só coluna)
   dep_poupanca    = verbete 420
@@ -172,7 +172,8 @@ g = banco.groupby(["uf", "codmun", "codmun_ibge", "municipio", "anomes"],
                   dropna=False)
 mun = g[vals + ["agen_processadas"]].sum().rename(
     columns={"agen_processadas": "n_agencias"})
-mun["credito_rural"] = mun.pop("fin_rural") + mun.pop("fin_agroind")
+# 167 só existe a partir de jul/2022: fica separado para não quebrar a série
+mun["credito_rural"] = mun.pop("fin_rural")
 mun["n_instituicoes"] = g["credito_total"].apply(lambda s: int((s > 0).sum()))
 mun["ihh_credito"] = g["credito_total"].apply(ihh)
 mun["ihh_deposito"] = g["dep_vista"].apply(ihh)
