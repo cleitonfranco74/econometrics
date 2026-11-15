@@ -1,0 +1,83 @@
+variavel,descricao,fonte,grupo
+cod_ibge,Código IBGE do município (7 dígitos),IBGE,identificador
+municipio,Nome do município,BCB - Estatísticas do Pix,identificador
+uf,"Unidade da Federação (MT, MS, GO)",IBGE,identificador
+anomes,Ano e mês (AAAAMM),Construída,tempo
+ano,Ano,Construída,tempo
+mes,Mês,Construída,tempo
+periodo,Índice do mês: 1 = jan/2019 ... 72 = dez/2024,Construída,tempo
+qt_pix_pj,Transações Pix com PJ (pagadora + recebedora) no mês; 0 antes de nov/2020,BCB - Estatísticas do Pix,Pix
+vl_pix_pj,Valor (R$) das transações Pix com PJ (pagadora + recebedora),BCB - Estatísticas do Pix,Pix
+qt_pix_total,Total de transações Pix pagas por PF e PJ do município,BCB - Estatísticas do Pix,Pix
+qt_pagadorpj,Transações Pix em que a PJ do município paga,BCB - Estatísticas do Pix,Pix
+qt_recebedorpj,Transações Pix em que a PJ do município recebe,BCB - Estatísticas do Pix,Pix
+vl_recebedorpj,Valor (R$) recebido via Pix por PJ do município,BCB - Estatísticas do Pix,Pix
+qt_pes_recebedorpj,Nº de PJ distintas que receberam Pix no mês,BCB - Estatísticas do Pix,Pix
+qt_pes_pagadorpj,Nº de PJ distintas que pagaram Pix no mês,BCB - Estatísticas do Pix,Pix
+ativas,Estabelecimentos (CNPJ) ativos no fim do mês (reconstruído),Receita Federal - CNPJ (set/2024),empresas
+ativas_matriz,Estabelecimentos-matriz ativos no fim do mês,Receita Federal - CNPJ (set/2024),empresas
+ativas_mei,Estabelecimentos ativos optantes pelo MEI no fim do mês,Receita Federal - CNPJ (set/2024),empresas
+ativas_simples,Estabelecimentos ativos optantes pelo Simples Nacional,Receita Federal - CNPJ (set/2024),empresas
+ativas_pequenos,"Estabelecimentos ativos de ME, EPP ou MEI (porte atual)",Receita Federal - CNPJ (set/2024),empresas
+aberturas_cnpj,CNPJs (estabelecimentos) abertos no mês,Receita Federal - CNPJ (set/2024),empresas
+aberturas_matriz,Matrizes abertas no mês,Receita Federal - CNPJ (set/2024),empresas
+aberturas_mei,Novos MEIs: CNPJ aberto no mês com opção pelo MEI no mesmo mês,Receita Federal - CNPJ (set/2024),empresas
+opcoes_mei,Opções pelo MEI no mês (inclui empresas já existentes),Receita Federal - CNPJ (set/2024),empresas
+aberturas_pequenos,"Aberturas de ME, EPP ou MEI no mês",Receita Federal - CNPJ (set/2024),empresas
+baixas_cnpj,Estabelecimentos baixados no mês (situação 08),Receita Federal - CNPJ (set/2024),empresas
+credito_total,"Operações de crédito, verbete 160 (R$; PF + PJ, só bancos)",BCB - ESTBAN,crédito
+emprestimos,"Empréstimos e títulos descontados, verbete 161 (R$)",BCB - ESTBAN,crédito
+financiamentos,"Financiamentos, verbete 162 (R$)",BCB - ESTBAN,crédito
+fin_agroind,"Financiamentos agroindustriais, verbete 167 (R$; só a partir de jul/2022)",BCB - ESTBAN,crédito
+dep_vista,"Depósitos à vista, verbetes 401-419 agrupados (R$)",BCB - ESTBAN,crédito
+dep_poupanca,"Depósitos de poupança, verbete 420 (R$)",BCB - ESTBAN,crédito
+dep_prazo,"Depósitos a prazo, verbete 432 (R$)",BCB - ESTBAN,crédito
+n_agencias,Nº de agências bancárias (AGEN_PROCESSADAS),BCB - ESTBAN,crédito
+credito_rural,"Financiamentos rurais, verbete 163 (R$)",BCB - ESTBAN,crédito
+n_instituicoes,Nº de bancos com crédito > 0 no município,BCB - ESTBAN,crédito
+ihh_credito,Herfindahl-Hirschman do crédito entre bancos (0-1),BCB - ESTBAN,crédito
+ihh_deposito,Herfindahl-Hirschman dos depósitos à vista entre bancos (0-1),BCB - ESTBAN,crédito
+estban_imputado,1 = algum banco em não-reporte teve saldo imputado (LOCF),BCB - ESTBAN,crédito
+tem_agencia_estban,1 = município aparece no ESTBAN (tem agência bancária),BCB - ESTBAN,crédito
+pop,População (estimativas IBGE; Censo 2022; 2023 interpolado),IBGE,covariável
+pib_pc,PIB per capita (R$ correntes; 2024 = 2023),IBGE,covariável
+pop_2019,População em 2019,IBGE,covariável pré-tratamento
+ln_pop_2019,ln(população 2019),IBGE,covariável pré-tratamento
+ln_pib_pc_2019,ln(PIB per capita 2019),IBGE,covariável pré-tratamento
+idhm_2010,"IDHM 2010 (Atlas Brasil, via Ipeadata)",PNUD/IPEA/FJP,covariável pré-tratamento
+n_estab_ensino_superior_2019,"Estabelecimentos ativos com CNAE de educação superior, dez/2019",Receita Federal - CNPJ (set/2024),covariável pré-tratamento
+pct_simples_2019,"% de estabelecimentos ativos no Simples Nacional, dez/2019",Receita Federal - CNPJ (set/2024),covariável pré-tratamento
+pct_mei_2019,"% de estabelecimentos ativos que são MEI, dez/2019",Receita Federal - CNPJ (set/2024),covariável pré-tratamento
+campus,1 = há estabelecimento de educação superior (dez/2019),Receita Federal - CNPJ (set/2024),covariável pré-tratamento
+y1_pix_pj_mil_hab,Y1 alternativo: transações Pix com PJ por mil habitantes,Construída,resultado
+y1b_pix_pj_por_recebedora,Transações recebidas por PJ recebedora de Pix (margem intensiva),Construída,resultado
+empresas_recebem_pix_mil_hab,PJ que recebem Pix por mil habitantes,Construída,resultado
+y3_ihh_credito,Y3: IHH do crédito bancário (proxy do IHH do crédito PJ),Construída,resultado
+y5_credito_pc,Y5: crédito bancário total per capita (R$; proxy do crédito PJ),Construída,resultado
+y1_pix_pj_por_empresa,Y1: transações Pix com PJ / estabelecimentos ativos (até set/2024),Construída,resultado
+y2_aberturas_mei,Y2: novos MEIs no mês (até set/2024),Construída,resultado
+pct_empresas_recebem_pix,% dos estabelecimentos ativos que receberam Pix no mês,Construída,resultado
+asinh_y1_pix_pj_mil_hab,asinh(y1_pix_pj_mil_hab),Construída,resultado
+asinh_y5_credito_pc,asinh(y5_credito_pc),Construída,resultado
+asinh_y1_pix_pj_por_empresa,asinh(y1_pix_pj_por_empresa),Construída,resultado
+asinh_y2_aberturas_mei,asinh(y2_aberturas_mei),Construída,resultado
+G_primeira_pj,Coorte (AAAAMM; 0 = nunca tratado): 1º mês com transação Pix envolvendo PJ (definição original do artigo),Construída,tratamento
+G_primeira_pj_t,"Coorte G_primeira_pj no índice periodo (1-72; 0 = nunca tratado), para o did",Construída,tratamento
+D_primeira_pj,Tratamento: 1[anomes >= G_primeira_pj],Construída,tratamento
+G_difusao25,Coorte (AAAAMM; 0 = nunca tratado): 1º mês em que as PJ recebedoras de Pix atingem 25% do nível médio de 2024 do município,Construída,tratamento
+G_difusao25_t,"Coorte G_difusao25 no índice periodo (1-72; 0 = nunca tratado), para o did",Construída,tratamento
+D_difusao25,Tratamento: 1[anomes >= G_difusao25],Construída,tratamento
+G_difusao50,"Coorte (AAAAMM; 0 = nunca tratado): idem, 50% do nível médio de 2024",Construída,tratamento
+G_difusao50_t,"Coorte G_difusao50 no índice periodo (1-72; 0 = nunca tratado), para o did",Construída,tratamento
+D_difusao50,Tratamento: 1[anomes >= G_difusao50],Construída,tratamento
+G_adesao10,Coorte (AAAAMM; 0 = nunca tratado): 1º mês em que >= 10% dos estabelecimentos ativos recebem Pix,Construída,tratamento
+G_adesao10_t,"Coorte G_adesao10 no índice periodo (1-72; 0 = nunca tratado), para o did",Construída,tratamento
+D_adesao10,Tratamento: 1[anomes >= G_adesao10],Construída,tratamento
+G_adesao25,Coorte (AAAAMM; 0 = nunca tratado): 1º mês em que >= 25% dos estabelecimentos ativos recebem Pix (RECOMENDADA),Construída,tratamento
+G_adesao25_t,"Coorte G_adesao25 no índice periodo (1-72; 0 = nunca tratado), para o did",Construída,tratamento
+D_adesao25,Tratamento: 1[anomes >= G_adesao25],Construída,tratamento
+G_adesao50,Coorte (AAAAMM; 0 = nunca tratado): 1º mês em que >= 50% dos estabelecimentos ativos recebem Pix (não atingido na amostra até set/2024),Construída,tratamento
+G_adesao50_t,"Coorte G_adesao50 no índice periodo (1-72; 0 = nunca tratado), para o did",Construída,tratamento
+D_adesao50,Tratamento: 1[anomes >= G_adesao50],Construída,tratamento
+amostra_50a600mil,"1 = população 2019 entre 50 mil e 600 mil (amostra do artigo, 40 municípios)",Construída,amostra
+id,Identificador numérico para o pacote did (= cod_ibge),Construída,identificador

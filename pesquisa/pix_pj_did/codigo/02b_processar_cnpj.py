@@ -119,7 +119,7 @@ pix["chave"] = pix.UF + "|" + pix.Municipio.map(norm)
 usados = est[["mun_rf", "uf"]].drop_duplicates().merge(mrf, how="left")
 usados["chave"] = usados.uf + "|" + usados.nome_rf.map(norm)
 # grafias divergentes conhecidas entre Receita e IBGE
-APELIDOS = {}  # preenchido após conferir a lista de não encontrados
+APELIDOS = {"GO|BOMJESUS": "GO|BOMJESUSDEGOIAS"}  # Receita x IBGE
 usados["chave"] = usados["chave"].replace(APELIDOS)
 corr = usados.merge(pix[["chave", "cod_ibge"]], on="chave", how="left")
 corr.to_csv(PROC / "correspondencia_municipios_rf_ibge.csv", index=False)

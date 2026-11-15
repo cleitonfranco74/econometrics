@@ -36,6 +36,7 @@ python 02b_processar_cnpj.py    # séries mensais de empresas e MEI
 python 03_estban_bcb.py         # ESTBAN (crédito por banco e município)
 python 04_covariaveis_ibge.py   # população, PIB, IDHM
 python 05_montar_painel.py      # junta tudo e cria tratamento/resultados
+python 06_dicionario.py         # dicionário de variáveis
 ```
 
 Requisitos: Python 3 com `pandas` e `numpy`; `curl`, `unzip` e `grep`.
@@ -71,9 +72,19 @@ de adoção**, que geram coortes de fato escalonadas:
   escala, à moda das curvas de difusão).
 
 Têm interpretação econômica clara ("chegada efetiva do Pix PJ aos pequenos
-negócios"). Sugere-se reescrever a seção 4.2 com uma delas e manter a
-original apenas como descrição. A distribuição das coortes na amostra está em
+negócios"). A distribuição das coortes na amostra está em
 `dados/coortes_amostra40.csv`.
+
+**Recomendação: `G_adesao25`.** Na amostra de 40 municípios ela distribui o
+tratamento entre mar/2021 e jun/2023 (19 coortes, nenhuma com mais de 6
+municípios), com tratados tardios servindo de controle "ainda não tratado"
+para os precoces — o desenho do Callaway–Sant'Anna. `G_adesao10` e
+`G_difusao25` concentram quase tudo entre dez/2020 e fev/2021; `G_adesao50`
+não é atingido por nenhum município da amostra até set/2024. Sugere-se
+reescrever a seção 4.2 com `G_adesao25` e manter a definição original
+apenas como descrição. Atenção: como `G_adesao25` usa o próprio Pix, Y1 deve
+ser lido como "uso após a adesão" (efeito mecânico na data de corte);
+os resultados mais limpos para esse tratamento são Y2, Y3 e Y5.
 
 **2. Crédito PJ.** O ESTBAN não separa crédito a pessoas jurídicas e físicas.
 `y3_ihh_credito` e `y5_credito_pc` usam o **crédito total** (verbete 160).
@@ -119,16 +130,18 @@ reconstruído aqui. Junte-o ao painel anual pela chave `cod_ibge` + `ano`.
 (cadeia de certificado incompleta no servidor). `campus` = existe ao menos um
 estabelecimento ativo em dez/2019 com CNAE de educação superior (8531-7/00 ou
 8532-5/00) no município. Útil como proxy; pode ser substituído pelo Censo da
-Educação Superior.
+Educação Superior. **Na amostra de 40 municípios, todos têm `campus = 1`**:
+a variável não tem variação e deve sair do `xformla`.
 
 ## Exemplo de estimação (R, pacote `did`)
 
 ```r
 library(did)
 p <- read.csv("dados/painel_pix_pj_mensal_amostra40.csv")
-cs <- att_gt(yname = "asinh_y1_pix_pj_mil_hab", tname = "periodo",
-             idname = "id", gname = "G_difusao50_t",
-             xformla = ~ ln_pop_2019 + idhm_2010 + ln_pib_pc_2019 + campus,
+p <- subset(p, periodo <= 69)          # CNPJ vai até set/2024
+cs <- att_gt(yname = "asinh_y2_aberturas_mei", tname = "periodo",
+             idname = "id", gname = "G_adesao25_t",
+             xformla = ~ ln_pop_2019 + idhm_2010 + ln_pib_pc_2019 + pct_simples_2019,
              data = p, control_group = "notyettreated", est_method = "dr",
              clustervars = "id", bstrap = TRUE)
 aggte(cs, type = "dynamic")
