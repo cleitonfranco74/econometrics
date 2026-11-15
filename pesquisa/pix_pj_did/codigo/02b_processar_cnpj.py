@@ -1,8 +1,9 @@
 """
 02b - Processa o Cadastro CNPJ (Receita Federal) para MT, MS e GO e monta
-séries mensais de empresas por município (jan/2019 a dez/2024).
+séries mensais de empresas por município (jan/2019 a set/2024).
 
-Entrada: zips baixados por 02a_baixar_cnpj.sh em dados/brutos/cnpj/
+Entrada: zips baixados por 02a_baixar_cnpj.sh em dados/brutos/cnpj_2024-09/
+         (release 2024.09 do espelho github.com/jonathands/dados-abertos-receita-cnpj)
 Layout:  "LAYOUT_DADOS_ABERTOS_CNPJ.pdf" da Receita (arquivos sem cabeçalho,
          separador ";", codificação latin-1, datas AAAAMMDD).
 
@@ -14,8 +15,7 @@ mensal é RECONSTRUÍDA a partir das datas de cada estabelecimento:
   - MEI       : data_opcao_mei / data_exclusao_mei (arquivo Simples)
 Limitação: o arquivo guarda só a ÚLTIMA situação e a ÚLTIMA opção pelo
 Simples/MEI de cada empresa; idas e vindas anteriores se perdem. É a mesma
-base usada pelo Mapa de Empresas (MEMP), que também é construída a partir
-do CNPJ da Receita.
+base de onde o Mapa de Empresas (MEMP) tira seus números.
 
 Saídas (dados/processados/):
   cnpj_municipio_mes.csv   - séries mensais por município (código IBGE)
@@ -35,10 +35,11 @@ import numpy as np
 import pandas as pd
 
 RAIZ = Path(__file__).resolve().parents[1]
-CNPJ = RAIZ / "dados" / "brutos" / "cnpj"
+CNPJ = RAIZ / "dados" / "brutos" / "cnpj_2024-09"  # release 2024.09 (GitHub)
 PROC = RAIZ / "dados" / "processados"
 UFS = ("MT", "MS", "GO")
-MESES = pd.period_range("2019-01", "2024-12", freq="M")
+# o retrato é de set/2024: meses posteriores não podem ser reconstruídos
+MESES = pd.period_range("2019-01", "2024-09", freq="M")
 CNAE_SUPERIOR = {"8531700", "8532500"}  # educação superior (graduação; grad.+pós)
 
 # ----------------------------------------------------------------------------
@@ -176,6 +177,7 @@ for m in MESES:
     est_ativo.append(s.reset_index())
 estoques = pd.concat(est_ativo, ignore_index=True)
 
+eventos = eventos[eventos.mes.isin(MESES)]
 painel = estoques.merge(eventos, on=["cod_ibge", "mes"], how="left").fillna(0)
 painel["anomes"] = painel.mes.dt.year * 100 + painel.mes.dt.month
 painel = painel.drop(columns="mes")
@@ -200,36 +202,3 @@ cov19.reset_index().to_csv(PROC / "cnpj_municipio_2019.csv", index=False)
 print(painel.shape, "| municípios:", painel.cod_ibge.nunique())
 print(painel[painel.anomes.isin([201912, 202212, 202412])]
       .groupby("anomes")[["ativas", "ativas_mei", "aberturas_mei"]].sum())
-
-# ----------------------------------------------------------------------------
-# 6. Validação contra o Mapa de Empresas (MEMP), agosto/2026
-#    (planilha mensal em gov.br/memp > Dados abertos)
-# ----------------------------------------------------------------------------
-import urllib.request
-
-MAPA = RAIZ / "dados" / "brutos" / "memp" / "mapa_ago26.xlsx"
-if not MAPA.exists():
-    MAPA.parent.mkdir(parents=True, exist_ok=True)
-    urllib.request.urlretrieve(
-        "https://www.gov.br/memp/pt-br/acesso-a-informacao/dados-abertos/"
-        "08_arquivodados_ago26-mapa-de-empresas.xlsx/@@download/file", MAPA)
-mapa = pd.read_excel(MAPA, sheet_name="Abertas, Fechadas e Ativas",
-                     usecols=range(7))
-mapa = mapa.rename(columns={"cod_ibge": "cod6", "Empresas Abertas": "mapa_abertas",
-                            "Empresas Ativas": "mapa_ativas",
-                            "Empresas Fechadas": "mapa_fechadas"})
-m26 = pd.Period("2026-08", "M")
-val = pd.DataFrame({
-    "cod_ibge": est.cod_ibge,
-    "nossa_ativas": (ini_m <= m26) & (est.situacao.eq(2) | (sit_m > m26)),
-    "nossa_abertas": ini_m == m26,
-    "nossa_fechadas": est.situacao.eq(8) & (sit_m == m26),
-}).groupby("cod_ibge").sum().reset_index()
-val["cod6"] = val.cod_ibge // 10
-val = val.merge(mapa[["cod6", "nome", "mapa_abertas", "mapa_fechadas", "mapa_ativas"]],
-                on="cod6", how="left")
-val["razao_ativas"] = val.nossa_ativas / val.mapa_ativas
-val.to_csv(PROC / "validacao_mapa_empresas.csv", index=False)
-print("\nValidação (ago/2026) — razão nossa/Mapa de Empresas, empresas ativas:")
-print(val.razao_ativas.describe().round(3).to_string())
-print("Correlação abertas:", round(val[["nossa_abertas", "mapa_abertas"]].corr().iloc[0, 1], 3))
