@@ -1,0 +1,104 @@
+
+DDD com médias simples (sem efeitos fixos): -0.0545 
+                            m_did             m_ddd             m_cov
+                 DiD (alto risco)               DDD        DDD + cov.
+Dependent Var.:                 y                 y                 y
+                                                                     
+mt x pos        -0.0696. (0.0369)                                    
+ddd                               -0.0804* (0.0381) -0.0811* (0.0372)
+Fixed-Effects:  ----------------- ----------------- -----------------
+id                            Yes               Yes               Yes
+bioma-ano                     Yes                No                No
+uf-bioma-ano                   No               Yes               Yes
+alto-bioma-ano                 No               Yes               Yes
+_______________ _________________ _________________ _________________
+Family                        OLS               OLS               OLS
+S.E.: Clustered      by: cod_ibge      by: cod_ibge      by: cod_ibge
+Observations                3,420            10,173            10,173
+Squared Cor.              0.53571           0.67293           0.67683
+Pseudo R2                 0.83568            3.0999            3.1332
+BIC                       2,810.7            676.93            813.25
+
+                          m_asinh           m_ppml
+                  DDD asinh(km²)         DDD PPML
+Dependent Var.:         asinh_km2              km2
+                                                  
+mt x pos                                          
+ddd             -0.1736. (0.0956) -0.0976 (0.1278)
+Fixed-Effects:  ----------------- ----------------
+id                            Yes              Yes
+bioma-ano                      No               No
+uf-bioma-ano                  Yes              Yes
+alto-bioma-ano                Yes              Yes
+_______________ _________________ ________________
+Family                        OLS          Poisson
+S.E.: Clustered      by: cod_ibge     by: cod_ibge
+Observations               10,173           10,008
+Squared Cor.              0.89637          0.91399
+Pseudo R2                 0.61044          0.86420
+BIC                      23,095.4         62,376.6
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Teste conjunto de pré-tendência (2010-2016): F = 3.19  p = 0.002 
+null device 
+          1 
+Warning message:
+In arrows(es_tab$ano, es_tab$li, es_tab$ano, es_tab$ls, angle = 90,  :
+  zero-length arrow is of indeterminate angle and so skipped
+null device 
+          1 
+                                   m_am               m_ce              m_bio
+                              Amazônia            Cerrado           Conjunto
+Dependent Var.:                       y                  y                  y
+                                                                             
+ddd                    -0.0447 (0.0595) -0.1249** (0.0383)                   
+ddd x bioma = Amazonia                                       -0.0447 (0.0594)
+ddd x bioma = Cerrado                                      -0.1249** (0.0383)
+Fixed-Effects:         ---------------- ------------------ ------------------
+id                                  Yes                Yes                Yes
+uf-bioma-ano                        Yes                Yes                Yes
+alto-bioma-ano                      Yes                Yes                Yes
+______________________ ________________ __________________ __________________
+S.E.: Clustered            by: cod_ibge       by: cod_ibge       by: cod_ibge
+Observations                      5,325              4,848             10,173
+R2                              0.67311            0.67298            0.67313
+Within R2                       0.00069            0.00674            0.00305
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                        especificacao    beta     ep       p     n
+ 1:                         Principal -0.0804 0.0380 0.03497 10173
+ 2:                Risco contínuo (z) -0.0431 0.0226 0.05757 10173
+ 3:                  Corte no quartil -0.0865 0.0475 0.06905 10173
+ 4:                  Corte na mediana -0.0479 0.0287 0.09471 10173
+ 5:                   Risco 2010-2014 -0.0697 0.0391 0.07538 10173
+ 6:             Até 2023 (sem fase 2) -0.0889 0.0399 0.02600  9414
+ 7:                     Com Tocantins -0.0263 0.0380 0.48874 12270
+ 8:      Sem controles < 100 km de MT -0.0817 0.0383 0.03329  9558
+ 9:                            Sem PA -0.0681 0.0395 0.08538  8013
+10:                            Sem RO -0.0941 0.0373 0.01183  9393
+11:                            Sem AM -0.0810 0.0397 0.04174  9243
+12:                            Sem GO -0.0888 0.0446 0.04685  7221
+13:                            Sem MS -0.0715 0.0389 0.06613  9417
+14:        Tendência linear MT × alto -0.1123 0.0380 0.00327 10173
+15: Placebo de data (2014; 2010-2017)  0.0469 0.0394 0.23513  4860
+
+Vazamento (controles perto de MT):
+         Estimate Std. Error    t value  Pr(>|t|)
+ddd_x -0.03847763 0.04557127 -0.8443396 0.3988364
+attr(,"vcov_type")
+[1] "Clustered (cod_ibge)"
+                                               metodo
+1:                 Erro-padrão agrupado por município
+2:              Permutação entre estados (6 posições)
+3: Permutação entre RGIs dos controles (500 sorteios)
+4:            IC 95% à la Conley-Taber (placebos RGI)
+                                         resultado
+1: EP = 0.0380; p = 0.035; IC95 [-0.1551; -0.0057]
+2:               p = 0.667 (MT em 4.º de 6 em |β|)
+3:                                       p = 0.082
+4:                               [-0.1680; 0.0078]
+null device 
+          1 
+
+Média pré-programa (MT, alto risco): 0.4307 % da área/ano

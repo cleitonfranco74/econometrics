@@ -1,0 +1,24 @@
+      bioma        beta area_mun_km2 ha_evitados      ha_li    ha_ls    tco2e
+1: Amazonia -0.04474538     243400.5    76237.34 -123230.40 275705.1 37737485
+2:  Cerrado -0.12485421     165616.7   144745.64   57453.69 232037.6 26054215
+    tco2e_li  tco2e_ls
+1: -60999046 136474016
+2:  10341664  41766767
+   ha_evitados     ha_li    ha_ls    tco2e  tco2e_li  tco2e_ls
+1:      220983 -65776.71 507742.7 63791701 -50657382 178240783
+                                                                         referencia
+1:                                Área evitada DDD 2018-2024 (ha), alto risco de MT
+2:                          Emissões evitadas DDD 2018-2024 (tCO2e, após descontos)
+3:                                 Meta de resultados remunerados na fase 1 (tCO2e)
+4:                                                  Área evitada DDD 2021-2022 (ha)
+5:                      Desmatamento evitado divulgado pelo programa 2021-2022 (ha)
+6: Redução sob linha de base histórica 2013-2017, 2018-2024 (ha, MT Amazônia Legal)
+                                         valor
+1:            220.983 [IC95: -65.777; 507.743]
+2: 63.791.701 [IC95: -50.657.382; 178.240.783]
+3:                                  10.091.830
+4:             122.911 [IC95: 15.934; 229.888]
+5:                                     160.000
+6:                                         958
+null device 
+          1 

@@ -1,0 +1,5 @@
+metodo,resultado
+Erro-padrão agrupado por município,EP = 0.0380; p = 0.035; IC95 [-0.1551; -0.0057]
+Permutação entre estados (6 posições),p = 0.667 (MT em 4.º de 6 em |β|)
+Permutação entre RGIs dos controles (500 sorteios),p = 0.082
+IC 95% à la Conley-Taber (placebos RGI),[-0.1680; 0.0078]

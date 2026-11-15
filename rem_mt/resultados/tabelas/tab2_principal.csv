@@ -1,0 +1,18 @@
+rn,V1,m_did,m_ddd,m_cov,m_asinh,m_ppml
+1, ,DiD (alto risco),DDD,DDD + cov.,DDD asinh(km²),DDD PPML
+2,Dependent Var.:,y,y,y,asinh_km2,km2
+3,  , , , , , 
+4,mt x pos,-0.0696. (0.0369),  ,  ,  ,  
+5,ddd,  ,-0.0804* (0.0381),-0.0811* (0.0372),-0.1736. (0.0956),-0.0976 (0.1278)
+6,Fixed-Effects:,-----------------,-----------------,-----------------,-----------------,----------------
+7,id,Yes,Yes,Yes,Yes,Yes
+8,bioma-ano,Yes,No,No,No,No
+9,uf-bioma-ano,No,Yes,Yes,Yes,Yes
+10,alto-bioma-ano,No,Yes,Yes,Yes,Yes
+11,_______________,_________________,_________________,_________________,_________________,________________
+12,Family,OLS,OLS,OLS,OLS,Poisson
+13,S.E.: Clustered,by: cod_ibge,by: cod_ibge,by: cod_ibge,by: cod_ibge,by: cod_ibge
+14,Observations,"3,420","10,173","10,173","10,173","10,008"
+15,Squared Cor.,0.53571,0.67293,0.67683,0.89637,0.91399
+16,Pseudo R2,0.83568,3.0999,3.1332,0.61044,0.86420
+17,BIC,"2,810.7",676.93,813.25,"23,095.4","62,376.6"

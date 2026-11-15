@@ -1,0 +1,16 @@
+rn,V1,m_am,m_ce,m_bio
+1, ,Amazônia,Cerrado,Conjunto
+2,Dependent Var.:,y,y,y
+3,  , , , 
+4,ddd,-0.0447 (0.0595),-0.1249** (0.0383),  
+5,ddd x bioma = Amazonia,  ,  ,-0.0447 (0.0594)
+6,ddd x bioma = Cerrado,  ,  ,-0.1249** (0.0383)
+7,Fixed-Effects:,----------------,------------------,------------------
+8,id,Yes,Yes,Yes
+9,uf-bioma-ano,Yes,Yes,Yes
+10,alto-bioma-ano,Yes,Yes,Yes
+11,______________________,________________,__________________,__________________
+12,S.E.: Clustered,by: cod_ibge,by: cod_ibge,by: cod_ibge
+13,Observations,"5,325","4,848","10,173"
+14,R2,0.67311,0.67298,0.67313
+15,Within R2,0.00069,0.00674,0.00305
