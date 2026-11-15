@@ -72,7 +72,8 @@ def baixar(ref):
     if destino.exists() and destino.stat().st_size > 1000:
         return destino.read_bytes()
     for _ in range(4):
-      for nome in (f"{ref}_ESTBAN.csv.zip", f"{ref}_ESTBAN.ZIP", f"{ref}_ESTBAN.zip"):
+      for nome in (f"{ref}_ESTBAN.csv.zip", f"{ref}_ESTBAN.ZIP", f"{ref}_ESTBAN.zip",
+                     f"{ref}_ESTBAN.csv", f"{ref}_ESTBAN.CSV"):
         for _ in range(2):
             try:
                 time.sleep(3)  # gentileza com o servidor do BCB
