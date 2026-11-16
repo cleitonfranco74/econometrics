@@ -3,3 +3,4 @@ dados/processados/estban_banco_municipio_mes.csv
 dados/*.log
 .Rhistory
 dados/painel_bets_mensal.csv
+Rplots.pdf
