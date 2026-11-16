@@ -1,0 +1,314 @@
+Estimações — bets e saúde financeira — 2026-11-16 22:30:04 
+
+Municípios no painel ESTBAN balanceado: 2917 | observações: 105012 
+
+================ 1. Balanceamento: DigYouth vs. características ================
+                   digyouth_z ln_pib_pc_2021 ln_pop_2022 sh_jovens_18_35
+digyouth_z               1.00           0.43        0.32            0.05
+ln_pib_pc_2021           0.43           1.00        0.05           -0.15
+ln_pop_2022              0.32           0.05        1.00            0.51
+sh_jovens_18_35          0.05          -0.15        0.51            1.00
+banda_larga_100dom       0.98           0.44        0.26           -0.10
+                   banda_larga_100dom
+digyouth_z                       0.98
+ln_pib_pc_2021                   0.44
+ln_pop_2022                      0.26
+sh_jovens_18_35                 -0.10
+banda_larga_100dom               1.00
+                feols(g_poup ~ di.. feols(g_poup ~ di...1
+Dependent Var.:              g_poup                g_poup
+                                                         
+Constant         0.0710*** (0.0033)    0.7165*** (0.0615)
+digyouth_z      -0.0432*** (0.0030)   -0.0251*** (0.0034)
+ln_pib_pc_2021                        -0.0721*** (0.0048)
+ln_pop_2022                             0.0092** (0.0029)
+_______________ ___________________   ___________________
+S.E. type                       IID                   IID
+Observations                  2,917                 2,917
+R2                          0.06463               0.14054
+Adj. R2                     0.06431               0.13966
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+================ 2. DiD contínuo (eq. 3) ================
+                                m_a.1               m_a.2               m_a.3
+Dependent Var.:       ln poupança pc ln dep. à vista pc  ln dep. a prazo pc
+                                                                             
+DigYouth(z) x Pós -0.0476*** (0.0032) -0.0358*** (0.0052) -0.0652*** (0.0082)
+Fixed-Effects:    ------------------- ------------------- -------------------
+cod_ibge                          Yes                 Yes                 Yes
+anomes                            Yes                 Yes                 Yes
+_________________ ___________________ ___________________ ___________________
+S.E.: Clustered          by: cod_ibge        by: cod_ibge        by: cod_ibge
+Observations                  104,950             104,956             100,433
+R2                            0.98385             0.90663             0.94279
+Within R2                     0.04433             0.00427             0.00884
+
+                                m_a.4
+Dependent Var.:        ln crédito pc
+                                     
+DigYouth(z) x Pós -0.0215*** (0.0034)
+Fixed-Effects:    -------------------
+cod_ibge                          Yes
+anomes                            Yes
+_________________ ___________________
+S.E.: Clustered          by: cod_ibge
+Observations                  104,770
+R2                            0.98978
+Within R2                     0.00716
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                                m_b.1              m_b.2               m_b.3
+Dependent Var.:       ln poupança pc ln dep. à vista pc  ln dep. a prazo pc
+                                                                            
+DigYouth(z) x Pós -0.0119*** (0.0035)   -0.0071 (0.0054) -0.0515*** (0.0094)
+Fixed-Effects:    ------------------- ------------------ -------------------
+cod_ibge                          Yes                Yes                 Yes
+uf-anomes                         Yes                Yes                 Yes
+_________________ ___________________ __________________ ___________________
+S.E.: Clustered          by: cod_ibge       by: cod_ibge        by: cod_ibge
+Observations                  104,914            104,920             100,397
+R2                            0.98645            0.91404             0.94680
+Within R2                     0.00242            0.00013             0.00404
+
+                                m_b.4
+Dependent Var.:        ln crédito pc
+                                     
+DigYouth(z) x Pós -0.0133*** (0.0039)
+Fixed-Effects:    -------------------
+cod_ibge                          Yes
+uf-anomes                         Yes
+_________________ ___________________
+S.E.: Clustered          by: cod_ibge
+Observations                  104,734
+R2                            0.99071
+Within R2                     0.00213
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                                     m_c.1              m_c.2
+Dependent Var.:            ln poupança pc ln dep. à vista pc
+                                                             
+DigYouth(z) x Pós       -0.0069. (0.0040)   -0.0094 (0.0067)
+ln_agencias             0.8105*** (0.0470) 0.3093*** (0.0436)
+Fixed-Effects:          ------------------ ------------------
+cod_ibge                               Yes                Yes
+uf-anomes                              Yes                Yes
+anomes                                 Yes                Yes
+Varying Slopes:         ------------------ ------------------
+ln_pib_pc_2021 (anomes)                Yes                Yes
+ln_pop_2022 (anomes)                   Yes                Yes
+_______________________ __________________ __________________
+S.E.: Clustered               by: cod_ibge       by: cod_ibge
+Observations                       104,914            104,920
+R2                                 0.98956            0.91506
+Within R2                          0.22012            0.00489
+
+                                     m_c.3              m_c.4
+Dependent Var.:         ln dep. a prazo pc     ln crédito pc
+                                                             
+DigYouth(z) x Pós        -0.0098 (0.0097)  -0.0102* (0.0045)
+ln_agencias              2.336*** (0.0923) 0.3300*** (0.0355)
+Fixed-Effects:          ------------------ ------------------
+cod_ibge                               Yes                Yes
+uf-anomes                              Yes                Yes
+anomes                                 Yes                Yes
+Varying Slopes:         ------------------ ------------------
+ln_pib_pc_2021 (anomes)                Yes                Yes
+ln_pop_2022 (anomes)                   Yes                Yes
+_______________________ __________________ __________________
+S.E.: Clustered               by: cod_ibge       by: cod_ibge
+Observations                       100,397            104,734
+R2                                 0.95663            0.99098
+Within R2                          0.17251            0.02625
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+ISS ainda não disponível (rode 02_iss_siconfi.py).
+
+================ 3. Estudo de evento (eq. 4), ref. set/2024 ================
+null device 
+          1 
+Poupança      Wald pré-tendências (com covariáveis): F = 1.49, p = 0.074
+Dep. à vista  Wald pré-tendências (com covariáveis): F = 0.71, p = 0.819
+Dep. a prazo   Wald pré-tendências (com covariáveis): F = 1.06, p = 0.384
+Crédito       Wald pré-tendências (com covariáveis): F = 1.23, p = 0.221
+
+================ 4. Dois eventos (eq. 6): bloqueio x vigência ================
+                                                m6.1               m6.2
+Dependent Var.:                      ln poupança pc ln dep. à vista pc
+                                                                       
+DigYouth(z) x Bloqueio (out-dez/24) -0.0021 (0.0037)   -0.0066 (0.0060)
+DigYouth(z) x Vigência (2025)      -0.0069 (0.0049)   -0.0096 (0.0075)
+Fixed-Effects:                      ---------------- ------------------
+cod_ibge                                         Yes                Yes
+uf-anomes                                        Yes                Yes
+anomes                                           Yes                Yes
+Varying Slopes:                     ---------------- ------------------
+ln_pib_pc_2021 (anomes)                          Yes                Yes
+ln_pop_2022 (anomes)                             Yes                Yes
+___________________________________ ________________ __________________
+S.E.: Clustered                         by: cod_ibge       by: cod_ibge
+Observations                                 104,914            104,920
+R2                                           0.98663            0.91466
+Within R2                                    0.00053            0.00016
+
+                                                  m6.3              m6.4
+Dependent Var.:                     ln dep. a prazo pc    ln crédito pc
+                                                                        
+DigYouth(z) x Bloqueio (out-dez/24)    0.0016 (0.0090)  -0.0024 (0.0033)
+DigYouth(z) x Vigência (2025)        -0.0077 (0.0115) -0.0116* (0.0053)
+Fixed-Effects:                      ------------------ -----------------
+cod_ibge                                           Yes               Yes
+uf-anomes                                          Yes               Yes
+anomes                                             Yes               Yes
+Varying Slopes:                     ------------------ -----------------
+ln_pib_pc_2021 (anomes)                            Yes               Yes
+ln_pop_2022 (anomes)                               Yes               Yes
+___________________________________ __________________ _________________
+S.E.: Clustered                           by: cod_ibge      by: cod_ibge
+Observations                                   100,397           104,734
+R2                                             0.94759           0.99075
+Within R2                                      6.72e-5           0.00106
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+================ 5. Dose-resposta ================
+                                    mq.1               mq.2               mq.3
+Dependent Var.:          ln poupança pc ln dep. à vista pc ln dep. a prazo pc
+                                                                              
+post x q = 2            -0.0061 (0.0123)   -0.0041 (0.0232)    0.0066 (0.0340)
+post x q = 3            -0.0209 (0.0129)   -0.0094 (0.0210)   -0.0233 (0.0353)
+post x q = 4            -0.0221 (0.0143)   -0.0259 (0.0240)   -0.0253 (0.0386)
+Fixed-Effects:          ---------------- ------------------ ------------------
+cod_ibge                             Yes                Yes                Yes
+uf-anomes                            Yes                Yes                Yes
+anomes                               Yes                Yes                Yes
+Varying Slopes:         ---------------- ------------------ ------------------
+ln_pib_pc_2021 (anomes)              Yes                Yes                Yes
+ln_pop_2022 (anomes)                 Yes                Yes                Yes
+_______________________ ________________ __________________ __________________
+S.E.: Clustered             by: cod_ibge       by: cod_ibge       by: cod_ibge
+Observations                     104,914            104,920            100,397
+R2                               0.98663            0.91466            0.94760
+Within R2                        0.00108            0.00020            0.00027
+
+                                      mq.4
+Dependent Var.:             ln crédito pc
+                                          
+post x q = 2              -0.0175 (0.0127)
+post x q = 3             -0.0272* (0.0133)
+post x q = 4            -0.0372** (0.0144)
+Fixed-Effects:          ------------------
+cod_ibge                               Yes
+uf-anomes                              Yes
+anomes                                 Yes
+Varying Slopes:         ------------------
+ln_pib_pc_2021 (anomes)                Yes
+ln_pop_2022 (anomes)                   Yes
+_______________________ __________________
+S.E.: Clustered               by: cod_ibge
+Observations                       104,734
+R2                                 0.99075
+Within R2                          0.00139
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Callaway, Goodman-Bacon e Sant'Anna (contdid): ln poupança pc
+Dose = DigYouth; grupo de comparação (dose 0) = 1º decil de DigYouth.
+Painel bimestral (média dos meses) para viabilizar o bootstrap; tratamento em out/2024.
+contdid falhou: non-conformable arrays 
+
+================ 6. Heterogeneidade e robustez ================
+                                              het.1              het.2
+Dependent Var.:                     ln poupança pc ln dep. à vista pc
+                                                                      
+DigYouth(z) x Pós                 -0.0020 (0.0071)   -0.0067 (0.0102)
+DigYouth(z) x Pós x baixa_renda -0.0255*** (0.0076)   -0.0123 (0.0128)
+DigYouth(z) x Pós x mais_jovens     0.0033 (0.0061)    0.0008 (0.0109)
+Fixed-Effects:                  ------------------- ------------------
+cod_ibge                                        Yes                Yes
+uf-anomes                                       Yes                Yes
+anomes                                          Yes                Yes
+Varying Slopes:                 ------------------- ------------------
+ln_pib_pc_2021 (anomes)                         Yes                Yes
+ln_pop_2022 (anomes)                            Yes                Yes
+_______________________________ ___________________ __________________
+S.E.: Clustered                        by: cod_ibge       by: cod_ibge
+Observations                                104,914            104,920
+R2                                          0.98666            0.91467
+Within R2                                   0.00277            0.00023
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                                      r1.1               r1.2
+Dependent Var.:            ln poupança pc ln dep. à vista pc
+                                                             
+DigYouth(z) x Pós      -0.0100** (0.0037)   -0.0066 (0.0061)
+Fixed-Effects:          ------------------ ------------------
+cod_ibge                               Yes                Yes
+uf-anomes                              Yes                Yes
+anomes                                 Yes                Yes
+Varying Slopes:         ------------------ ------------------
+ln_pib_pc_2021 (anomes)                Yes                Yes
+ln_pop_2022 (anomes)                   Yes                Yes
+_______________________ __________________ __________________
+S.E.: Clustered               by: cod_ibge       by: cod_ibge
+Observations                        56,736             56,736
+R2                                 0.99180            0.93517
+Within R2                          0.00187            0.00011
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                                    r2.1               r2.2
+Dependent Var.:          ln poupança pc ln dep. à vista pc
+                                                           
+post_hz                 -0.0010 (0.0040)   -0.0037 (0.0080)
+post_bz                 -0.0063 (0.0046)   -0.0094 (0.0069)
+Fixed-Effects:          ---------------- ------------------
+cod_ibge                             Yes                Yes
+uf-anomes                            Yes                Yes
+anomes                               Yes                Yes
+Varying Slopes:         ---------------- ------------------
+ln_pib_pc_2021 (anomes)              Yes                Yes
+ln_pop_2022 (anomes)                 Yes                Yes
+_______________________ ________________ __________________
+S.E.: Clustered             by: cod_ibge       by: cod_ibge
+Observations                     104,914            104,920
+R2                               0.98663            0.91466
+Within R2                        0.00052            0.00019
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                                   r3.1               r3.2               r3.3
+Dependent Var.:         ln poupança pc ln dep. à vista pc ln dep. a prazo pc
+                                                                             
+post_fake               0.0020 (0.0021)   -0.0002 (0.0050)    0.0057 (0.0098)
+Fixed-Effects:          --------------- ------------------ ------------------
+cod_ibge                            Yes                Yes                Yes
+uf-anomes                           Yes                Yes                Yes
+anomes                              Yes                Yes                Yes
+Varying Slopes:         --------------- ------------------ ------------------
+ln_pib_pc_2021 (anomes)             Yes                Yes                Yes
+ln_pop_2022 (anomes)                Yes                Yes                Yes
+_______________________ _______________ __________________ __________________
+S.E.: Clustered            by: cod_ibge       by: cod_ibge       by: cod_ibge
+Observations                     61,235             61,235             58,585
+R2                              0.99437            0.93575            0.96570
+Within R2                       0.00012            7.74e-8             5.6e-5
+
+                                   r3.4
+Dependent Var.:          ln crédito pc
+                                       
+post_fake               0.0014 (0.0028)
+Fixed-Effects:          ---------------
+cod_ibge                            Yes
+uf-anomes                           Yes
+anomes                              Yes
+Varying Slopes:         ---------------
+ln_pib_pc_2021 (anomes)             Yes
+ln_pop_2022 (anomes)                Yes
+_______________________ _______________
+S.E.: Clustered            by: cod_ibge
+Observations                     61,235
+R2                              0.99676
+Within R2                       5.23e-5
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Não estimado: H2 (inadimplência PF por município — o SCR só é público por UF); HonestDiD (pacote não instalável neste ambiente).

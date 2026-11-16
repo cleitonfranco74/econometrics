@@ -1,0 +1,4 @@
+dados/brutos/
+dados/processados/estban_banco_municipio_mes.csv
+dados/*.log
+.Rhistory
