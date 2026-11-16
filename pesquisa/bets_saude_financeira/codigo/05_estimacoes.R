@@ -69,9 +69,10 @@ I <- I[, if (.N == 36) .SD, by = cod_ibge]
 if (nrow(I) > 0) {
   iss_m <- feols(asinh_iss_pc ~ post_dz | cod_ibge + csw(anomes, uf^anomes,
                    uf^anomes + anomes[ln_pib_pc_2021, ln_pop_2022]), I, cluster = ~cod_ibge)
-  etable(iss_m, title = sprintf("H6: ISS per capita (%d municípios)", uniqueN(I$cod_ibge)))
+  print(etable(iss_m, title = sprintf("H6: ISS per capita (%d municípios)", uniqueN(I$cod_ibge))))
   iss_es <- feols(asinh_iss_pc ~ i(rel, digyouth_z, ref = -1) | cod_ibge + uf^anomes +
                     anomes[ln_pib_pc_2021, ln_pop_2022], I, cluster = ~cod_ibge)
+  print(etable(iss_es, title = "H6: estudo de evento do ISS"))
   png(file.path(RES, "fig3b_evento_iss.png"), width = 1400, height = 700, res = 150)
   iplot(iss_es, main = "asinh ISS per capita", xlab = "Meses em relação a out/2024")
   dev.off()

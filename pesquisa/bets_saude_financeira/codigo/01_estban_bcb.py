@@ -34,8 +34,10 @@ ATENÇÃO 1: o ESTBAN não separa crédito a pessoas jurídicas e físicas. O
 "crédito PJ" do artigo (Y3, Y5) é aproximado pelo crédito total (160) e,
 os depósitos à vista também vêm agregados (PF+PJ+governo) no arquivo.
 
-ATENÇÃO 2 (não-reporte): às vezes uma instituição aparece com TODOS os
-verbetes zerados no país inteiro num mês (ex.: Santander, jan-mar/2025).
+ATENÇÃO 2 (não-reporte): às vezes uma instituição aparece com os verbetes
+zerados no país inteiro num mês (ex.: Santander, jan-mar/2025, em que só o
+crédito e parte dos depósitos foram zerados). Regra por verbete: soma
+nacional = 0, com saldo positivo antes e depois.
 Isso não é saldo zero, é falha de envio. Detectamos esses casos no arquivo
 nacional e imputamos o último saldo reportado da mesma instituição no mesmo
 município (LOCF).
@@ -153,6 +155,54 @@ banco = banco.sort_values(["codmun", "cnpj", "anomes"])
 # Imputação LOCF dos meses de não-reporte
 vals = list(VERBETES.values())
 banco.loc[banco.nonreport, vals] = np.nan
+# Regra adicional, por verbete: a instituição soma ZERO no país inteiro num
+# mês, mas tem saldo positivo em algum mês anterior E em algum posterior.
+# Pega casos em que só parte dos verbetes foi zerada (ex.: Santander,
+# jan-mar/2025: crédito = 0 no Brasil, outros verbetes não).
+banco["nonreport_parcial"] = False
+for v in vals:
+    nac = banco.groupby(["cnpj", "anomes"])[v].sum().unstack()
+    pos = nac.gt(0)
+    antes = pos.cummax(axis=1).shift(1, axis=1, fill_value=False)
+    depois = pos.iloc[:, ::-1].cummax(axis=1).iloc[:, ::-1].shift(-1, axis=1, fill_value=False)
+    falha = (nac.eq(0) & antes & depois).stack()
+    falha = falha[falha].index
+    if len(falha):
+        idx = banco.set_index(["cnpj", "anomes"]).index.isin(falha)
+        banco.loc[idx, v] = np.nan
+        banco.loc[idx, "nonreport_parcial"] = True
+        print(f"  {v}: {len(falha)} instituição-mês com saldo nacional zerado (imputados)")
+banco["nonreport"] = banco["nonreport"] | banco["nonreport_parcial"]
+# Registro corrompido: se crédito, depósitos à vista ou poupança da
+# instituição vieram zerados (regra acima) ou explodiram (> 20x a mediana
+# nacional da própria instituição), o registro INTEIRO daquele mês é
+# tratado como não reportado (ex.: Santander jan/2025: crédito = 0 e
+# depósitos à vista de R$ 276 trilhões).
+nucleo = ["credito_total", "dep_vista", "dep_poupanca"]
+corrompido = set()
+for v in nucleo:
+    nac = banco.groupby(["cnpj", "anomes"])[v].sum(min_count=1).unstack()
+    zerado = nac.isna() & banco.groupby(["cnpj", "anomes"])["nonreport_parcial"].any().unstack()
+    med = nac.abs().median(axis=1)
+    explode = nac.abs().gt(20 * med, axis=0) & med.gt(0).values[:, None]
+    for m in (zerado, explode):
+        st = m.stack()
+        corrompido |= set(st[st].index)
+if corrompido:
+    idx = banco.set_index(["cnpj", "anomes"]).index.isin(list(corrompido))
+    banco.loc[idx, vals] = np.nan
+    banco.loc[idx, "nonreport"] = True
+    print("  registros corrompidos (instituição-mês):",
+          sorted(banco.loc[idx, ["nome_instituicao", "anomes"]].drop_duplicates()
+                 .itertuples(index=False, name=None))[:12])
+# Depósitos são passivos: saldo negativo indica troca de sinal na carga
+# (ex.: Banco Cooperativo Sicredi, poupança a partir de jan/2025).
+for v in ["dep_vista", "dep_poupanca", "dep_prazo"]:
+    neg = banco[v] < 0
+    if neg.any():
+        print(f"  {v}: {neg.sum()} saldos negativos convertidos em valor absoluto",
+              banco.loc[neg, "nome_instituicao"].unique()[:3])
+        banco.loc[neg, v] = banco.loc[neg, v].abs()
 banco[vals] = banco.groupby(["codmun", "cnpj"])[vals].ffill()
 banco[vals] = banco[vals].fillna(0.0)
 banco.to_csv(PROC / "estban_banco_municipio_mes.csv", index=False)
