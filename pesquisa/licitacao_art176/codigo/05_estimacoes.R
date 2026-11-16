@@ -16,6 +16,7 @@ suppressPackageStartupMessages({
   library(rdrobust); library(ggplot2)
 })
 set.seed(20240101)
+invisible(Sys.setlocale("LC_ALL", "C.UTF-8"))  # acentos nos gráficos
 RES <- "../resultados"; dir.create(RES, showWarnings = FALSE)
 sink(file.path(RES, "saida_estimacoes.txt"), split = TRUE)
 cat("Estimações art. 176 —", format(Sys.time()), "\n")
